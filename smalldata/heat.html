@@ -81,6 +81,7 @@ svg .grid{stroke:var(--grid);stroke-width:1}
 svg .axis{stroke:var(--axis);stroke-width:1}
 svg .base{stroke:var(--ink);stroke-width:1}
 svg .lbl{fill:var(--ink);font-weight:500;font-size:12px}
+svg .lbl.in{fill:#fff}
 svg .note{fill:var(--ink-2);font-size:11.5px}
 svg .pos{fill:var(--pos)} svg .negf{fill:var(--neg)} svg .wash{fill:var(--wash)}
 svg .l-pos{stroke:var(--pos)} svg .l-neg{stroke:var(--neg)} svg .l-gray{stroke:var(--gray)}
@@ -448,8 +449,107 @@ function drawF6() {
 
 /* ---------- 렌더 & 리사이즈 ---------- */
 function drawAll() { drawF1(); drawF2(); drawF3(); drawF4(); drawF5(); drawF6(); }
-drawAll();
-let rt; addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(drawAll, 120); });
+/* ---------- 등장 애니메이션 · 값 라벨 겹침 보정 (공통 헬퍼: 5편 동일 블록) ----------
+   막대는 0 기준선에서 자라고(음수는 오른쪽 끝 고정), 선은 그려지고, 점·값 라벨은 뒤이어 나타난다.
+   .chart 가 화면에 30% 들어올 때 1회 재생, 도표 제목(.panel h3 / .card h2) 클릭 시 다시 재생.
+   속성값 자체를 보간하므로 툴팁 좌표는 항상 최종값 기준. prefers-reduced-motion 이면 최종 상태만. */
+const ANIM = (() => {
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const DUR = 750, STAG = 25, ease = t => 1 - Math.pow(1 - t, 3);
+  const num = (el, a) => { const v = parseFloat(el.getAttribute(a)); return isNaN(v) ? 0 : v; };
+  const running = new Map();
+  function tween(el, from, to, dur, delay, done) {
+    if (running.has(el)) cancelAnimationFrame(running.get(el));
+    const keys = Object.keys(to); keys.forEach(k => el.setAttribute(k, from[k]));
+    const t0 = performance.now() + delay;
+    const step = now => {
+      const p = Math.min(1, Math.max(0, (now - t0) / dur)), e = ease(p);
+      keys.forEach(k => el.setAttribute(k, from[k] + (to[k] - from[k]) * e));
+      if (p < 1) running.set(el, requestAnimationFrame(step));
+      else { running.delete(el); keys.forEach(k => el.setAttribute(k, to[k])); if (done) done(); }
+    };
+    running.set(el, requestAnimationFrame(step));
+  }
+  const near = (a, b) => Math.abs(a - b) < 1.5;
+  /* 음수 가로 막대의 값 라벨(anchor=end)이 왼쪽 항목 라벨과 겹치면 막대 안쪽(흰 글씨) 또는 기준선 오른쪽으로 옮긴다 */
+  function fixLabels(svg) {
+    const texts = [...svg.querySelectorAll("text")];
+    const others = texts.filter(t => !t.classList.contains("lbl") && !t.classList.contains("tick"));
+    const bars = [...svg.querySelectorAll("rect.bar")];
+    texts.filter(t => t.classList.contains("lbl") && t.getAttribute("text-anchor") === "end").forEach(t => {
+      let b; try { b = t.getBBox(); } catch (e) { return; } if (!b.width) return;
+      const hit = others.some(o => { let ob; try { ob = o.getBBox(); } catch (e) { return false; } return ob.width && b.x < ob.x + ob.width + 2 && b.x + b.width + 2 > ob.x && b.y < ob.y + ob.height && b.y + b.height > ob.y; });
+      if (!hit) return;
+      const cy = b.y + b.height / 2, tx = num(t, "x");
+      const bar = bars.filter(r => cy >= num(r, "y") && cy <= num(r, "y") + num(r, "height")).sort((p, q) => Math.abs(num(p, "x") + num(p, "width") + 6 - tx) - Math.abs(num(q, "x") + num(q, "width") + 6 - tx))[0];
+      t.setAttribute("text-anchor", "start");
+      if (bar && num(bar, "width") >= b.width + 10) { t.setAttribute("x", num(bar, "x") + 6); t.classList.add("in"); }
+      else if (bar) { t.setAttribute("x", num(bar, "x") + num(bar, "width") + 6); }
+      else { t.setAttribute("x", tx + b.width + 8); }
+    });
+  }
+  function prepare(chart) {
+    const svg = chart.querySelector("svg"); if (!svg) return [];
+    const bases = [...svg.querySelectorAll("line.base")];
+    const vb = bases.filter(l => near(num(l, "x1"), num(l, "x2")) && Math.abs(num(l, "y1") - num(l, "y2")) > 20).map(l => num(l, "x1"));
+    const hb = bases.filter(l => near(num(l, "y1"), num(l, "y2")) && Math.abs(num(l, "x1") - num(l, "x2")) > 20).map(l => num(l, "y1"));
+    const items = [];
+    let i = 0;
+    svg.querySelectorAll("rect.bar").forEach(r => {
+      const x = num(r, "x"), y = num(r, "y"), w = num(r, "width"), h = num(r, "height"), d = Math.min(i++, 24) * STAG;
+      const bx = vb.find(v => near(v, x) || near(v, x + w)), by = hb.find(v => near(v, y) || near(v, y + h));
+      if (bx !== undefined) {           // 가로 막대, 0 기준선 있음
+        if (near(bx, x)) items.push({ el: r, from: { width: 0 }, to: { width: w }, dur: DUR, delay: d });
+        else items.push({ el: r, from: { x: x + w, width: 0 }, to: { x, width: w }, dur: DUR, delay: d });
+      } else if (by !== undefined) {    // 세로 막대, 0 기준선 있음
+        if (near(by, y + h)) items.push({ el: r, from: { y: y + h, height: 0 }, to: { y, height: h }, dur: DUR, delay: d });
+        else items.push({ el: r, from: { height: 0 }, to: { height: h }, dur: DUR, delay: d });
+      } else if (w >= h || r.classList.contains("seg") === false && vb.length) {
+        items.push({ el: r, from: { width: 0 }, to: { width: w }, dur: DUR, delay: d });
+      } else {
+        items.push({ el: r, from: { y: y + h, height: 0 }, to: { y, height: h }, dur: DUR, delay: d });
+      }
+    });
+    svg.querySelectorAll("path").forEach(p => {
+      if (p.classList.contains("line")) {
+        let L = 0; try { L = p.getTotalLength(); } catch (e) { } if (!L) return;
+        items.push({ el: p, from: { "stroke-dashoffset": L }, to: { "stroke-dashoffset": 0 }, dur: 900, delay: 60, pre: () => p.setAttribute("stroke-dasharray", L), post: () => { p.removeAttribute("stroke-dasharray"); p.removeAttribute("stroke-dashoffset"); } });
+      } else if (!p.classList.contains("hit")) {
+        const o = p.hasAttribute("opacity") ? num(p, "opacity") : 1;
+        items.push({ el: p, from: { opacity: 0 }, to: { opacity: o }, dur: 700, delay: 80 });
+      }
+    });
+    let j = 0;
+    svg.querySelectorAll("circle.dot").forEach(c => { const r = num(c, "r"); items.push({ el: c, from: { r: 0 }, to: { r }, dur: 420, delay: DUR * .45 + Math.min(j++, 40) * 8 }); });
+    svg.querySelectorAll("text.lbl").forEach(t => items.push({ el: t, from: { opacity: 0 }, to: { opacity: 1 }, dur: 320, delay: DUR * .85 }));
+    return items;
+  }
+  function prime(chart) { const items = prepare(chart); items.forEach(it => { if (it.pre) it.pre(); Object.keys(it.from).forEach(k => it.el.setAttribute(k, it.from[k])); }); chart.__anim = items; }
+  function play(chart) {
+    const items = chart.__anim || prepare(chart); chart.__anim = null;
+    let end = 0; items.forEach(it => { if (it.pre) it.pre(); tween(it.el, it.from, it.to, it.dur, it.delay, it.post); end = Math.max(end, it.delay + it.dur); });
+    const tok = chart.__tok = {};   // 안전장치: rAF 가 멈춰 있어도 끝 시각에 최종값 확정(재생 중 다시 재생하면 이전 타이머는 무시)
+    setTimeout(() => { if (chart.__tok !== tok) return; items.forEach(it => { if (running.has(it.el)) { cancelAnimationFrame(running.get(it.el)); running.delete(it.el); } Object.keys(it.to).forEach(k => it.el.setAttribute(k, it.to[k])); if (it.post) it.post(); }); }, end + 400);
+  }
+  const io = ("IntersectionObserver" in window) ? new IntersectionObserver(es => es.forEach(e => { if (!e.isIntersecting) return; const c = e.target; io.unobserve(c); if (!c.dataset.played) { c.dataset.played = "1"; play(c); } }), { threshold: .3 }) : null;
+  function after() {
+    document.querySelectorAll(".chart").forEach(c => {
+      const svg = c.querySelector("svg"); if (!svg) return;
+      fixLabels(svg);
+      if (reduce) return;
+      if (!c.dataset.played) { prime(c); if (io) io.observe(c); else { c.dataset.played = "1"; play(c); } }
+    });
+    if (!reduce) document.querySelectorAll(".panel h3, .card h2").forEach(h => {
+      if (h.dataset.replay) return; const box = h.closest(".panel") || h.closest(".card"); if (!box || !box.querySelector(".chart")) return;
+      h.dataset.replay = "1"; h.style.cursor = "pointer"; h.title = "다시 재생";
+      h.addEventListener("click", () => box.querySelectorAll(".chart").forEach(c => { c.dataset.played = "1"; play(c); }));
+    });
+  }
+  return { after, play };
+})();
+function drawAllAnim() { drawAll(); ANIM.after(); }
+drawAllAnim();
+let rt; addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(drawAllAnim, 120); });
 </script>
 </body>
 </html>
