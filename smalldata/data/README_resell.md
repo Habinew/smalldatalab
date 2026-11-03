@@ -1,6 +1,6 @@
 # 스몰데이터랩 공개 집계 데이터 — 9월 칼럼 「한정판을 사두면 정말 오를까」
 
-출처: 김하빈, 시사저널 「김하빈의 스몰데이터」 2026-09-30 · 대시보드 https://habinew.github.io/research-portfolio/smalldata/resell.html
+출처: 김하빈, 시사저널 「김하빈의 스몰데이터」 2026-09-30 · 대시보드 https://habinew.github.io/smalldatalab/smalldata/resell.html
 생성: 2026-11-03 (export_public_csv.py) · 원천 스냅샷 기준일 2026.08.24
 
 | 파일 | 내용 | 비고 |
@@ -12,4 +12,4 @@
 - premium(프리미엄) = (최근 거래가 − 정가) / 정가. 0.1 = +10%.
 - share_* 는 상품 수 기준 비율(거래량 가중 아님).
 - 개별 매물·거래 원본은 플랫폼 약관상 공개하지 않는다. 집계표만 제공.
-- 라이선스: CC BY 4.0 (인용: 김하빈 (2026). 스몰데이터랩 공개 집계 데이터 — 리셀. https://habinew.github.io/research-portfolio/smalldata/)
+- 라이선스: CC BY 4.0 (인용: 김하빈 (2026). 스몰데이터랩 공개 집계 데이터 — 리셀. https://habinew.github.io/smalldatalab/smalldata/)

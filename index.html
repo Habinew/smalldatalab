@@ -1,1009 +1,152 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>김하빈 | 스몰데이터랩 · 데이터 기반 패션마케팅 연구자</title>
-<meta name="description" content="국립순천대학교 패션디자인학전공 스몰데이터랩(Small Data Lab) — 글로벌 거시환경·지속가능 리테일·AI 테크놀로지를 연결하는 패션마케팅 연구자 김하빈의 연구 포트폴리오">
-
-<!-- Tailwind -->
-<script src="https://cdn.tailwindcss.com"></script>
-
-<!-- Pretendard -->
-<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
-
-<!-- AOS Animation -->
-<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-
-<!-- Chart.js -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<!-- Lucide Icons -->
-<script src="https://unpkg.com/lucide@latest"></script>
-
-<style>
-  :root {
-    --navy: #0F2A47;
-    --deep: #1A3C6E;
-    --accent: #2B579A;
-    --gold: #C9A961;
-    --soft: #F5F7FA;
-  }
-  * { font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, sans-serif; }
-  body { background: #FAFBFC; color: #1A1A1A; }
-
-  .gradient-text {
-    background: linear-gradient(135deg, #2B579A 0%, #1A3C6E 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  .nav-logo {
-    color: #EAB308;
-    font-weight: 800;
-    letter-spacing: -0.01em;
-    transition: color 0.3s ease;
-  }
-  .nav-logo:hover {
-    color: #F59E0B;
-  }
-
-  .gradient-bg {
-    background: linear-gradient(135deg, #0F2A47 0%, #1A3C6E 50%, #2B579A 100%);
-  }
-
-  /* Hero animated background */
-  .hero-bg {
-    position: absolute;
-    inset: 0;
-    background:
-      radial-gradient(circle at 20% 30%, rgba(43, 87, 154, 0.4) 0%, transparent 40%),
-      radial-gradient(circle at 80% 70%, rgba(201, 169, 97, 0.2) 0%, transparent 40%),
-      radial-gradient(circle at 50% 50%, rgba(15, 42, 71, 0.6) 0%, transparent 60%);
-    animation: pulse-bg 8s ease-in-out infinite;
-  }
-  @keyframes pulse-bg {
-    0%, 100% { opacity: 0.7; }
-    50% { opacity: 1; }
-  }
-
-  /* Floating particles */
-  .particle {
-    position: absolute;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.1);
-    animation: float 15s infinite ease-in-out;
-  }
-  @keyframes float {
-    0%, 100% { transform: translateY(0) translateX(0); }
-    33% { transform: translateY(-30px) translateX(20px); }
-    66% { transform: translateY(20px) translateX(-15px); }
-  }
-
-  /* Hero typography */
-  .hero-title {
-    font-size: clamp(2.5rem, 6vw, 5rem);
-    line-height: 1.05;
-    letter-spacing: -0.03em;
-    font-weight: 800;
-  }
-
-  .hero-keyword {
-    display: inline-block;
-    padding: 4px 14px;
-    margin: 4px 8px;
-    background: rgba(255, 255, 255, 0.12);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 999px;
-    font-size: 0.85em;
-    font-weight: 600;
-    backdrop-filter: blur(10px);
-    transition: all 0.3s ease;
-    white-space: nowrap;
-  }
-  .hero-keyword:hover {
-    background: rgba(201, 169, 97, 0.3);
-    border-color: rgba(201, 169, 97, 0.6);
-    transform: translateY(-2px);
-  }
-  @media (max-width: 640px) {
-    .hero-keyword {
-      padding: 3px 10px;
-      margin: 3px 4px;
-      font-size: 0.78em;
-    }
-  }
-
-  /* Hero highlight - vivid yellow */
-  .hero-highlight {
-    color: #FFEB3B;
-    -webkit-text-fill-color: #FFEB3B;
-    text-shadow: 0 2px 24px rgba(255, 235, 59, 0.5);
-    font-weight: 800;
-  }
-
-  /* Stats card */
-  .stat-card {
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-  .stat-card:hover {
-    background: rgba(255, 255, 255, 0.1);
-    transform: translateY(-4px);
-    border-color: rgba(201, 169, 97, 0.4);
-  }
-
-  .stat-number {
-    font-size: 3rem;
-    font-weight: 800;
-    color: #FFFFFF;
-    -webkit-text-fill-color: #FFFFFF;
-    line-height: 1;
-  }
-  @media (max-width: 640px) {
-    .stat-number {
-      font-size: 2.5rem;
-    }
-  }
-
-  /* Sejong Fellowship: vivid yellow stat numbers */
-  .stat-number-gold {
-    font-size: 3rem;
-    font-weight: 800;
-    color: #FFEB3B;
-    -webkit-text-fill-color: #FFEB3B;
-    line-height: 1;
-    text-shadow: 0 2px 24px rgba(255, 235, 59, 0.5);
-  }
-  @media (max-width: 640px) {
-    .stat-number-gold {
-      font-size: 2.5rem;
-    }
-  }
-
-  /* Research axis card */
-  .axis-card {
-    background: white;
-    border-radius: 24px;
-    padding: 2rem;
-    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-    border: 1px solid #E5E7EB;
-    position: relative;
-    overflow: hidden;
-  }
-  .axis-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, var(--axis-color, #2B579A), transparent);
-  }
-  .axis-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 20px 40px rgba(15, 42, 71, 0.15);
-    border-color: var(--axis-color);
-  }
-
-  .axis-icon {
-    width: 56px;
-    height: 56px;
-    border-radius: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(135deg, var(--axis-color), color-mix(in srgb, var(--axis-color) 70%, white));
-    color: white;
-  }
-
-  /* Publication item */
-  .pub-item {
-    border-left: 3px solid #E5E7EB;
-    padding: 1rem 1.25rem;
-    transition: all 0.3s ease;
-    background: white;
-    border-radius: 0 12px 12px 0;
-  }
-  .pub-item:hover {
-    border-left-color: var(--accent);
-    background: #F5F7FA;
-    transform: translateX(4px);
-  }
-
-  .badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    padding: 2px 10px;
-    border-radius: 999px;
-    font-size: 0.7rem;
-    font-weight: 700;
-    letter-spacing: 0.02em;
-  }
-  .badge-ssci { background: #FEF3C7; color: #92400E; }
-  .badge-scie { background: #DBEAFE; color: #1E3A8A; }
-  .badge-scopus { background: #FCE7F3; color: #9D174D; }
-  .badge-kci { background: #E0E7FF; color: #3730A3; }
-  .badge-rr { background: #FEE2E2; color: #991B1B; }
-  .badge-conf { background: #D1FAE5; color: #065F46; }
-
-  /* Roadmap timeline */
-  .roadmap-stage {
-    position: relative;
-    padding: 1.5rem;
-    background: white;
-    border-radius: 16px;
-    border: 2px solid #E5E7EB;
-    transition: all 0.4s ease;
-  }
-  .roadmap-stage::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    right: -16px;
-    width: 32px;
-    height: 2px;
-    background: linear-gradient(90deg, var(--accent), transparent);
-    z-index: -1;
-  }
-  .roadmap-stage:last-child::after { display: none; }
-  .roadmap-stage:hover {
-    border-color: var(--accent);
-    transform: translateY(-4px);
-    box-shadow: 0 10px 30px rgba(43, 87, 154, 0.15);
-  }
-
-  /* Smooth scroll */
-  html { scroll-behavior: smooth; }
-
-  /* Section transition */
-  .section {
-    padding: 6rem 1.5rem;
-    max-width: 1280px;
-    margin: 0 auto;
-  }
-
-  .section-label {
-    display: inline-block;
-    padding: 6px 16px;
-    background: rgba(43, 87, 154, 0.1);
-    color: var(--accent);
-    border-radius: 999px;
-    font-size: 0.75rem;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    margin-bottom: 1rem;
-  }
-
-  .section-title {
-    font-size: clamp(2rem, 4vw, 3rem);
-    font-weight: 800;
-    letter-spacing: -0.02em;
-    margin-bottom: 1rem;
-    line-height: 1.2;
-  }
-
-  /* Nav */
-  nav {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 100;
-    backdrop-filter: blur(12px);
-    background: rgba(255, 255, 255, 0.8);
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-    transition: all 0.3s ease;
-  }
-
-  nav a:hover { color: var(--accent); }
-
-  /* Marquee */
-  .marquee {
-    overflow: hidden;
-    white-space: nowrap;
-    background: linear-gradient(90deg, #0F2A47, #2B579A, #0F2A47);
-    padding: 12px 0;
-  }
-  .marquee-content {
-    display: inline-block;
-    animation: marquee 30s linear infinite;
-    color: white;
-    font-weight: 600;
-    letter-spacing: 0.05em;
-  }
-  @keyframes marquee {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(-50%); }
-  }
-</style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>스몰데이터랩 Small Data Lab</title>
+<meta name="description" content="국립순천대학교 패션디자인학전공 스몰데이터랩(Small Data Lab). 작은 데이터로 패션과 소비의 가치를 검증하고, 글·도표·데이터·코드를 한 묶음으로 공개하는 연구실.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="assets/site.css">
 </head>
 <body>
 
-<!-- ============== NAV ============== -->
-<nav class="px-6 py-4">
-  <div class="max-w-7xl mx-auto flex items-center justify-between">
-    <a href="#hero" class="font-bold text-lg nav-logo">Habin Kim</a>
-    <div class="hidden md:flex gap-6 text-sm font-medium text-gray-700">
-      <a href="#vision">Vision</a>
-      <a href="#research">Research</a>
-      <a href="#publications">Publications</a>
-      <a href="#sejong">Sejong Fellowship</a>
-      <a href="#projects">Projects</a>
-      <a href="#media">Media</a>
-      <a href="#contact">Contact</a>
-    </div>
+<header class="site-head">
+  <div class="wrap bar">
+    <a class="brand" href="./index.html"><b>스몰데이터랩</b><span>Small Data Lab</span></a>
+    <nav aria-label="주 메뉴">
+      <a href="./index.html" aria-current="page">Home</a>
+      <a href="./lab.html">Lab</a>
+      <a href="./research.html">Research</a>
+      <a href="./smalldata/">Small Data</a>
+      <a href="./data.html">Data</a>
+      <a href="./lecture.html">Lecture</a>
+    </nav>
   </div>
-</nav>
+</header>
 
-<!-- ============== HERO ============== -->
-<section id="hero" class="relative min-h-screen flex items-center justify-center overflow-hidden gradient-bg">
-  <div class="hero-bg"></div>
+<main class="wrap">
+<header>
+  <div class="eyebrow"><b>국립순천대학교</b><span>패션디자인학전공 · 패션마케팅 연구실</span></div>
+  <h1>스몰데이터랩<small>Small Data Lab · 작은 데이터로 패션과 소비의 가치를 검증한다</small></h1>
+  <p class="dek">큰 인프라 없이 연구자가 직접 모을 수 있는 크기의 데이터로 패션과 소비 시장의 통념을 검증하는 연구실입니다. 공개 지표, 검색량, 거래 시세, 상품 이미지를 수집·분석하고, 결과를 글·인터랙티브 도표·집계 데이터·코드 한 묶음으로 공개합니다.</p>
+  <div class="stats">
+    <div><b>3</b>연구 축 (거시환경 · 리테일 · AI)</div>
+    <div><b>8</b>스몰데이터 칼럼 (2026.3~)</div>
+    <div><b>5</b>인터랙티브 대시보드</div>
+    <div><b>2</b>공개 데이터셋</div>
+  </div>
+</header>
 
-  <!-- Floating particles -->
-  <div class="particle" style="width: 200px; height: 200px; top: 10%; left: 5%; animation-delay: 0s;"></div>
-  <div class="particle" style="width: 150px; height: 150px; top: 60%; right: 10%; animation-delay: 3s;"></div>
-  <div class="particle" style="width: 100px; height: 100px; top: 30%; right: 25%; animation-delay: 6s;"></div>
-  <div class="particle" style="width: 80px; height: 80px; bottom: 20%; left: 15%; animation-delay: 9s;"></div>
-
-  <div class="relative z-10 max-w-6xl mx-auto px-6 text-center text-white py-32">
-
-    <!-- Tag -->
-    <div data-aos="fade-down" class="inline-flex items-center gap-2 px-4 py-2 mb-8 rounded-full bg-white/10 border border-white/20 backdrop-blur-sm">
-      <span class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
-      <span class="text-sm font-medium">국립순천대학교 패션디자인학전공 조교수 · 2026 세종과학펠로우십 PI</span>
-    </div>
-
-    <!-- Title -->
-    <h1 data-aos="fade-up" data-aos-delay="100" class="hero-title mb-6">
-      <span class="block text-white/80 text-2xl md:text-3xl font-medium mb-4 tracking-wider">DATA · DESIGN · FUTURE</span>
-      <span class="block text-white">데이터로 읽는</span>
-      <span class="block hero-highlight">패션 상품의 미래</span>
-    </h1>
-
-    <!-- Vision sentence -->
-    <p data-aos="fade-up" data-aos-delay="200" class="text-base md:text-2xl mt-8 mb-10 text-white/90 max-w-4xl mx-auto font-light px-2" style="line-height: 2;">
-      <span class="hero-keyword">글로벌</span> 거시환경의 변화를 읽고,
-      <span class="hero-keyword">지속가능한</span> 리테일 생태계를 설계하며,
-      <br class="hidden md:block">
-      <span class="hero-keyword">AI 테크놀로지</span>로 패션 상품의 미래를 선도하는
-      <span class="hero-keyword">현장 기반</span> 패션마케팅 연구자
-    </p>
-
-    <!-- Identity -->
-    <div data-aos="fade-up" data-aos-delay="300" class="text-base md:text-lg text-white/70 mb-12 font-light">
-      <span class="font-semibold text-white">김하빈 (Habin Kim)</span> · Ph.D. in Clothing &amp; Textiles, Seoul National University<br>
-      Assistant Professor, Dept. of Fashion Design, Sunchon National University<br>
-      <span class="font-semibold text-white">스몰데이터랩 · Small Data Lab</span>
-    </div>
-
-    <!-- Stats -->
-    <div data-aos="fade-up" data-aos-delay="400" class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-5xl mx-auto mt-16">
-      <div class="stat-card rounded-2xl p-6">
-        <div class="stat-number">5억</div>
-        <div class="text-sm text-white/70 mt-2">세종과학펠로우십<br>5년 연구비</div>
-      </div>
-      <div class="stat-card rounded-2xl p-6">
-        <div class="stat-number">9</div>
-        <div class="text-sm text-white/70 mt-2">SSCI/SCIE/KCI<br>게재 논문</div>
-      </div>
-      <div class="stat-card rounded-2xl p-6">
-        <div class="stat-number">8.5년</div>
-        <div class="text-sm text-white/70 mt-2">MD 4.7년<br>+ 창업 등 현장 실무</div>
-      </div>
-      <div class="stat-card rounded-2xl p-6">
-        <div class="stat-number">4개</div>
-        <div class="text-sm text-white/70 mt-2">우수논문상<br>(2023~2026)</div>
-      </div>
-    </div>
-
-    <!-- Scroll indicator -->
-    <div data-aos="fade-up" data-aos-delay="600" class="mt-20">
-      <div class="inline-block animate-bounce text-white/60">
-        <i data-lucide="chevron-down" class="w-8 h-8"></i>
-      </div>
-    </div>
+<section>
+  <h2>연구 축 <a class="more" href="./research.html">Research →</a></h2>
+  <div class="cards">
+    <article class="card axis">
+      <div class="no">01 · MACRO</div>
+      <h3>글로벌 거시환경과 소비자 행동</h3>
+      <p>팬데믹·경제위기 같은 거시 변수 속 소비 변동과 K-패션의 글로벌 확산 메커니즘을 추적합니다.</p>
+    </article>
+    <article class="card axis">
+      <div class="no">02 · RETAIL</div>
+      <h3>지속가능한 리테일 환경</h3>
+      <p>스몰 브랜드와 플랫폼의 공진화, 중고·리세일 시장, ESG와 윤리적 소비의 메커니즘을 연구합니다.</p>
+    </article>
+    <article class="card axis">
+      <div class="no">03 · AI</div>
+      <h3>AI 테크놀로지와 패션 상품의 미래</h3>
+      <p>LLM·뉴로-심볼릭 멀티모달 가치 추론과 공정 추천 시스템을 설계합니다. 세종과학펠로우십의 주제입니다.</p>
+    </article>
   </div>
 </section>
 
-<!-- ============== MARQUEE ============== -->
-<div class="marquee">
-  <div class="marquee-content">
-    GLOBAL MACRO-CONSUMER DYNAMICS · SUSTAINABLE RETAIL ECOSYSTEM · AI-POWERED FASHION FUTURES · GLOBAL MACRO-CONSUMER DYNAMICS · SUSTAINABLE RETAIL ECOSYSTEM · AI-POWERED FASHION FUTURES ·&nbsp;
-  </div>
-  <div class="marquee-content">
-    GLOBAL MACRO-CONSUMER DYNAMICS · SUSTAINABLE RETAIL ECOSYSTEM · AI-POWERED FASHION FUTURES · GLOBAL MACRO-CONSUMER DYNAMICS · SUSTAINABLE RETAIL ECOSYSTEM · AI-POWERED FASHION FUTURES ·&nbsp;
-  </div>
-</div>
-
-<!-- ============== VISION / IDENTITY ============== -->
-<section id="vision" class="section">
-  <div class="text-center mb-16">
-    <span data-aos="fade-up" class="section-label">VISION & IDENTITY</span>
-    <h2 data-aos="fade-up" data-aos-delay="100" class="section-title">
-      <span class="gradient-text">현장</span>에서 시작된 연구,
-      <span class="gradient-text">미래</span>를 향한 질문
-    </h2>
-    <p data-aos="fade-up" data-aos-delay="200" class="text-gray-600 text-lg max-w-3xl mx-auto">
-      MD 실무 4년 7개월, 라이브커머스 스타트업 CEO 2년의 현장 경험을 바탕으로,<br>
-      비정형 소비자 데이터에서 패션 상품의 잠재 가치를 발굴합니다.
-    </p>
-  </div>
-
-  <div class="grid md:grid-cols-3 gap-6">
-    <div data-aos="fade-up" class="bg-white p-8 rounded-3xl border border-gray-100 hover:shadow-xl transition">
-      <i data-lucide="briefcase" class="w-10 h-10 text-blue-600 mb-4"></i>
-      <h3 class="font-bold text-lg mb-2">현장 (Industry)</h3>
-      <p class="text-gray-600 text-sm leading-relaxed">롯데홈쇼핑 라이브 TV·온라인 MD 4년 7개월. 쇼캐스트(라이브커머스) 창업자(CEO) 2년. 무신사·LF 산학.</p>
-    </div>
-    <div data-aos="fade-up" data-aos-delay="100" class="bg-white p-8 rounded-3xl border border-gray-100 hover:shadow-xl transition">
-      <i data-lucide="microscope" class="w-10 h-10 text-indigo-600 mb-4"></i>
-      <h3 class="font-bold text-lg mb-2">학문 (Academia)</h3>
-      <p class="text-gray-600 text-sm leading-relaxed">서울대 의류학 박사(2024). 국립순천대 패션디자인학전공 조교수 · 스몰데이터랩. 세종과학펠로우십 PI(5년·5억). 서울대 미래신진연구자(2024).</p>
-    </div>
-    <div data-aos="fade-up" data-aos-delay="200" class="bg-white p-8 rounded-3xl border border-gray-100 hover:shadow-xl transition">
-      <i data-lucide="sparkles" class="w-10 h-10 text-amber-600 mb-4"></i>
-      <h3 class="font-bold text-lg mb-2">미래 (Future)</h3>
-      <p class="text-gray-600 text-sm leading-relaxed">LLM·뉴로-심볼릭 AI·하이퍼그래프로 패션 상품 가치를 추론하고 공정 추천 생태계를 설계.</p>
-    </div>
+<section>
+  <h2>진행 중인 연구 <small>Projects</small></h2>
+  <div class="cards">
+    <article class="card">
+      <div class="mo"><span>2026 ~ 2030 · 한국연구재단</span><span class="st live">진행 중</span></div>
+      <h3>세종과학펠로우십</h3>
+      <p>스몰 브랜드 공진화를 위한 뉴로-심볼릭 기반 멀티모달 가치 추론과 TBL 공정 추천 프레임워크. 5년 과제, 독립 연구책임자.</p>
+      <div class="links"><a href="./research.html#sejong">로드맵 →</a></div>
+    </article>
+    <article class="card">
+      <div class="mo"><span>2024 ~ · 산학</span><span class="st live">진행 중</span></div>
+      <h3>패션 플랫폼 산학 연구</h3>
+      <p>무신사와 함께 플랫폼 판매자·소비자 데이터를 분석합니다. 데이터는 비공개, 결과는 논문의 집계 형태로만 공개합니다.</p>
+      <div class="links"><a href="./research.html#projects">과제 →</a></div>
+    </article>
+    <article class="card">
+      <div class="mo"><span>2026 ~ · 공개 연구</span><span class="st live">진행 중</span></div>
+      <h3>스몰데이터 아카이브 · MD 에이전트</h3>
+      <p>매월 칼럼의 데이터 수집기·분석기를 공개 대시보드와 집계 데이터로 묶고, 같은 도구를 AI가 호출하는 MD 에이전트 프로토타입을 만듭니다.</p>
+      <div class="links"><a href="./smalldata/">아카이브 →</a><a href="./data.html">공개 데이터 →</a></div>
+    </article>
   </div>
 </section>
 
-<!-- ============== 3 RESEARCH AXES ============== -->
-<section id="research" class="section bg-gradient-to-b from-white to-gray-50">
-  <div class="text-center mb-16">
-    <span data-aos="fade-up" class="section-label">RESEARCH AXES</span>
-    <h2 data-aos="fade-up" data-aos-delay="100" class="section-title">3대 연구축</h2>
-    <p data-aos="fade-up" data-aos-delay="200" class="text-gray-600 text-lg max-w-3xl mx-auto">
-      거시환경 → 지속가능 리테일 → AI 테크놀로지로 이어지는 패션마케팅의 시간 흐름
-    </p>
-  </div>
-
-  <div class="grid md:grid-cols-3 gap-8">
-
-    <!-- Axis 1 -->
-    <div data-aos="fade-up" class="axis-card" style="--axis-color: #DC2626;">
-      <div class="flex items-start justify-between mb-6">
-        <div class="axis-icon" style="--axis-color: #DC2626;">
-          <i data-lucide="globe" class="w-7 h-7"></i>
-        </div>
-        <span class="text-5xl font-black text-gray-100">01</span>
-      </div>
-      <h3 class="text-xl font-bold mb-3">글로벌 거시환경과<br>소비자 행동의 역학</h3>
-      <p class="text-gray-600 text-sm leading-relaxed mb-6">
-        팬데믹·경제위기 등 거시 변수 속 소비 변동, K-패션 글로벌 확산 메커니즘
-      </p>
-      <div class="space-y-2">
-        <div class="flex items-center gap-2 text-xs text-gray-500"><i data-lucide="check-circle" class="w-3 h-3"></i> 박사학위 논문 (2024)</div>
-        <div class="flex items-center gap-2 text-xs text-gray-500"><i data-lucide="check-circle" class="w-3 h-3"></i> JRCS 3rd R&R, 1저자</div>
-        <div class="flex items-center gap-2 text-xs text-gray-500"><i data-lucide="check-circle" class="w-3 h-3"></i> SCIE Fashion and Textiles</div>
-      </div>
-    </div>
-
-    <!-- Axis 2 -->
-    <div data-aos="fade-up" data-aos-delay="100" class="axis-card" style="--axis-color: #059669;">
-      <div class="flex items-start justify-between mb-6">
-        <div class="axis-icon" style="--axis-color: #059669;">
-          <i data-lucide="leaf" class="w-7 h-7"></i>
-        </div>
-        <span class="text-5xl font-black text-gray-100">02</span>
-      </div>
-      <h3 class="text-xl font-bold mb-3">지속가능한<br>리테일 환경 연구</h3>
-      <p class="text-gray-600 text-sm leading-relaxed mb-6">
-        스몰 브랜드 공진화, 중고·리세일 시장, ESG·윤리적 소비 메커니즘
-      </p>
-      <div class="space-y-2">
-        <div class="flex items-center gap-2 text-xs text-gray-500"><i data-lucide="check-circle" class="w-3 h-3"></i> SSCI APJML 1저자</div>
-        <div class="flex items-center gap-2 text-xs text-gray-500"><i data-lucide="check-circle" class="w-3 h-3"></i> JRCS 게재(2026) · KMRA-JRCS Best Paper</div>
-        <div class="flex items-center gap-2 text-xs text-gray-500"><i data-lucide="check-circle" class="w-3 h-3"></i> JCM 1st R&R, 교신저자</div>
-      </div>
-    </div>
-
-    <!-- Axis 3 -->
-    <div data-aos="fade-up" data-aos-delay="200" class="axis-card" style="--axis-color: #2B579A;">
-      <div class="flex items-start justify-between mb-6">
-        <div class="axis-icon" style="--axis-color: #2B579A;">
-          <i data-lucide="cpu" class="w-7 h-7"></i>
-        </div>
-        <span class="text-5xl font-black text-gray-100">03</span>
-      </div>
-      <h3 class="text-xl font-bold mb-3">AI 테크놀로지와<br>패션 상품의 미래</h3>
-      <p class="text-gray-600 text-sm leading-relaxed mb-6">
-        LLM·뉴로-심볼릭 멀티모달 가치 추론, 공정 추천 시스템 설계
-      </p>
-      <div class="space-y-2">
-        <div class="flex items-center gap-2 text-xs text-gray-500"><i data-lucide="check-circle" class="w-3 h-3"></i> 세종과학펠로우십 PI (5억)</div>
-        <div class="flex items-center gap-2 text-xs text-gray-500"><i data-lucide="check-circle" class="w-3 h-3"></i> fair-rec-sys (PyPI 배포)</div>
-        <div class="flex items-center gap-2 text-xs text-gray-500"><i data-lucide="check-circle" class="w-3 h-3"></i> ICCT 2026 Best Paper · AMA Winter 2026</div>
-      </div>
-    </div>
-
+<section>
+  <h2>최근 스몰데이터 <a class="more" href="./smalldata/">아카이브 전체 →</a></h2>
+  <p class="prose">매월 시사저널에 연재하는 데이터 칼럼 「김하빈의 스몰데이터」입니다. 대시보드가 있는 편은 도표를 직접 움직여 볼 수 있습니다.</p>
+  <div class="cards two">
+    <article class="card live">
+      <div class="mo"><span>2026년 10월 · 팬덤 희소성</span><span class="st live">대시보드</span></div>
+      <h3><a href="./smalldata/hive.html">최애는 한 명인데, 앨범은 왜 여러 장을 살까</a></h3>
+      <p>하이브 랜덤 포토카드의 리셀 시세와 앨범 판매량·스트리밍의 괴리로, 브랜드가 설계한 희소성이 어디까지 작동하는지 쟀다.</p>
+      <div class="links"><a href="./smalldata/hive.html">대시보드 →</a><a href="https://www.sisajournal.com/news/articleView.html?idxno=391797" target="_blank" rel="noopener">기사 원문</a></div>
+    </article>
+    <article class="card live">
+      <div class="mo"><span>2026년 9월 · 투자 실패</span><span class="st live">대시보드</span></div>
+      <h3><a href="./smalldata/resell.html">한정판을 사두면 정말 오를까</a></h3>
+      <p>크림 인기 상품 1,342개의 발매가 대비 시세를 추적했다. 승자는 얇고 패자는 넓다. 리셀은 재테크가 아니라 복권이었다.</p>
+      <div class="links"><a href="./smalldata/resell.html">대시보드 →</a><a href="https://www.sisajournal.com/news/articleView.html?idxno=388722" target="_blank" rel="noopener">기사 원문</a></div>
+    </article>
+    <article class="card live">
+      <div class="mo"><span>2026년 8월 · 외생 충격</span><span class="st live">대시보드</span></div>
+      <h3><a href="./smalldata/heat.html">가을옷 성패는 '9월 첫째 주'가 아닌 '밤 기온 22도'에 달렸다</a></h3>
+      <p>서울 118년 기온과 검색 10년을 겹쳐 가을옷이 켜지는 '밤 기온'을 찾았다. 여름은 길어졌지만 점화 온도는 움직이지 않았다.</p>
+      <div class="links"><a href="./smalldata/heat.html">대시보드 →</a><a href="https://www.sisajournal.com/news/articleView.html?idxno=384704" target="_blank" rel="noopener">기사 원문</a></div>
+    </article>
+    <article class="card live">
+      <div class="mo"><span>2026년 7월 · 후광의 값</span><span class="st live">대시보드</span></div>
+      <h3><a href="./smalldata/ambassador.html">럭셔리 브랜드는 왜 K팝 아이돌 스타를 고용할까</a></h3>
+      <p>25개 출처, 122개 주장을 적대적으로 검증했다. 효과를 증명하는 근거는 거의 남지 않았고, 리스크만 잘 입증되어 있었다.</p>
+      <div class="links"><a href="./smalldata/ambassador.html">대시보드 →</a><a href="https://www.sisajournal.com/news/articleView.html?idxno=381811" target="_blank" rel="noopener">기사 원문</a></div>
+    </article>
   </div>
 </section>
 
-<!-- ============== PUBLICATIONS ============== -->
-<section id="publications" class="section">
-  <div class="text-center mb-16">
-    <span data-aos="fade-up" class="section-label">PUBLICATIONS & R&R</span>
-    <h2 data-aos="fade-up" data-aos-delay="100" class="section-title">
-      현재 진행 중인 <span class="gradient-text">연구 파이프라인</span>
-    </h2>
-    <p data-aos="fade-up" data-aos-delay="200" class="text-gray-600 max-w-3xl mx-auto">
-      SSCI/SCIE/KCI 1저자·교신저자 R&R 논문과 게재확정 성과가 동시 진행 중
-    </p>
-  </div>
-
-  <div class="grid md:grid-cols-2 gap-4 max-w-5xl mx-auto">
-
-    <div data-aos="fade-up" class="pub-item">
-      <div class="flex flex-wrap gap-2 mb-2">
-        <span class="badge badge-rr">1st R&R</span>
-        <span class="badge badge-ssci">SSCI · 교신</span>
-      </div>
-      <h4 class="font-bold mb-1">When Cuteness Heals</h4>
-      <p class="text-xs text-gray-500 mb-2">Journal of Consumer Marketing</p>
-      <p class="text-sm text-gray-700">리테일 환경에서 귀여움의 회복적 메커니즘</p>
-    </div>
-
-    <div data-aos="fade-up" data-aos-delay="150" class="pub-item">
-      <div class="flex flex-wrap gap-2 mb-2">
-        <span class="badge badge-conf">게재확정 · Accepted</span>
-        <span class="badge badge-scopus">Scopus</span>
-        <span class="badge badge-kci">KCI · 1저자</span>
-      </div>
-      <h4 class="font-bold mb-1">ML 기반 리뷰 유용성 예측</h4>
-      <p class="text-xs text-gray-500 mb-2">Journal of the Korean Society of Clothing and Textiles</p>
-      <p class="text-sm text-gray-700">화장품·퍼스널케어 리뷰 데이터 머신러닝 분석</p>
-    </div>
-
-    <a href="2026 ICCT Award (Poster 1) (2).pdf" target="_blank"
-       data-aos="fade-up" data-aos-delay="250" class="pub-item group block">
-      <div class="flex flex-wrap gap-2 mb-2">
-        <span class="badge badge-ssci">🏆 ICCT 2026 Best Paper Award</span>
-        <span class="badge badge-kci">1저자</span>
-      </div>
-      <h4 class="font-bold mb-1 group-hover:text-blue-700 transition">Trust-Weighted DistilBERT</h4>
-      <p class="text-xs text-gray-500 mb-2">ICCT 2026 우수논문상 수상 · supported by 세종과학펠로우십 (RS-2026-25481883)</p>
-      <p class="text-sm text-gray-700">패션 이커머스의 정보 비대칭 완화 모델</p>
-      <p class="text-xs text-blue-600 mt-2 inline-flex items-center gap-1 font-medium"><i data-lucide="award" class="w-3 h-3"></i> 수상 상장 보기 (Award Certificate, PDF) →</p>
-    </a>
-  </div>
-
-  <!-- Published -->
-  <div class="mt-16">
-    <h3 data-aos="fade-up" class="text-2xl font-bold text-center mb-8">출간 논문</h3>
-    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-6xl mx-auto">
-      <a href="https://doi.org/10.1016/j.jretconser.2026.104912" target="_blank" data-aos="fade-up" class="pub-item group block">
-        <span class="badge badge-ssci mb-2 inline-flex">SSCI · 1저자 · 2026</span>
-        <h4 class="font-bold mb-1 mt-2 group-hover:text-blue-700 transition">When Death Looms, Quiet Shines</h4>
-        <p class="text-xs text-gray-500">Journal of Retailing and Consumer Services · 위기 환경 속 럭셔리 소비의 '조용한 전환' 메커니즘</p>
-        <p class="text-xs text-blue-600 mt-2 inline-flex items-center gap-1 font-medium"><i data-lucide="external-link" class="w-3 h-3"></i> ScienceDirect →</p>
-      </a>
-      <div data-aos="fade-up" data-aos-delay="50" class="pub-item">
-        <div class="flex flex-wrap gap-1.5 mb-2">
-          <span class="badge badge-scopus inline-flex">Scopus</span>
-          <span class="badge badge-kci inline-flex">KCI · 1저자 · 2026</span>
-        </div>
-        <h4 class="font-bold mb-1 mt-2">Why Do Consumers Delegate Purchases in AI Agentic Commerce?</h4>
-        <p class="text-xs text-gray-500">한국의류학회지 (JKSCT) · 알고리즘 신뢰·가격 공정성·패션 관여도</p>
-      </div>
-      <a href="https://www.sciencedirect.com/science/article/abs/pii/S0969698926001657" target="_blank" data-aos="fade-up" data-aos-delay="50" class="pub-item group block">
-        <div class="flex flex-wrap gap-1.5 mb-2">
-          <span class="badge badge-ssci inline-flex">SSCI · 공저 · 2026</span>
-          <span class="badge badge-conf inline-flex">KMRA-JRCS Best Paper</span>
-        </div>
-        <h4 class="font-bold mb-1 mt-2 group-hover:text-blue-700 transition">Optimizing sustainable packaging</h4>
-        <p class="text-xs text-gray-500">Journal of Retailing and Consumer Services · 공유책임·소비자 효능감·메시지 프레이밍의 통합 모델</p>
-        <p class="text-xs text-blue-600 mt-2 inline-flex items-center gap-1 font-medium"><i data-lucide="external-link" class="w-3 h-3"></i> ScienceDirect →</p>
-      </a>
-      <a href="https://www.emerald.com/apjml/article-abstract/doi/10.1108/APJML-06-2025-1241/1335290/Why-do-sellers-flock-to-vertical-fashion-platforms" target="_blank" data-aos="fade-up" data-aos-delay="50" class="pub-item group block">
-        <span class="badge badge-ssci mb-2 inline-flex">SSCI · 1저자 · 2026</span>
-        <h4 class="font-bold mb-1 mt-2 group-hover:text-blue-700 transition">Why do sellers flock to vertical fashion platforms?</h4>
-        <p class="text-xs text-gray-500">Asia Pacific Journal of Marketing and Logistics · 무신사 산학</p>
-        <p class="text-xs text-blue-600 mt-2 inline-flex items-center gap-1 font-medium"><i data-lucide="external-link" class="w-3 h-3"></i> Emerald →</p>
-      </a>
-      <a href="https://link.springer.com/article/10.1186/s40691-023-00359-3" target="_blank" data-aos="fade-up" data-aos-delay="100" class="pub-item group block">
-        <span class="badge badge-ssci mb-2 inline-flex">SCIE · 1저자 · 2023</span>
-        <h4 class="font-bold mb-1 mt-2 group-hover:text-blue-700 transition">How "K-Style" has influenced the younger generation through local Vietnamese influencers</h4>
-        <p class="text-xs text-gray-500">Fashion and Textiles · NRF 국제공동연구</p>
-        <p class="text-xs text-blue-600 mt-2 inline-flex items-center gap-1 font-medium"><i data-lucide="external-link" class="w-3 h-3"></i> Springer →</p>
-      </a>
-      <a href="https://www.kci.go.kr/kciportal/ci/sereArticleSearch/ciSereArtiView.kci?sereArticleSearchBean.artiId=ART003208829" target="_blank" data-aos="fade-up" data-aos-delay="200" class="pub-item group block">
-        <span class="badge badge-kci mb-2 inline-flex">KCI · 교신 · 2025</span>
-        <h4 class="font-bold mb-1 mt-2 group-hover:text-blue-700 transition">K-뷰티 유튜브 콘텐츠의 언어적 특성과 글로벌 소비자 감정 반응</h4>
-        <p class="text-xs text-gray-500">한국지역사회생활과학회지 · LIWC 텍스트마이닝</p>
-        <p class="text-xs text-blue-600 mt-2 inline-flex items-center gap-1 font-medium"><i data-lucide="external-link" class="w-3 h-3"></i> KCI →</p>
-      </a>
-      <a href="https://koreascience.kr/article/JAKO202405655800283.view" target="_blank" data-aos="fade-up" data-aos-delay="300" class="pub-item group block">
-        <span class="badge badge-kci mb-2 inline-flex">KCI · 1저자 · 2024</span>
-        <h4 class="font-bold mb-1 mt-2 group-hover:text-blue-700 transition">Trajectory of K-Beauty through the Vietnamese Influencers: A Text-Mining Approach</h4>
-        <p class="text-xs text-gray-500">Journal of Fashion Business · NRF 국제공동연구</p>
-        <p class="text-xs text-blue-600 mt-2 inline-flex items-center gap-1 font-medium"><i data-lucide="external-link" class="w-3 h-3"></i> KoreaScience →</p>
-      </a>
-      <a href="https://www.kci.go.kr/kciportal/ci/sereArticleSearch/ciSereArtiView.kci?sereArticleSearchBean.artiId=ART003085705" target="_blank" data-aos="fade-up" data-aos-delay="400" class="pub-item group block">
-        <span class="badge badge-kci mb-2 inline-flex">KCI · 단독 1저자 · 2024</span>
-        <h4 class="font-bold mb-1 mt-2 group-hover:text-blue-700 transition">A Decade of Shifting Consumer Laundry Needs Through Text Mining</h4>
-        <p class="text-xs text-gray-500">Journal of Fashion Business · 10년 소셜 빅데이터 분석</p>
-        <p class="text-xs text-blue-600 mt-2 inline-flex items-center gap-1 font-medium"><i data-lucide="external-link" class="w-3 h-3"></i> KCI →</p>
-      </a>
-      <a href="https://www.kci.go.kr/kciportal/ci/sereArticleSearch/ciSereArtiView.kci?sereArticleSearchBean.artiId=ART002818612" target="_blank" data-aos="fade-up" data-aos-delay="500" class="pub-item group block">
-        <span class="badge badge-kci mb-2 inline-flex">KCI · 1저자 · 2022</span>
-        <h4 class="font-bold mb-1 mt-2 group-hover:text-blue-700 transition">포스트 팬데믹 시대의 중고 패션 소비 인식 변화</h4>
-        <p class="text-xs text-gray-500">한국의류산업학회지 · LDA 토픽모델링</p>
-        <p class="text-xs text-blue-600 mt-2 inline-flex items-center gap-1 font-medium"><i data-lucide="external-link" class="w-3 h-3"></i> KCI →</p>
-      </a>
-      <a href="https://www.kci.go.kr/kciportal/ci/sereArticleSearch/ciSereArtiView.kci?sereArticleSearchBean.artiId=ART002894068" target="_blank" data-aos="fade-up" data-aos-delay="600" class="pub-item group block">
-        <span class="badge badge-scopus mb-2 inline-flex mr-1">Scopus</span>
-        <span class="badge badge-kci mb-2 inline-flex">KCI · 공저 · 2022</span>
-        <h4 class="font-bold mb-1 mt-2 group-hover:text-blue-700 transition">베트남 MZ세대의 다차원적 소비가치에 대한 연구</h4>
-        <p class="text-xs text-gray-500">Journal of the Korean Society of Clothing and Textiles · NRF 국제공동연구</p>
-        <p class="text-xs text-blue-600 mt-2 inline-flex items-center gap-1 font-medium"><i data-lucide="external-link" class="w-3 h-3"></i> KCI →</p>
-      </a>
-    </div>
-  </div>
+<section>
+  <h2>구성원 <a class="more" href="./lab.html">Lab →</a></h2>
+  <ul class="list">
+    <li><span class="k">연구책임자<br>PI</span><div><div class="t">김하빈 Habin Kim</div><div class="d">국립순천대학교 패션디자인학전공 조교수 · 서울대 의류학 박사(2024) · 세종과학펠로우십 연구책임자. 롯데홈쇼핑 MD와 라이브커머스 창업을 거쳐 현장의 질문을 데이터로 다시 묻습니다.</div></div></li>
+    <li><span class="k">대학원생<br>학부연구생</span><div><div class="t">모집 중</div><div class="d">패션·소비 데이터를 직접 모으고 검증하는 일에 관심 있는 학생을 찾습니다. 코딩 경험보다 "왜 그럴까"를 끝까지 묻는 태도가 더 중요합니다. 메일로 관심 주제를 보내 주세요.</div></div></li>
+  </ul>
 </section>
 
-<!-- ============== SEJONG FELLOWSHIP ============== -->
-<section id="sejong" class="section gradient-bg text-white relative overflow-hidden">
-  <div class="absolute inset-0 opacity-20">
-    <div class="particle" style="width: 300px; height: 300px; top: -10%; left: -10%; background: rgba(201, 169, 97, 0.3);"></div>
-    <div class="particle" style="width: 200px; height: 200px; bottom: 10%; right: -5%; background: rgba(255, 255, 255, 0.1);"></div>
-  </div>
-
-  <div class="relative z-10">
-    <div class="text-center mb-16">
-      <span data-aos="fade-up" class="inline-block px-4 py-1.5 bg-yellow-400 text-yellow-900 rounded-full text-xs font-bold tracking-widest mb-4">FLAGSHIP PROJECT</span>
-      <h2 data-aos="fade-up" data-aos-delay="100" class="section-title text-white">
-        세종과학펠로우십 (2026~)
-      </h2>
-      <p data-aos="fade-up" data-aos-delay="200" class="text-white/80 text-lg max-w-3xl mx-auto">
-        스몰 브랜드 공진화를 위한 뉴로-심볼릭 기반<br>
-        멀티모달 가치 추론 및 TBL 공정 추천 프레임워크
-      </p>
-    </div>
-
-    <!-- Stats -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-5xl mx-auto mb-16">
-      <div data-aos="fade-up" class="stat-card rounded-2xl p-6 text-center">
-        <div class="stat-number-gold">5억</div>
-        <div class="text-sm text-white/70 mt-2">총 연구비</div>
-      </div>
-      <div data-aos="fade-up" data-aos-delay="100" class="stat-card rounded-2xl p-6 text-center">
-        <div class="stat-number-gold">5년</div>
-        <div class="text-sm text-white/70 mt-2">연구 기간</div>
-      </div>
-      <div data-aos="fade-up" data-aos-delay="200" class="stat-card rounded-2xl p-6 text-center">
-        <div class="stat-number-gold">PI</div>
-        <div class="text-sm text-white/70 mt-2">독립 연구 책임자</div>
-      </div>
-      <div data-aos="fade-up" data-aos-delay="300" class="stat-card rounded-2xl p-6 text-center">
-        <div class="stat-number-gold">국내</div>
-        <div class="text-sm text-white/70 mt-2">트랙 선정</div>
-      </div>
-    </div>
-
-    <!-- Roadmap -->
-    <h3 data-aos="fade-up" class="text-2xl font-bold text-center mb-10 text-white/90">5개년 로드맵</h3>
-    <div class="grid grid-cols-1 md:grid-cols-5 gap-3 max-w-6xl mx-auto" style="--accent: #FFD700;">
-      <div data-aos="fade-right" class="roadmap-stage">
-        <div class="text-xs font-bold text-yellow-600 mb-2">1차년도 · 2026</div>
-        <div class="font-bold mb-2 text-gray-900">가치 발견</div>
-        <div class="text-xs text-gray-600">속성분리 엔진 고도화 · LLM 멀티모달 가치 추론</div>
-      </div>
-      <div data-aos="fade-right" data-aos-delay="100" class="roadmap-stage">
-        <div class="text-xs font-bold text-yellow-600 mb-2">2차년도 · 2027</div>
-        <div class="font-bold mb-2 text-gray-900">가치 전이</div>
-        <div class="text-xs text-gray-600">속성 하이퍼그래프 · GNN 신호 전파</div>
-      </div>
-      <div data-aos="fade-right" data-aos-delay="200" class="roadmap-stage">
-        <div class="text-xs font-bold text-yellow-600 mb-2">3차년도 · 2028</div>
-        <div class="font-bold mb-2 text-gray-900">가치 최적화</div>
-        <div class="text-xs text-gray-600">TBL 다목적 랭킹 · A/B 테스트</div>
-      </div>
-      <div data-aos="fade-right" data-aos-delay="300" class="roadmap-stage">
-        <div class="text-xs font-bold text-yellow-600 mb-2">4차년도 · 2029</div>
-        <div class="font-bold mb-2 text-gray-900">가치 설득</div>
-        <div class="text-xs text-gray-600">뉴로-심볼릭 XAI · RLHF 최적화</div>
-      </div>
-      <div data-aos="fade-right" data-aos-delay="400" class="roadmap-stage">
-        <div class="text-xs font-bold text-yellow-600 mb-2">5차년도 · 2030</div>
-        <div class="font-bold mb-2 text-gray-900">가치 확산</div>
-        <div class="text-xs text-gray-600">오픈소스 v2.0 · 공진화 가이드라인</div>
-      </div>
-    </div>
-
-  </div>
+<section>
+  <h2>소식</h2>
+  <ul class="news">
+    <li><span class="k">2026.11</span><span>스몰데이터 아카이브 공개 — 대시보드 5편과 리셀 집계 데이터 3종(CSV). <a href="./smalldata/">아카이브</a> · <a href="./data.html">Data</a></span></li>
+    <li><span class="k">2026.10</span><span>「최애는 한 명인데, 앨범은 왜 여러 장을 살까」 시사저널 게재. 번개장터 시세·써클차트 집계 대시보드 공개.</span></li>
+    <li><span class="k">2026.09</span><span>스몰데이터랩 시작 — 국립순천대학교 패션디자인학전공.</span></li>
+    <li><span class="k">2026</span><span>세종과학펠로우십(국내 트랙) 선정. 5년 과제 「스몰 브랜드 공진화를 위한 뉴로-심볼릭 기반 멀티모달 가치 추론 및 TBL 공정 추천 프레임워크」.</span></li>
+    <li><span class="k">2026</span><span>「Trust-Weighted DistilBERT」 ICCT 2026 Best Paper Award · 「When Death Looms, Quiet Shines」 외 2편 SSCI 게재. <a href="./research.html">논문 목록</a></span></li>
+  </ul>
 </section>
 
-<!-- ============== PROJECTS ============== -->
-<section id="projects" class="section">
-  <div class="text-center mb-16">
-    <span data-aos="fade-up" class="section-label">INDUSTRY EXPERIENCE</span>
-    <h2 data-aos="fade-up" data-aos-delay="100" class="section-title">실무·산학 경력 & 오픈소스</h2>
-  </div>
-
-  <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
-    <div data-aos="fade-up" class="bg-white p-6 rounded-2xl border border-gray-100 hover:shadow-xl transition">
-      <div class="w-12 h-12 bg-rose-100 rounded-xl flex items-center justify-center mb-4">
-        <i data-lucide="tv" class="w-6 h-6 text-rose-600"></i>
-      </div>
-      <h3 class="font-bold mb-2">롯데홈쇼핑 MD</h3>
-      <p class="text-xs text-gray-500 mb-3">2014~2018 · 4년 7개월</p>
-      <p class="text-sm text-gray-700">라이브 TV MD(레포츠·스포츠·골프·남성) → EC 패션팀 온라인 MD(신발·디자이너 브랜드)</p>
-    </div>
-
-    <div data-aos="fade-up" data-aos-delay="50" class="bg-white p-6 rounded-2xl border border-gray-100 hover:shadow-xl transition">
-      <div class="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center mb-4">
-        <i data-lucide="rocket" class="w-6 h-6 text-amber-600"></i>
-      </div>
-      <h3 class="font-bold mb-2">쇼캐스트 창업자 · CEO</h3>
-      <p class="text-xs text-gray-500 mb-3">2018~2020 · 2년</p>
-      <p class="text-sm text-gray-700">모바일 라이브커머스 스타트업 창립 — 패션·뷰티 라이브 커머스 시장 초기 진입 경험</p>
-    </div>
-
-    <div data-aos="fade-up" data-aos-delay="100" class="bg-white p-6 rounded-2xl border border-gray-100 hover:shadow-xl transition">
-      <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mb-4">
-        <i data-lucide="shopping-bag" class="w-6 h-6 text-purple-600"></i>
-      </div>
-      <h3 class="font-bold mb-2">무신사 산학과제 데이터 분석 총괄</h3>
-      <p class="text-xs text-gray-500 mb-3">2024~2026 (1·2차)</p>
-      <p class="text-sm text-gray-700">패션 버티컬 플랫폼-셀러 공진화 모델 → SSCI APJML 게재 (2026)</p>
-    </div>
-
-    <div data-aos="fade-up" data-aos-delay="150" class="bg-white p-6 rounded-2xl border border-gray-100 hover:shadow-xl transition">
-      <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-4">
-        <i data-lucide="layers" class="w-6 h-6 text-blue-600"></i>
-      </div>
-      <h3 class="font-bold mb-2">LF 브랜드 컨설팅</h3>
-      <p class="text-xs text-gray-500 mb-3">2023~2024</p>
-      <p class="text-sm text-gray-700">기업 빅데이터 분석 기반 타겟 고객 잠재 니즈 발굴 · 전략 프레임워크 제안</p>
-    </div>
-
-    <div data-aos="fade-up" data-aos-delay="200" class="bg-white p-6 rounded-2xl border border-gray-100 hover:shadow-xl transition">
-      <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mb-4">
-        <i data-lucide="globe-2" class="w-6 h-6 text-green-600"></i>
-      </div>
-      <h3 class="font-bold mb-2">NRF 베트남 K-Style 국제공동연구</h3>
-      <p class="text-xs text-gray-500 mb-3">2020~2023</p>
-      <p class="text-sm text-gray-700">소셜 빅데이터 분석 → SCIE Fashion and Textiles 게재 (2023)</p>
-    </div>
-
-    <div data-aos="fade-up" data-aos-delay="250" class="bg-white p-6 rounded-2xl border border-amber-200 hover:shadow-xl transition">
-      <div class="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center mb-4">
-        <i data-lucide="award" class="w-6 h-6 text-amber-600"></i>
-      </div>
-      <h3 class="font-bold mb-2">세종과학펠로우십 PI</h3>
-      <p class="text-xs text-gray-500 mb-3">2026~2030 · 5년 · 5억 (RS-2026-25481883)</p>
-      <p class="text-sm text-gray-700">뉴로-심볼릭 기반 멀티모달 가치 추론 및 TBL 공정 추천 프레임워크 · 독립 연구책임자(PI)</p>
-    </div>
-
-    <div data-aos="fade-up" data-aos-delay="300" class="bg-gradient-to-br from-blue-600 to-indigo-700 text-white p-6 rounded-2xl hover:shadow-xl transition md:col-span-2 lg:col-span-3">
-      <div class="flex items-start gap-6">
-        <div class="w-16 h-16 bg-white/20 backdrop-blur rounded-xl flex items-center justify-center flex-shrink-0">
-          <i data-lucide="package" class="w-8 h-8 text-white"></i>
-        </div>
-        <div class="flex-1">
-          <div class="flex items-center gap-3 mb-2">
-            <h3 class="font-bold text-xl">fair-rec-sys</h3>
-            <span class="text-xs bg-yellow-400 text-yellow-900 px-2 py-0.5 rounded-full font-bold">PyPI</span>
-          </div>
-          <p class="text-white/80 mb-3">공정 추천 시스템 오픈소스 라이브러리 · Trust-Aware 알고리즘 직접 개발 및 PyPI 정식 배포</p>
-          <div class="flex flex-wrap gap-2">
-            <code class="text-sm bg-black/30 px-3 py-1 rounded">pip install fair-rec-sys</code>
-            <a href="https://pypi.org/project/fair-rec-sys/" target="_blank" class="text-sm underline hover:text-yellow-300">PyPI →</a>
-          </div>
-        </div>
-      </div>
-    </div>
+<section>
+  <h2>연락 · 참여</h2>
+  <p class="prose">공동연구, 산학 과제, 데이터 문의, 대학원 진학 상담은 메일로 보내 주세요. 연구실은 국립순천대학교 패션디자인학전공에 있습니다.</p>
+  <div class="contact">
+    <span><code>smalldata@scnu.ac.kr</code></span>
+    <a href="./lab.html">연구실 소개</a>
+    <a href="./lecture.html">강의</a>
+    <a href="./data.html">데이터 공개 원칙</a>
   </div>
 </section>
+</main>
 
-<!-- ============== TEACHING ============== -->
-<section class="section bg-gray-50">
-  <div class="text-center mb-12">
-    <span data-aos="fade-up" class="section-label">TEACHING</span>
-    <h2 data-aos="fade-up" data-aos-delay="100" class="section-title">강의 경력</h2>
-  </div>
-
-  <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4 max-w-6xl mx-auto">
-    <div data-aos="zoom-in" class="bg-white p-5 rounded-xl border border-gray-100 text-center">
-      <div class="font-bold text-blue-700 mb-1">인천대학교</div>
-      <div class="text-xs text-gray-500 mb-2">2026</div>
-      <div class="text-sm">상품개발론<br>(소비자학과)</div>
-    </div>
-    <div data-aos="zoom-in" data-aos-delay="100" class="bg-white p-5 rounded-xl border border-gray-100 text-center">
-      <div class="font-bold text-blue-700 mb-1">동의대학교</div>
-      <div class="text-xs text-gray-500 mb-2">2025</div>
-      <div class="text-sm">글로벌 패션마케팅<br>패션마케팅</div>
-    </div>
-    <div data-aos="zoom-in" data-aos-delay="200" class="bg-white p-5 rounded-xl border border-gray-100 text-center">
-      <div class="font-bold text-blue-700 mb-1">서울대학교</div>
-      <div class="text-xs text-gray-500 mb-2">2024~2025</div>
-      <div class="text-sm">고급의류학방법론<br>패션마케팅</div>
-    </div>
-    <div data-aos="zoom-in" data-aos-delay="300" class="bg-white p-5 rounded-xl border border-gray-100 text-center">
-      <div class="font-bold text-blue-700 mb-1">세종대학교</div>
-      <div class="text-xs text-gray-500 mb-2">2024</div>
-      <div class="text-sm">빅데이터와<br>패션마케팅 연구</div>
-    </div>
-  </div>
-</section>
-
-<!-- ============== MEDIA & COLUMN ============== -->
-<section id="media" class="section">
-  <div class="text-center mb-12">
-    <span data-aos="fade-up" class="section-label">MEDIA & COLUMN</span>
-    <h2 data-aos="fade-up" data-aos-delay="100" class="section-title">
-      시사저널 <span class="gradient-text">정기 칼럼·기고</span>
-    </h2>
-    <p data-aos="fade-up" data-aos-delay="200" class="text-gray-600 max-w-3xl mx-auto">
-      데이터로 읽는 패션·소비·산업의 변화 — 학술 연구 결과를 대중의 언어로 환원하는 칼럼 활동
-    </p>
-  </div>
-
-  <!-- 정기 연재: 김하빈의 스몰데이터 -->
-  <div class="max-w-5xl mx-auto mb-10">
-    <div data-aos="fade-up" class="flex items-center gap-3 mb-4 flex-wrap">
-      <div class="w-1 h-6 bg-amber-500 rounded-full"></div>
-      <h3 class="text-lg font-bold text-gray-900">정기 연재 · 「김하빈의 스몰데이터」</h3>
-      <a href="smalldata/" class="ml-auto inline-flex items-center gap-1 text-sm font-medium text-amber-700 hover:text-amber-900 hover:underline underline-offset-4 transition">데이터 아카이브 전체 보기 (대시보드 5편 · 집계 데이터) <i data-lucide="arrow-right" class="w-4 h-4"></i></a>
-    </div>
-
-    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
-      <a href="https://n.news.naver.com/mnews/article/586/0000132686?sid=101" target="_blank"
-         data-aos="fade-up" class="block bg-white p-6 rounded-2xl border border-gray-100 hover:shadow-xl hover:border-amber-300 transition group">
-        <div class="flex items-start gap-3 mb-3">
-          <div class="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center flex-shrink-0">
-            <i data-lucide="newspaper" class="w-5 h-5 text-amber-600"></i>
-          </div>
-          <div class="flex-1">
-            <div class="text-xs text-gray-500 mb-1">시사저널 · 2026.06.30</div>
-            <span class="badge badge-conf">김하빈의 스몰데이터</span>
-          </div>
-        </div>
-        <h4 class="font-bold mb-2 group-hover:text-amber-700 transition">K패션에는 'K'가 없다…대중문화의 후광이 꺼진다면 무엇이 남는가</h4>
-        <p class="text-sm text-gray-600">패션 특화 AI(Fashion-CLIP)로 분석한 결과 한국과 글로벌 브랜드의 옷은 시각적으로 구별되지 않았다 — K-패션의 정체성은 옷의 형태가 아니라 한류 콘텐츠의 후광에 있음을 시사.</p>
-      </a>
-
-      <a href="https://n.news.naver.com/mnews/article/586/0000129578?sid=101" target="_blank"
-         data-aos="fade-up" data-aos-delay="50" class="block bg-white p-6 rounded-2xl border border-gray-100 hover:shadow-xl hover:border-amber-300 transition group">
-        <div class="flex items-start gap-3 mb-3">
-          <div class="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center flex-shrink-0">
-            <i data-lucide="newspaper" class="w-5 h-5 text-amber-600"></i>
-          </div>
-          <div class="flex-1">
-            <div class="text-xs text-gray-500 mb-1">시사저널 · 2026.05.20</div>
-            <span class="badge badge-conf">김하빈의 스몰데이터</span>
-          </div>
-        </div>
-        <h4 class="font-bold mb-2 group-hover:text-amber-700 transition">저무는 '검색의 시대', AI가 대신 사주는 세상</h4>
-        <p class="text-sm text-gray-600">검색 기반 소비에서 AI 에이전트가 대신 구매하는 '위임 소비'로의 전환 — AI 에이전틱 커머스가 바꾸는 소비 패러다임 분석.</p>
-      </a>
-
-      <a href="https://www.sisajournal.com/news/articleView.html?idxno=370109" target="_blank"
-         data-aos="fade-up" data-aos-delay="100" class="block bg-white p-6 rounded-2xl border border-gray-100 hover:shadow-xl hover:border-amber-300 transition group">
-        <div class="flex items-start gap-3 mb-3">
-          <div class="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center flex-shrink-0">
-            <i data-lucide="newspaper" class="w-5 h-5 text-amber-600"></i>
-          </div>
-          <div class="flex-1">
-            <div class="text-xs text-gray-500 mb-1">시사저널 · 2026.04.20</div>
-            <span class="badge badge-conf">김하빈의 스몰데이터</span>
-          </div>
-        </div>
-        <h4 class="font-bold mb-2 group-hover:text-amber-700 transition">AI 시대의 진짜 경쟁력…무엇이 본질적 희소성인가</h4>
-        <p class="text-sm text-gray-600">AI가 지적 결과물을 표준화하는 시대, 인간의 물리적 실행력과 책임감이 새 경제 가치로 떠오르는 현상 분석.</p>
-      </a>
-
-      <a href="https://www.sisajournal.com/news/articleView.html?idxno=366774" target="_blank"
-         data-aos="fade-up" data-aos-delay="200" class="block bg-white p-6 rounded-2xl border border-gray-100 hover:shadow-xl hover:border-amber-300 transition group">
-        <div class="flex items-start gap-3 mb-3">
-          <div class="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center flex-shrink-0">
-            <i data-lucide="newspaper" class="w-5 h-5 text-amber-600"></i>
-          </div>
-          <div class="flex-1">
-            <div class="text-xs text-gray-500 mb-1">시사저널 · 2026.03.23</div>
-            <span class="badge badge-conf">김하빈의 스몰데이터</span>
-          </div>
-        </div>
-        <h4 class="font-bold mb-2 group-hover:text-amber-700 transition">옷을 살 때 '징벌적 가산금'을 낸다고? "패션의 퇴로를 설계하자"</h4>
-        <p class="text-sm text-gray-600">한국 의류 폐기물 수출 문제와 유럽 에코 모듈레이션 제도 — 생산자 책임 재활용과 생애주기 설계 제안.</p>
-      </a>
-    </div>
-  </div>
-
-  <!-- 이전 기고 -->
-  <div class="max-w-5xl mx-auto">
-    <div data-aos="fade-up" class="flex items-center gap-3 mb-4">
-      <div class="w-1 h-6 bg-blue-500 rounded-full"></div>
-      <h3 class="text-lg font-bold text-gray-900">이전 기고</h3>
-    </div>
-
-    <div class="grid md:grid-cols-2 gap-5">
-      <a href="https://n.news.naver.com/mnews/article/586/0000119800?sid=101" target="_blank"
-         data-aos="fade-up" class="block bg-white p-6 rounded-2xl border border-gray-100 hover:shadow-xl hover:border-blue-300 transition group">
-        <div class="flex items-start gap-3 mb-3">
-          <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
-            <i data-lucide="file-text" class="w-5 h-5 text-blue-600"></i>
-          </div>
-          <div class="flex-1">
-            <div class="text-xs text-gray-500 mb-1">시사저널 (네이버 뉴스)</div>
-            <span class="badge badge-kci">기고</span>
-          </div>
-        </div>
-        <h4 class="font-bold mb-2 group-hover:text-blue-700 transition">르네상스 맞은 K-패션에 닥친 거대한 도전…'데이터 여권'이 해법</h4>
-        <p class="text-sm text-gray-600">K-패션 글로벌 확산기의 데이터 거버넌스 과제와 '데이터 여권' 개념의 적용 가능성 제시.</p>
-      </a>
-
-      <a href="https://n.news.naver.com/mnews/article/586/0000119520?sid=101" target="_blank"
-         data-aos="fade-up" data-aos-delay="100" class="block bg-white p-6 rounded-2xl border border-gray-100 hover:shadow-xl hover:border-blue-300 transition group">
-        <div class="flex items-start gap-3 mb-3">
-          <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
-            <i data-lucide="file-text" class="w-5 h-5 text-blue-600"></i>
-          </div>
-          <div class="flex-1">
-            <div class="text-xs text-gray-500 mb-1">시사저널 (네이버 뉴스)</div>
-            <span class="badge badge-kci">기고</span>
-          </div>
-        </div>
-        <h4 class="font-bold mb-2 group-hover:text-blue-700 transition">유행 소멸의 시대, 길 잃은 공룡들의 딜레마</h4>
-        <p class="text-sm text-gray-600">트렌드 사이클의 단축과 거대 패션 기업의 구조적 딜레마 — 데이터로 읽는 산업 변화.</p>
-      </a>
-    </div>
-  </div>
-</section>
-
-<!-- ============== CONTACT ============== -->
-<section id="contact" class="section text-center">
-  <div data-aos="fade-up">
-    <span class="section-label">CONTACT</span>
-    <h2 class="section-title">함께 연구할 미래</h2>
-
-    <div class="flex flex-wrap justify-center gap-3 mb-8">
-      <a href="mailto:smalldata@scnu.ac.kr" class="inline-flex items-center gap-2 px-6 py-3 bg-gray-900 text-white rounded-full font-medium hover:bg-blue-700 transition">
-        <i data-lucide="mail" class="w-4 h-4"></i> smalldata@scnu.ac.kr
-      </a>
-      <a href="mailto:with.habin@gmail.com" class="inline-flex items-center gap-2 px-6 py-3 bg-white border-2 border-gray-200 rounded-full font-medium hover:border-blue-700 hover:text-blue-700 transition">
-        <i data-lucide="mail" class="w-4 h-4"></i> with.habin@gmail.com
-      </a>
-      <a href="https://scholar.google.com/citations?user=xRjwgz4AAAAJ&hl=ko&oi=ao" target="_blank" class="inline-flex items-center gap-2 px-6 py-3 bg-white border-2 border-gray-200 rounded-full font-medium hover:border-blue-700 hover:text-blue-700 transition">
-        <i data-lucide="graduation-cap" class="w-4 h-4"></i> Google Scholar
-      </a>
-      <a href="https://orcid.org/0000-0003-1480-6323" target="_blank" class="inline-flex items-center gap-2 px-6 py-3 bg-white border-2 border-gray-200 rounded-full font-medium hover:border-green-700 hover:text-green-700 transition">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0C5.372 0 0 5.372 0 12s5.372 12 12 12 12-5.372 12-12S18.628 0 12 0zM7.369 4.378c.525 0 .947.431.947.947s-.422.947-.947.947a.95.95 0 0 1-.947-.947c0-.525.422-.947.947-.947zm-.722 3.038h1.444v10.041H6.647V7.416zm3.562 0h3.9c3.713 0 5.344 2.65 5.344 5.025 0 2.578-2.016 5.025-5.325 5.025h-3.919V7.416zm1.444 1.303v7.444h2.297c3.272 0 4.022-2.484 4.022-3.722 0-2.016-1.281-3.722-4.097-3.722h-2.222z"/></svg>
-        ORCID
-      </a>
-      <a href="https://pypi.org/project/fair-rec-sys/" target="_blank" class="inline-flex items-center gap-2 px-6 py-3 bg-white border-2 border-gray-200 rounded-full font-medium hover:border-blue-700 hover:text-blue-700 transition">
-        <i data-lucide="package" class="w-4 h-4"></i> PyPI
-      </a>
-    </div>
-
-    <div class="text-xs text-gray-500 mb-12">
-      <code class="bg-gray-100 px-3 py-1.5 rounded-md">ORCID iD: 0000-0003-1480-6323</code>
-    </div>
-
-    <div class="text-xs text-gray-400 mt-12 pt-8 border-t border-gray-100 max-w-4xl mx-auto">
-      © 2026 Habin Kim · 스몰데이터랩 Small Data Lab<br>
-      국립순천대학교 패션디자인학전공 · smalldata@scnu.ac.kr<br>
-      <span class="text-gray-300">Last updated: November 3, 2026</span>
-    </div>
-  </div>
-</section>
-
-<!-- ============== SCRIPTS ============== -->
-<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-<script>
-  AOS.init({
-    duration: 800,
-    once: true,
-    offset: 80,
-  });
-  lucide.createIcons();
-</script>
-
+<footer class="site-foot">
+  <div class="wrap"><span>© 2026 Small Data Lab · 국립순천대학교 패션디자인학전공</span><span>smalldata@scnu.ac.kr</span></div>
+</footer>
 </body>
 </html>

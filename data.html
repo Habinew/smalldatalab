@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>공개 데이터 · 스몰데이터랩</title>
+<meta name="description" content="스몰데이터랩이 공개하는 집계 데이터셋과 도구, 그리고 무엇을 공개하지 않는지에 대한 원칙.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+
+<header class="site-head">
+  <div class="wrap bar">
+    <a class="brand" href="./index.html"><b>스몰데이터랩</b><span>Small Data Lab</span></a>
+    <nav aria-label="주 메뉴">
+      <a href="./index.html">Home</a>
+      <a href="./lab.html">Lab</a>
+      <a href="./research.html">Research</a>
+      <a href="./smalldata/">Small Data</a>
+      <a href="./data.html" aria-current="page">Data</a>
+      <a href="./lecture.html">Lecture</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+<header>
+  <div class="eyebrow"><b>Data</b><span>공개 데이터셋 · 도구</span></div>
+  <h1>공개 데이터<small>Open Data · datasets, aggregates, and what stays private</small></h1>
+  <p class="dek">연구실이 공개한 데이터셋과 집계 데이터, 그리고 공개하지 않는 데이터의 범위를 적습니다. 칼럼과 논문에 쓴 숫자는 집계 데이터와 코드로 누구나 검증할 수 있게 하는 것이 원칙입니다. 모든 대시보드는 도표 아래 '표 보기'로 집계값을 바로 확인할 수 있습니다.</p>
+</header>
+
+<section>
+  <h2>데이터셋 <small>Datasets</small></h2>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>데이터셋</th><th>내용</th><th>출처·수집</th><th>상태</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><a href="https://huggingface.co/datasets/HabinKim/kfashion-visual-distinctiveness" target="_blank" rel="noopener">kfashion-visual-distinctiveness</a></td>
+          <td>한국·글로벌 18개 브랜드 상품 이미지 1만 장의 Fashion-CLIP 임베딩과 브랜드 중심점. 6월 칼럼 「K패션에는 'K'가 없다」의 근거.</td>
+          <td>네이버 쇼핑 이미지, Fashion-CLIP · 2026.6</td>
+          <td><span class="tag hi">공개 · Hugging Face</span></td>
+        </tr>
+        <tr>
+          <td><a href="./smalldata/data/resell_by_category.csv">resell_by_category.csv</a></td>
+          <td>크림 인기 상품 1,342개의 카테고리별 발매가 대비 시세 분포(상품 수, 정가 이하 비율, 프리미엄 중앙값, +50% 이상 비율, 거래량). 개별 매물은 포함하지 않음.</td>
+          <td>KREAM 공개 시세 2026-08-24 스냅샷 집계</td>
+          <td><span class="tag hi">공개 · CSV</span></td>
+        </tr>
+        <tr>
+          <td><a href="./smalldata/data/resell_eventtime.csv">resell_eventtime.csv</a></td>
+          <td>발매(상장) 후 경과 월별 프리미엄 중앙값·정가 이하 비율의 집계 곡선. 균형 패널·초기 승자·전체 3종.</td>
+          <td>KREAM 공개 시세 집계</td>
+          <td><span class="tag hi">공개 · CSV</span></td>
+        </tr>
+        <tr>
+          <td><a href="./smalldata/data/resell_datalab_monthly.csv">resell_datalab_monthly.csv</a></td>
+          <td>'리셀'·'크림'·'나이키 드로우'·'오픈런' 월별 검색 관심도(키워드별 자기 피크=100 상대지수). 설명은 <a href="./smalldata/data/README_resell.md">README</a>.</td>
+          <td>네이버 데이터랩 공식 API</td>
+          <td><span class="tag hi">공개 · CSV</span></td>
+        </tr>
+        <tr>
+          <td>hive · 포토카드 호가 분포 집계</td>
+          <td>하이브 소속 12팀 포토카드·앨범 호가의 분포 요약과 앨범 판매량·스트리밍 지표.</td>
+          <td>번개장터 스냅샷 집계, 써클차트</td>
+          <td><span class="tag">대시보드 표 보기</span></td>
+        </tr>
+        <tr>
+          <td>ambassador · 문헌 검증 표</td>
+          <td>K팝 앰버서더 효과를 주장한 25개 출처 122개 주장의 근거 등급 분류와 이벤트 스터디 결과.</td>
+          <td>문헌, 네이버 데이터랩, 구글 트렌드</td>
+          <td><span class="tag">대시보드 표 보기</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="note">공개 CSV는 CC BY 4.0으로 배포합니다. DOI(Zenodo) 발급은 순차로 진행하며, 새 칼럼의 집계는 송고 후 이 표와 아카이브 목록에 추가됩니다.</p>
+</section>
+
+<section>
+  <h2>공개하는 것, 공개하지 않는 것</h2>
+  <div class="cards two">
+    <article class="card">
+      <h3>공개</h3>
+      <p>집계 데이터(CSV), 도표와 그 수치(표 보기), 수집·분석 코드, 공공 지표(네이버 데이터랩·기상청·써클차트·Eurostat 등)의 처리 결과. 수집 시점과 처리 방식을 함께 적습니다.</p>
+    </article>
+    <article class="card">
+      <h3>비공개</h3>
+      <p>크림·번개장터 등 거래 플랫폼에서 수집한 개별 매물 원본(약관). 무신사·LF 등 산학 과제의 기업 데이터(계약). 응답자 식별이 가능한 설문 원자료. 이들은 집계값으로만 나옵니다.</p>
+    </article>
+  </div>
+</section>
+
+<section>
+  <h2>도구 <small>Tools</small></h2>
+  <ul class="list">
+    <li><span class="k">PyPI · 공개</span><div><div class="t"><a href="https://pypi.org/project/fair-rec-sys/" target="_blank" rel="noopener">fair-rec-sys</a></div><div class="d">공정 추천 시스템 라이브러리. Trust-Aware 알고리즘. <code>pip install fair-rec-sys</code></div></div></li>
+    <li><span class="k">개발 중</span><div><div class="t">스몰데이터 MD 에이전트</div><div class="d">칼럼에 쓴 수집기·분석기(네이버 데이터랩 트렌드·사건 효과, 리셀 프리미엄 분포, 상품 시세 추이)를 AI가 도구로 호출하는 프로토타입. 세종과학펠로우십 공진화 프레임워크의 인터페이스. 외부 공개 전.</div></div></li>
+  </ul>
+</section>
+
+<section>
+  <h2>이용과 인용</h2>
+  <div class="prose">
+    <p>공개 데이터는 출처(스몰데이터랩, 해당 칼럼 또는 데이터셋 이름, 수집 시점)를 밝히고 자유롭게 쓸 수 있습니다. 개별 데이터셋의 라이선스는 각 저장소에 적혀 있습니다. 데이터 문의와 공동연구 제안은 <code>smalldata@scnu.ac.kr</code>로 보내 주세요.</p>
+  </div>
+</section>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap"><span>© 2026 Small Data Lab · 국립순천대학교 패션디자인학전공</span><span>smalldata@scnu.ac.kr</span></div>
+</footer>
+</body>
+</html>
