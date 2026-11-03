@@ -3,10 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>논문 대시보드 · 스몰데이터랩</title>
+<title>논문 읽어드립니다 · 스몰데이터랩</title>
 <meta name="description" content="스몰데이터랩 게재 논문을 결과·쉬운 설명·연구 모델·방법론으로 읽는 대시보드. 논문마다 핵심 수치와 개념 모델 도식을 함께 제공합니다.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="./assets/key.css">
 <style>html{color-scheme:light}img{max-width:100%}[hidden]{display:none!important}body{margin:0;font:14px system-ui,sans-serif}</style>
 </head>
 <body>
@@ -29,6 +30,8 @@
   --grid:#2c2c2a; --axis:#383835; --ring:rgba(255,255,255,.10); --wash:rgba(57,135,229,.14); --wash2:rgba(57,135,229,.08);
   --pos:#3987e5; --neg:#e66767; --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --gray:#6b6a66; color-scheme:dark}
 
+
+
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased}
 .wrap{max-width:1040px;margin:0 auto;padding-block:40px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
@@ -36,7 +39,7 @@ a{color:inherit}
 h1,h2,h3{margin:0;text-wrap:balance;line-height:1.25}
 .eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2);display:flex;gap:14px;flex-wrap:wrap}
 .eyebrow a{text-decoration:none}
-.eyebrow b{color:var(--pos);font-weight:500}
+.eyebrow b{color:var(--key);font-weight:500}
 h1{font-size:clamp(28px,4.6vw,44px);font-weight:700;margin-top:14px;letter-spacing:-.01em}
 h1 small{display:block;font-size:.42em;font-weight:500;color:var(--ink-2);margin-top:8px;letter-spacing:0}
 .dek{margin:18px 0 0;max-width:66ch;color:var(--ink-2);font-size:16px}
@@ -64,8 +67,8 @@ section.card{background:var(--surface);border:1px solid var(--ring);border-radiu
 section.card[hidden]{display:none}
 .tags{display:flex;gap:6px;flex-wrap:wrap;font-family:var(--f-mono);font-size:11px;letter-spacing:.03em;color:var(--ink-2)}
 .tag{border:1px solid var(--grid);border-radius:4px;padding:2px 7px;line-height:1.4}
-.tag.hi{background:var(--pos);color:#fff;border-color:var(--pos)}
-.tag.axis{background:var(--wash);border-color:transparent;color:var(--pos)}
+.tag.hi{background:var(--key);color:#fff;border-color:var(--key)}
+.tag.axis{background:var(--key-wash);border-color:transparent;color:var(--key)}
 .tag.yr{font-weight:500;color:var(--ink)}
 .card h2{font-size:21px;font-weight:600;margin-top:12px;line-height:1.35}
 .card h2 button{all:unset;cursor:pointer}
@@ -76,13 +79,13 @@ section.card[hidden]{display:none}
 .pgrid>div{min-width:0}
 .rf{margin:0;font-size:15px;line-height:1.7}
 .rf .m{color:var(--ink-2)}
-.plain{margin-top:14px;background:var(--wash2);border-left:3px solid var(--pos);border-radius:0 8px 8px 0;padding:10px 14px;font-size:14px;color:var(--ink-2)}
-.plain b{display:block;font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;font-family:var(--f-mono);color:var(--pos);margin-bottom:3px;font-weight:500}
+.plain{margin-top:14px;background:var(--key-wash);border-left:3px solid var(--key);border-radius:0 8px 8px 0;padding:10px 14px;font-size:14px;color:var(--ink-2)}
+.plain b{display:block;font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;font-family:var(--f-mono);color:var(--key);margin-bottom:3px;font-weight:500}
 .plain p{margin:0}
 .fdw{margin-top:16px}
 .fd{list-style:none;margin:0;padding:0;display:grid;gap:8px}
 .fd li{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:start;border-top:1px solid var(--grid);padding-top:8px;font-size:13.5px;line-height:1.55}
-.fd li b{font-family:var(--f-mono);font-weight:500;font-size:11.5px;color:var(--pos);background:var(--wash);border-radius:4px;padding:2px 7px;white-space:nowrap;margin-top:2px;max-width:200px;overflow:hidden;text-overflow:ellipsis}
+.fd li b{font-family:var(--f-mono);font-weight:500;font-size:11.5px;color:var(--key);background:var(--key-wash);border-radius:4px;padding:2px 7px;white-space:nowrap;margin-top:2px;max-width:200px;overflow:hidden;text-overflow:ellipsis}
 .fd li b.na{display:none}
 .fdw h3,.method h3,.pviz h3{font-family:var(--f-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:500;margin:0 0 6px}
 .method{margin-top:18px;font-size:13px;color:var(--ink-2)}
@@ -119,7 +122,7 @@ section.card[hidden]{display:none}
 .imp{margin:16px 0 0;font-size:13.5px;color:var(--ink-2);border-top:1px solid var(--grid);padding-top:10px}
 .imp b{color:var(--ink);font-weight:600;margin-right:6px}
 .links{margin-top:12px;display:flex;gap:14px;flex-wrap:wrap;font-size:13px}
-.links a{color:var(--pos);text-decoration:none;font-weight:500}
+.links a{color:var(--key);text-decoration:none;font-weight:500}
 .links a:hover{text-decoration:underline}
 .kw{margin-top:8px;font-family:var(--f-mono);font-size:11px;color:var(--muted)}
 
@@ -151,7 +154,7 @@ svg .bar:hover{filter:brightness(1.12)}
 .tip.on{opacity:1}
 .tip b{font-size:14px;font-weight:600}
 footer{margin-top:36px;font-family:var(--f-mono);font-size:11.5px;color:var(--muted);display:flex;gap:16px;flex-wrap:wrap;justify-content:space-between}
-:focus-visible{outline:2px solid var(--pos);outline-offset:2px}
+:focus-visible{outline:2px solid var(--key);outline-offset:2px}
 
 /* 모션: 카드 등장, 모델 화살표가 그려지고, 막대가 자라고, 노드가 떠오름. 카드가 30% 보이면 시작하고 제목을 누르면 다시 재생. 움직임 줄이기면 전부 완성 상태. */
 @media (prefers-reduced-motion:no-preference){
@@ -180,8 +183,8 @@ footer{margin-top:36px;font-family:var(--f-mono);font-size:11.5px;color:var(--mu
 <div class="wrap">
 <header>
   <div class="eyebrow"><a href="./">스몰데이터랩</a><a href="./research.html"><b>Research</b></a><span>논문 대시보드</span></div>
-  <h1>게재 논문을 결과부터 읽습니다<small>Paper dashboard · 논문마다 결과 한 줄, 쉬운 설명, 연구 모델 도식, 방법론</small></h1>
-  <p class="dek">원자료를 공개할 수 없는 논문도 무엇을 발견했는지는 열어 둘 수 있습니다. 논문마다 결과를 먼저 적고, 비전공자용 설명과 개념 모델 도식, 핵심 수치, 방법론 한 줄을 붙였습니다. 화살표 색은 가설 방향(파랑 +, 빨강 −)이고 점선은 지지되지 않은 경로입니다.</p>
+  <h1>논문 읽어드립니다<small>Paper dashboard · 결과 한 줄 → 쉬운 설명 → 연구 모델 도식 → 방법론</small></h1>
+  <p class="dek">원자료를 공개할 수 없는 논문도 <mark>무엇을 발견했는지</mark>는 열어 둘 수 있습니다. 논문마다 결과를 먼저 적고, 비전공자용 설명과 개념 모델 도식, 핵심 수치, 방법론 한 줄을 붙였습니다. 화살표 색은 가설 방향(파랑 +, 빨강 −)이고 점선은 지지되지 않은 경로입니다. 점선 밑줄이 있는 용어에 마우스를 올리면 뜻이 뜹니다.</p>
   <div class="meta">
     <span>게재 <b id="m-n"></b></span>
     <span>SSCI·SCIE <b id="m-top"></b></span>
@@ -3053,5 +3056,6 @@ document.addEventListener("mousemove", e=>{
 /* 해시로 들어오면 해당 카드로 */
 if(location.hash){ const el=document.querySelector(location.hash); if(el) setTimeout(()=>el.scrollIntoView({block:"start"}),50); }
 </script>
+<script src="./assets/glossary.js" defer></script>
 </body>
 </html>
