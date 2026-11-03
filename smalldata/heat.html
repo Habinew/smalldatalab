@@ -1,0 +1,443 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>가을옷은 밤 기온 22도에 켜진다</title>
+<meta name="description" content="기상청 서울 118년 기온과 네이버 검색 10년을 겹쳐 가을옷 검색이 켜지는 '밤 기온'을 찾은 「김하빈의 스몰데이터」 8월 칼럼의 데이터 대시보드">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>html{color-scheme:light}img{max-width:100%}[hidden]{display:none!important}body{margin:0;font:14px system-ui,sans-serif}</style>
+</head>
+<body>
+<style>
+/* 레이아웃: 한 칸 짜리 데이터 에세이. 좌측 정렬 제목 → 수치 띠 → 도표 카드가 세로로 쌓이고, 각 카드는 제목(결론)·도표·표 보기·출처 순. */
+:root{
+  --bg:#f6f7f8; --surface:#fcfcfb; --ink:#0b0b0b; --ink-2:#52514e; --muted:#898781;
+  --grid:#e1e0d9; --axis:#c3c2b7; --ring:rgba(11,11,11,.10); --wash:rgba(42,120,214,.08);
+  --pos:#2a78d6; --neg:#e34948; --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100; --gray:#b9b8b2;
+  --f-body:"IBM Plex Sans KR",system-ui,-apple-system,"Segoe UI","Malgun Gothic",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0d0d0d; --surface:#1a1a19; --ink:#f0efec; --ink-2:#c3c2b7; --muted:#898781;
+  --grid:#2c2c2a; --axis:#383835; --ring:rgba(255,255,255,.10); --wash:rgba(57,135,229,.12);
+  --pos:#3987e5; --neg:#e66767; --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --gray:#6b6a66; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0d0d0d; --surface:#1a1a19; --ink:#f0efec; --ink-2:#c3c2b7; --muted:#898781;
+  --grid:#2c2c2a; --axis:#383835; --ring:rgba(255,255,255,.10); --wash:rgba(57,135,229,.12);
+  --pos:#3987e5; --neg:#e66767; --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --gray:#6b6a66; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased}
+.wrap{max-width:960px;margin:0 auto;padding-block:40px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+a{color:inherit}
+h1,h2,h3{margin:0;text-wrap:balance;line-height:1.25}
+.eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2);display:flex;gap:14px;flex-wrap:wrap}
+.eyebrow b{color:var(--pos);font-weight:500}
+h1{font-size:clamp(28px,4.6vw,44px);font-weight:700;margin-top:14px;letter-spacing:-.01em}
+.dek{margin:18px 0 0;max-width:62ch;color:var(--ink-2);font-size:16px}
+.dek p{margin:0 0 6px}
+.meta{margin-top:22px;display:flex;gap:10px 22px;flex-wrap:wrap;font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.meta span b{color:var(--ink-2);font-weight:500}
+
+.kpis{display:grid;grid-template-columns:1.6fr repeat(4,1fr);gap:12px;margin-top:36px}
+@media (max-width:760px){.kpis{grid-template-columns:1fr 1fr}.kpis .hero{grid-column:1/-1}}
+.tile{background:var(--surface);border:1px solid var(--ring);border-radius:10px;padding:16px 18px;min-width:0}
+.tile .lab{font-size:12.5px;color:var(--ink-2)}
+.tile .val{font-size:30px;font-weight:600;letter-spacing:-.02em;margin-top:4px;line-height:1.1}
+.tile .sub{font-size:12px;color:var(--muted);margin-top:6px}
+.tile.hero .val{font-size:clamp(48px,7vw,64px);font-weight:700}
+.tile.hero .val small{display:block;font-size:.3em;font-weight:500;color:var(--ink-2);margin-top:6px;letter-spacing:0;line-height:1.3}
+.neg{color:var(--neg)} .pos{color:var(--pos)}
+
+section.card{background:var(--surface);border:1px solid var(--ring);border-radius:12px;padding:22px 22px 16px;margin-top:22px;min-width:0}
+.card h2{font-size:19px;font-weight:600}
+.card .lede{margin:6px 0 0;color:var(--ink-2);font-size:14px;max-width:70ch}
+.chart{position:relative;margin-top:16px}
+.chart svg{display:block;width:100%;height:auto;overflow:visible}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media (max-width:700px){.row2{grid-template-columns:1fr}}
+.panel h3{font-size:13.5px;font-weight:500;color:var(--ink-2);margin-bottom:4px}
+.legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:12px;font-size:12.5px;color:var(--ink-2)}
+.legend i{display:inline-block;width:14px;height:0;border-top:2px solid;vertical-align:middle;margin-right:6px;border-radius:2px}
+.legend i.rect{height:10px;border:0;border-radius:2px}
+.source{font-family:var(--f-mono);font-size:11.5px;color:var(--muted);margin-top:12px;line-height:1.5}
+details.tbl{margin-top:10px;font-size:13px}
+details.tbl summary{cursor:pointer;color:var(--ink-2);font-size:12.5px;list-style:none;display:inline-flex;gap:6px;align-items:center;padding:4px 0}
+details.tbl summary::-webkit-details-marker{display:none}
+details.tbl summary::before{content:"▸";font-size:11px}
+details.tbl[open] summary::before{content:"▾"}
+.tscroll{overflow-x:auto;margin-top:6px}
+table{border-collapse:collapse;width:100%;font-size:12.5px;font-variant-numeric:tabular-nums}
+th,td{padding:5px 10px;border-bottom:1px solid var(--grid);text-align:right;white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+th{color:var(--ink-2);font-weight:500;font-size:12px}
+
+svg text{font-family:var(--f-body);font-size:11.5px;fill:var(--ink-2)}
+svg .tick{font-family:var(--f-mono);font-size:10.5px;fill:var(--muted);font-variant-numeric:tabular-nums}
+svg .grid{stroke:var(--grid);stroke-width:1}
+svg .axis{stroke:var(--axis);stroke-width:1}
+svg .base{stroke:var(--ink);stroke-width:1}
+svg .lbl{fill:var(--ink);font-weight:500;font-size:12px}
+svg .note{fill:var(--ink-2);font-size:11.5px}
+svg .pos{fill:var(--pos)} svg .negf{fill:var(--neg)} svg .wash{fill:var(--wash)}
+svg .l-pos{stroke:var(--pos)} svg .l-neg{stroke:var(--neg)} svg .l-gray{stroke:var(--gray)}
+svg .l-s1{stroke:var(--s1)} svg .l-s2{stroke:var(--s2)} svg .l-s3{stroke:var(--s3)} svg .l-s4{stroke:var(--s4)}
+svg .line{fill:none;stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+svg .dot{stroke:var(--surface);stroke-width:2}
+svg .hit{fill:transparent;cursor:crosshair}
+svg .xh{stroke:var(--ink-2);stroke-width:1;pointer-events:none}
+svg .bar{shape-rendering:crispEdges}
+svg .bar.hover,svg .seg.hover{filter:brightness(1.12)}
+
+.tip{position:fixed;z-index:20;pointer-events:none;background:var(--ink);color:var(--bg);padding:8px 10px;border-radius:6px;font-size:12px;line-height:1.45;max-width:260px;box-shadow:0 4px 18px rgba(0,0,0,.18);opacity:0;transition:opacity .08s}
+.tip.on{opacity:1}
+.tip b{font-size:14px;font-weight:600}
+.tip .k{display:inline-block;width:10px;border-top:2px solid;vertical-align:middle;margin-right:6px}
+.tip .dim{opacity:.7}
+
+.two{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:22px}
+@media (max-width:760px){.two{grid-template-columns:1fr}}
+ol.win{margin:12px 0 0;padding:0;list-style:none;display:grid;gap:8px}
+ol.win li{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:baseline;border-bottom:1px solid var(--grid);padding-bottom:8px;font-size:13.5px}
+ol.win .rk{font-family:var(--f-mono);color:var(--muted);font-size:12px}
+ol.win .nm{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+ol.win .nm small{display:block;color:var(--muted);font-size:11.5px}
+ol.win .mt{font-weight:600;font-variant-numeric:tabular-nums}
+ol.win .mt small{color:var(--muted);font-weight:400;font-size:11.5px;margin-left:6px}
+
+.method{margin-top:30px;padding-top:22px;border-top:1px solid var(--grid);display:grid;grid-template-columns:1fr 1fr;gap:22px;font-size:13.5px;color:var(--ink-2)}
+@media (max-width:760px){.method{grid-template-columns:1fr}}
+.method h3{font-size:13px;color:var(--ink);font-weight:600;margin-bottom:6px}
+.method ul{margin:0;padding-left:18px}
+.method li{margin:3px 0}
+footer{margin-top:36px;font-family:var(--f-mono);font-size:11.5px;color:var(--muted);display:flex;gap:16px;flex-wrap:wrap;justify-content:space-between}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+:focus-visible{outline:2px solid var(--pos);outline-offset:2px}
+</style>
+
+<div class="wrap">
+<header>
+  <div class="eyebrow"><a href="./index.html" style="text-decoration:none"><b>김하빈의 스몰데이터</b></a><span>2026년 8월</span><span>기상청 × 네이버 데이터랩</span></div>
+  <h1>가을옷 성패는 '9월 첫째 주'가 아닌 '밤 기온 22도'에 달렸다</h1>
+  <div class="dek">
+    <p>서울 기온 118년과 의류 검색 10년을 겹쳤다. 가디건 검색은 해마다 다른 날짜에 켜지지만, 그 주의 밤 기온은 늘 22℃ 부근이었다. 트렌치코트 21℃, 니트 18℃, 목도리 5℃.</p>
+    <p>기준 온도는 10년간 변하지 않았고, 그 온도가 도착하는 날짜만 최대 11일 늦어졌다. 폭염 잡화는 반대로 날씨가 아니라 일기예보에, 나흘만 반응한다.</p>
+  </div>
+  <div class="meta">
+    <span>데이터 <b>기상청 ASOS 서울(108) 일자료</b> · <b>네이버 데이터랩</b> · Open-Meteo 예보 아카이브</span>
+    <span>기온 <b id="m-days"></b>일 (<b id="m-start"></b>~) · 검색 주별 2016~2025 · 일별 2024~2026</span>
+    <span>기준일 <b id="m-asof"></b></span>
+  </div>
+</header>
+
+<div class="kpis" id="kpis"></div>
+
+<section class="card">
+  <h2>날짜는 흔들려도 온도는 고정이다 — 옷장의 온도계</h2>
+  <p class="lede">2016~2025년 각 해에 가을·겨울 아이템 검색이 '켜진' 주(그해 가을 정점의 40%를 처음 넘긴 주)를 점으로 찍었다. 가로는 날짜, 세로는 그 주의 평균 밤 최저기온. 점들은 가로로 넓게 흩어지지만 세로로는 1℃ 안팎에 모인다. 패딩만 예외다.</p>
+  <div class="chart" id="c-f1"></div>
+  <div class="legend" id="lg-f1"></div>
+  <details class="tbl"><summary>표로 보기 (아이템별 점화 통계)</summary><div class="tscroll" id="t-f1"></div></details>
+  <p class="source">점화 = 8/1~12/31 창에서 그해 정점의 40%를 처음 넘긴 주(주별 검색, 단일 키워드). 밤기온은 기상청 서울 관측소 점화 주 7일 평균 최저기온. 판정: 온도 편차(℃) &lt; 날짜 편차(일) × 0.25℃/일 이면 '온도계'. 기준을 30%·50%로 바꿔도 가디건·트렌치·목도리는 같은 대역에 머문다.</p>
+</section>
+
+<section class="card">
+  <h2>온도는 적응하지 않았고, 날짜만 밀렸다</h2>
+  <p class="lede">10년을 앞뒤 5년으로 나눠 다시 계산했다. 점화 밤기온의 차이는 0.3℃ 안쪽이다. 대신 그 온도가 찾아오는 날짜가 가디건 5일, 트렌치코트 9일, 니트 11일 늦어졌다.</p>
+  <div class="row2">
+    <div class="panel"><h3>점화 주 밤기온 (℃) — 2016~20 → 2021~25</h3><div class="chart" id="c-f2a"></div></div>
+    <div class="panel"><h3>평균 점화일 — 2016~20 → 2021~25</h3><div class="chart" id="c-f2b"></div></div>
+  </div>
+  <div class="legend" id="lg-f2"></div>
+  <details class="tbl"><summary>표로 보기</summary><div class="tscroll" id="t-f2"></div></details>
+  <p class="source">전반·후반 각 5개 연도의 점화 밤기온·점화일(연중 일수) 평균. 날짜 차이는 평균 점화일을 날짜로 반올림한 뒤의 간격(니트의 연속값 차이는 10.4일).</p>
+</section>
+
+<section class="card">
+  <h2>9월 밤이 더운 해에는 트렌치코트가 늦게 켜진다</h2>
+  <p class="lede">연도별 9월 평균 밤 최저기온(가로)과 트렌치코트 검색 점화일(세로). 더운 9월일수록 점화가 늦다. 상관계수 0.83. 가디건은 0.67.</p>
+  <div class="chart" id="c-f3"></div>
+  <details class="tbl"><summary>표로 보기 (연도별)</summary><div class="tscroll" id="t-f3"></div></details>
+  <p class="source">2016~2025년 10개 연도. 직선은 최소제곱 적합. 검색은 상대지수라 연도 간 크기 비교 대신 시점(점화 주)만 사용.</p>
+</section>
+
+<section class="card">
+  <h2>서울의 가을은 한 세기 동안 17일 늦어졌다</h2>
+  <p class="lede">기상청 계절 구분(일평균기온 9일 이동평균이 20℃ 아래로 내려가 다시 오르지 않는 첫날)으로 본 '가을 시작일'은 1910년대 9월 15일에서 2020년대 10월 2일로 밀렸다. 30℃를 넘는 날은 1980년대 연 27일에서 2020년대 55일로, 열대야는 4일에서 27일로 늘었다.</p>
+  <div class="row2">
+    <div class="panel"><h3>가을 시작일 · 더위의 끝 (1908~2025)</h3><div class="chart" id="c-f4a"></div></div>
+    <div class="panel"><h3>연간 30℃ 이상 일수 · 열대야(25℃ 이상) 일수 (1980~2025)</h3><div class="chart" id="c-f4b"></div></div>
+  </div>
+  <div class="legend" id="lg-f4"></div>
+  <details class="tbl"><summary>표로 보기 (연대별 평균)</summary><div class="tscroll" id="t-f4"></div></details>
+  <p class="source">기상청 ASOS 서울(108) 일자료 1908~2026.8. 한국전쟁기(1950~53) 결측. '더위의 끝'은 그해 마지막 30℃ 이상일 — 잡음이 커서 보조 지표로만. 굵은 선은 10년 중심 이동평균.</p>
+</section>
+
+<section class="card">
+  <h2>유난히 더운 날 켜지는 것은 옷이 아니라 잡화다</h2>
+  <p class="lede">여름(6~9월) 일별 검색을 '평년보다 몇 도 더운가'와 맞췄다. 계절 효과를 빼고 나면 휴대용선풍기·양산·쿨토시만 뚜렷하게 반응한다. 냉감 의류·침구·수면용품은 0에 가깝고, 제습기는 오히려 줄어든다. 잡화의 반응은 하루 전에 시작해 당일 정점, 이틀 뒤면 절반, 나흘이면 사라진다.</p>
+  <div class="row2">
+    <div class="panel"><h3>검색 ↔ 기온 평년편차 상관 (여름 306일)</h3><div class="chart" id="c-f5a"></div></div>
+    <div class="panel"><h3>시차 프로파일: 더위 전·후 며칠에 검색하나</h3><div class="chart" id="c-f5b"></div></div>
+  </div>
+  <div class="legend" id="lg-f5"></div>
+  <details class="tbl"><summary>표로 보기</summary><div class="tscroll" id="t-f5"></div></details>
+  <p class="source">2024.1~2026.8 일별 검색(그룹당 3개 키워드 합산) × 서울 일 최고기온의 평년(2016~2026 같은 날짜 평균, ±7일 평활) 편차. 시차 k&lt;0은 더위 '전'에 검색(예보·선구매), k&gt;0은 '후'.</p>
+</section>
+
+<section class="card">
+  <h2>선풍기를 팔아주는 것은 더위가 아니라 예보다</h2>
+  <p class="lede">하루 전 발표된 예보와 실제 최고기온으로 여름 306일을 넷으로 나눴다. 예보도 실제도 33℃를 넘긴 '예고된 폭염'에만 선풍기 검색이 뛰고, 전날 검색이 당일보다 높다. 예보만 있고 오지 않은 '헛방'과 예보 없이 닥친 '기습'은 똑같이 미지근하다. 실제로 더웠는지보다 예보됐는지가 검색을 결정한다.</p>
+  <div class="chart" id="c-f6"></div>
+  <div class="legend" id="lg-f6"></div>
+  <details class="tbl"><summary>표로 보기</summary><div class="tscroll" id="t-f6"></div></details>
+  <p class="source">휴대용선풍기 일별 검색의 표준화 점수(z, 여름 평균 0). 예보 = Open-Meteo 이전 실행 아카이브의 '하루 전 발표' 서울 최고기온(1일 전 예보 RMSE 1.1℃). 헛방·기습 표본은 각 8~9일로 작다. 4분면 평균만 보이며 회귀 계수는 인과로 해석하지 않는다.</p>
+</section>
+
+<div class="method">
+  <div><h3>방법</h3><ul>
+    <li>기온: 기상청 기상자료개방포털 ASOS 서울 관측소(108) 일 최고·최저·평균기온 1908~2026.8(42,472일). 도심 관측소라 열섬이 포함된 체감에 가까운 값이다.</li>
+    <li>검색: 네이버 데이터랩 검색어 트렌드. 아이템 점화는 주별·단일 키워드(2016~2025), 폭염 반응은 일별·3키워드 그룹(2024~2026). 상대지수라 요청 간 절대 비교는 하지 않는다.</li>
+    <li>점화 = 그해 시즌 정점의 40%를 처음 넘긴 주. 30%·50%로 바꾸거나 '2주 연속'으로 강화해도 간판 아이템(가디건·트렌치·목도리)의 판정은 같다.</li>
+    <li>ERA5 재분석 자료로 먼저 분석한 뒤 기상청 자료로 전면 교체했다. 두 자료에서 온도계/달력 판정 14개가 모두 일치했다.</li>
+  </ul></div>
+  <div><h3>한계</h3><ul>
+    <li>전부 검색 데이터다. 판매가 아니라 "찾기 시작한다"까지만 말할 수 있다. 판매 기반 해외 연구(Bertrand &amp; Brusset 2020)와 방향이 같다는 점으로 보강했다.</li>
+    <li>온도계/달력 판정은 휴리스틱이다. 자켓·코트는 경계에 있고, 니트는 기준을 강화하면 판정이 흔들린다(온도 정밀도는 불변).</li>
+    <li>예보 4분면의 헛방·기습 표본은 10일 미만이다. 예고된 폭염이 더 뜨거웠을 가능성(강도 교란)도 배제하지 못한다.</li>
+    <li>칼럼 도입부의 2026년 8월 입추 전후 기온(8/7 38.0℃ → 밤 21.3℃)은 기준일 이후 자료라 이 페이지에는 없다.</li>
+  </ul></div>
+</div>
+
+<footer>
+  <span>© 2026 김하빈 · 스몰데이터랩 · 국립순천대학교</span>
+  <span><a href="https://www.sisajournal.com/news/articleView.html?idxno=384704">칼럼 원문 (시사저널, 2026.08.25)</a> · 집계 데이터·코드 공개 준비 중</span>
+</footer>
+</div>
+<div class="tip" id="tip" role="status" aria-live="polite"></div>
+
+<script>
+const D = {"headline":{"asof":"2026.08.01","kma_days":42472,"kma_start":"1908","cardigan_t":22.127142857142857,"cardigan_sd":1.0213469830884834,"knit_shift":10.399999999999977,"trench_r":0.8335856893242604,"autumn_1910s":"09-15","autumn_2020s":"10-02","autumn_shift":17.066666666666663,"hot_1980s":27.2,"hot_2020s":54.833333333333336,"trop_1980s":4.3,"trop_2020s":26.666666666666668,"fc_rmse":1.1382390940809044,"summer_days_n":306,"scan_days_n":306},"ladder":[{"item":"가디건","n":10,"date":"08-24","doy":236.0,"sd_day":7.102425250887506,"tmin":22.127142857142857,"sd_tmin":1.0213469830884834,"verdict":"온도계","r_sep":0.6655507777838284},{"item":"트렌치코트","n":10,"date":"08-28","doy":240.9,"sd_day":10.492854711659739,"tmin":21.15714285714286,"sd_tmin":1.4179446016766788,"verdict":"온도계","r_sep":0.8335856893242604},{"item":"니트","n":10,"date":"09-14","doy":257.0,"sd_day":7.211102550927978,"tmin":17.99142857142857,"sd_tmin":1.302974096672164,"verdict":"온도계","r_sep":0.46863765993165835},{"item":"목도리","n":10,"date":"10-31","doy":304.6,"sd_day":5.853773711604051,"tmin":4.9471428571428575,"sd_tmin":1.3084939673475895,"verdict":"온도계","r_sep":0.13223902119059625},{"item":"패딩","n":10,"date":"10-26","doy":299.0,"sd_day":8.589399151150083,"tmin":6.662857142857144,"sd_tmin":2.867633122958925,"verdict":"달력","r_sep":0.40003715684785074}],"points":{"가디건":[{"yr":2016,"doy":235,"date":"08-22","tmin":22.4,"sep_tmin":19.3},{"yr":2017,"doy":226,"date":"08-14","tmin":22.1,"sep_tmin":17.5},{"yr":2018,"doy":232,"date":"08-20","tmin":23.4,"sep_tmin":17.6},{"yr":2019,"doy":231,"date":"08-19","tmin":22.3,"sep_tmin":19.0},{"yr":2020,"doy":244,"date":"08-31","tmin":21.3,"sep_tmin":18.0},{"yr":2021,"doy":228,"date":"08-16","tmin":21.7,"sep_tmin":18.8},{"yr":2022,"doy":234,"date":"08-22","tmin":20.3,"sep_tmin":18.1},{"yr":2023,"doy":240,"date":"08-28","tmin":21.2,"sep_tmin":20.2},{"yr":2024,"doy":246,"date":"09-02","tmin":23.3,"sep_tmin":22.0},{"yr":2025,"doy":244,"date":"09-01","tmin":23.3,"sep_tmin":20.3}],"트렌치코트":[{"yr":2016,"doy":242,"date":"08-29","tmin":18.6,"sep_tmin":19.3},{"yr":2017,"doy":226,"date":"08-14","tmin":22.1,"sep_tmin":17.5},{"yr":2018,"doy":232,"date":"08-20","tmin":23.4,"sep_tmin":17.6},{"yr":2019,"doy":238,"date":"08-26","tmin":20.7,"sep_tmin":19.0},{"yr":2020,"doy":244,"date":"08-31","tmin":21.3,"sep_tmin":18.0},{"yr":2021,"doy":228,"date":"08-16","tmin":21.7,"sep_tmin":18.8},{"yr":2022,"doy":241,"date":"08-29","tmin":19.4,"sep_tmin":18.1},{"yr":2023,"doy":247,"date":"09-04","tmin":22.4,"sep_tmin":20.2},{"yr":2024,"doy":260,"date":"09-16","tmin":21.6,"sep_tmin":22.0},{"yr":2025,"doy":251,"date":"09-08","tmin":20.5,"sep_tmin":20.3}],"니트":[{"yr":2016,"doy":242,"date":"08-29","tmin":18.6,"sep_tmin":19.3},{"yr":2017,"doy":254,"date":"09-11","tmin":17.2,"sep_tmin":17.5},{"yr":2018,"doy":253,"date":"09-10","tmin":19.3,"sep_tmin":17.6},{"yr":2019,"doy":259,"date":"09-16","tmin":17.1,"sep_tmin":19.0},{"yr":2020,"doy":251,"date":"09-07","tmin":18.6,"sep_tmin":18.0},{"yr":2021,"doy":263,"date":"09-20","tmin":17.7,"sep_tmin":18.8},{"yr":2022,"doy":262,"date":"09-19","tmin":15.0,"sep_tmin":18.1},{"yr":2023,"doy":261,"date":"09-18","tmin":18.5,"sep_tmin":20.2},{"yr":2024,"doy":267,"date":"09-23","tmin":18.5,"sep_tmin":22.0},{"yr":2025,"doy":258,"date":"09-15","tmin":19.5,"sep_tmin":20.3}],"목도리":[{"yr":2016,"doy":305,"date":"10-31","tmin":4.6,"sep_tmin":19.3},{"yr":2017,"doy":310,"date":"11-06","tmin":5.2,"sep_tmin":17.5},{"yr":2018,"doy":302,"date":"10-29","tmin":3.4,"sep_tmin":17.6},{"yr":2019,"doy":308,"date":"11-04","tmin":5.7,"sep_tmin":19.0},{"yr":2020,"doy":307,"date":"11-02","tmin":5.6,"sep_tmin":18.0},{"yr":2021,"doy":291,"date":"10-18","tmin":5.2,"sep_tmin":18.8},{"yr":2022,"doy":304,"date":"10-31","tmin":5.4,"sep_tmin":18.1},{"yr":2023,"doy":310,"date":"11-06","tmin":2.1,"sep_tmin":20.2},{"yr":2024,"doy":309,"date":"11-04","tmin":5.8,"sep_tmin":22.0},{"yr":2025,"doy":300,"date":"10-27","tmin":6.6,"sep_tmin":20.3}],"패딩":[{"yr":2016,"doy":305,"date":"10-31","tmin":4.6,"sep_tmin":19.3},{"yr":2017,"doy":303,"date":"10-30","tmin":6.4,"sep_tmin":17.5},{"yr":2018,"doy":302,"date":"10-29","tmin":3.4,"sep_tmin":17.6},{"yr":2019,"doy":301,"date":"10-28","tmin":8.3,"sep_tmin":19.0},{"yr":2020,"doy":293,"date":"10-19","tmin":7.7,"sep_tmin":18.0},{"yr":2021,"doy":284,"date":"10-11","tmin":11.9,"sep_tmin":18.8},{"yr":2022,"doy":290,"date":"10-17","tmin":7.5,"sep_tmin":18.1},{"yr":2023,"doy":310,"date":"11-06","tmin":2.1,"sep_tmin":20.2},{"yr":2024,"doy":309,"date":"11-04","tmin":5.8,"sep_tmin":22.0},{"yr":2025,"doy":293,"date":"10-20","tmin":9.0,"sep_tmin":20.3}]},"sens":{"가디건":{"30":22.4,"40":22.1,"50":20.4},"트렌치코트":{"30":22.3,"40":21.2,"50":19.8},"니트":{"30":20.1,"40":18.0,"50":15.8},"목도리":{"30":5.5,"40":4.9,"50":2.3}},"adapt":[{"item":"가디건","t1":22.294285714285714,"t2":21.959999999999997,"d1":233.6,"d2":238.4,"md1":"08-21","md2":"08-26"},{"item":"트렌치코트","t1":21.202857142857145,"t2":21.111428571428572,"d1":236.4,"d2":245.4,"md1":"08-24","md2":"09-02"},{"item":"니트","t1":18.148571428571433,"t2":17.834285714285716,"d1":251.8,"d2":262.2,"md1":"09-08","md2":"09-19"}],"century":{"years":[1908,1909,1910,1911,1912,1913,1914,1915,1916,1917,1918,1919,1920,1921,1922,1923,1924,1925,1926,1927,1928,1929,1930,1931,1932,1933,1934,1935,1936,1937,1938,1939,1940,1941,1942,1943,1944,1945,1946,1947,1948,1949,1950,1951,1952,1953,1954,1955,1956,1957,1958,1959,1960,1961,1962,1963,1964,1965,1966,1967,1968,1969,1970,1971,1972,1973,1974,1975,1976,1977,1978,1979,1980,1981,1982,1983,1984,1985,1986,1987,1988,1989,1990,1991,1992,1993,1994,1995,1996,1997,1998,1999,2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025],"autumn":[255,269,254,256,251,258,259,265,266,263,255,254,260,262,261,260,262,258,259,256,265,250,257,268,266,264,254,256,257,266,252,261,258,251,260,264,270,270,258,261,260,262,null,null,null,null,264,262,266,251,261,263,270,276,264,262,260,270,256,257,266,266,268,265,261,265,258,274,256,277,277,263,262,269,266,270,265,257,258,262,267,264,271,265,266,266,263,256,273,257,284,271,272,268,271,265,272,272,282,271,268,274,265,264,270,269,272,273,279,280,265,277,267,281,274,273,275,281],"last30":[234,241,238,247,246,276,249,232,242,243,241,240,250,260,253,244,250,245,250,240,250,237,238,267,242,244,231,252,230,243,245,256,254,245,255,259,267,247,273,242,255,257,null,null,null,null,247,250,247,238,222,257,257,250,235,256,251,267,243,250,262,245,251,242,230,242,239,251,247,247,249,238,214,241,244,244,239,246,244,240,252,236,250,251,250,249,247,243,259,251,263,256,247,259,247,237,249,254,246,263,263,235,261,260,240,262,251,267,257,269,244,259,244,256,261,252,263,258],"decades":[{"dec":"1910s","n":10,"autumn":258.1,"autumn_md":"09-15","last30":245.4,"last30_md":"09-02"},{"dec":"1920s","n":10,"autumn":259.3,"autumn_md":"09-16","last30":247.9,"last30_md":"09-04"},{"dec":"1930s","n":10,"autumn":260.1,"autumn_md":"09-17","last30":244.8,"last30_md":"09-01"},{"dec":"1940s","n":10,"autumn":261.4,"autumn_md":"09-18","last30":255.4,"last30_md":"09-12"},{"dec":"1950s","n":6,"autumn":261.1666666666667,"autumn_md":"09-18","last30":243.5,"last30_md":"08-31"},{"dec":"1960s","n":10,"autumn":264.7,"autumn_md":"09-21","last30":251.6,"last30_md":"09-08"},{"dec":"1970s","n":10,"autumn":266.4,"autumn_md":"09-23","last30":243.6,"last30_md":"08-31"},{"dec":"1980s","n":10,"autumn":264.0,"autumn_md":"09-21","last30":240.0,"last30_md":"08-28"},{"dec":"1990s","n":10,"autumn":267.2,"autumn_md":"09-24","last30":251.9,"last30_md":"09-08"},{"dec":"2000s","n":10,"autumn":271.5,"autumn_md":"09-28","last30":250.0,"last30_md":"09-07"},{"dec":"2010s","n":10,"autumn":271.4,"autumn_md":"09-28","last30":257.0,"last30_md":"09-14"},{"dec":"2020s","n":6,"autumn":275.1666666666667,"autumn_md":"10-02","last30":255.66666666666666,"last30_md":"09-12"}]},"heatdays":{"years":[1980,1981,1982,1983,1984,1985,1986,1987,1988,1989,1990,1991,1992,1993,1994,1995,1996,1997,1998,1999,2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025],"hot":[6,31,30,24,41,39,16,16,37,32,34,33,31,13,56,24,33,61,34,49,53,57,23,19,36,31,27,38,31,27,49,36,41,49,40,60,56,50,54,47,34,47,45,53,80,70],"trop":[0,7,2,7,10,8,1,0,6,2,3,2,2,0,34,15,11,14,1,7,9,7,3,1,12,11,9,12,7,2,14,1,17,20,5,9,32,14,28,16,14,20,20,19,42,45],"decades":[{"dec":"1980s","hot":27.2,"trop":4.3},{"dec":"1990s","hot":36.8,"trop":8.9},{"dec":"2000s","hot":34.2,"trop":7.3},{"dec":"2010s","hot":48.2,"trop":15.6},{"dec":"2020s","hot":54.833333333333336,"trop":26.666666666666668}]},"anomr":[{"g":"폭염잡화","kw":"휴대용선풍기·양산·쿨토시","r":0.34615652251891105},{"g":"선케어","kw":"선크림·선쿠션·선스틱","r":0.16833944228445458},{"g":"역시즌겨울","kw":"패딩·코트","r":0.11286587587941221},{"g":"가을옷","kw":"트렌치코트·가디건·니트","r":0.07376307593998524},{"g":"냉감의류","kw":"쿨링티셔츠·린넨셔츠·냉감티셔츠","r":0.0461767930423257},{"g":"여름수면","kw":"인견잠옷·홑이불·냉감패드","r":0.02488086032191203},{"g":"냉감침구","kw":"쿨매트·냉감이불·쿨링매트","r":0.017710451772278108},{"g":"물놀이","kw":"수영복·래시가드·워터파크","r":0.016308580484045834},{"g":"여름신발","kw":"샌들·슬리퍼·아쿠아슈즈","r":-0.07559993050262837},{"g":"실내제습","kw":"제습기·에어서큘레이터","r":-0.3504197969901318}],"lags":[-4,-3,-2,-1,0,1,2,3,4,5],"lagprof":{"폭염잡화":[0.035,0.114,0.188,0.27,0.346,0.258,0.173,0.101,0.022,-0.009],"냉감의류":[-0.076,-0.049,-0.02,0.01,0.046,0.016,0.012,0.004,-0.014,-0.014],"냉감침구":[-0.08,-0.043,0.004,0.027,0.018,-0.041,-0.067,-0.058,-0.066,-0.075]},"quad":[{"q":"예고된 폭염","def":"예보 33℃+ · 실제 33℃+","n":19,"z":1.1223645152395856,"z_lead":1.268702986305388},{"q":"헛방 폭염","def":"예보 33℃+ · 실제 33℃ 미만","n":8,"z":0.24472840742418206,"z_lead":0.13788581510819437},{"q":"기습 폭염","def":"예보 33℃ 미만 · 실제 33℃+","n":9,"z":0.24672098236929582,"z_lead":0.14561298204842535},{"q":"평온","def":"둘 다 33℃ 미만","n":270,"z":-0.09445645144544143,"z_lead":-0.0988813708563999}]};
+const $ = s => document.querySelector(s);
+const fmtN = v => v.toLocaleString("ko-KR");
+const fmtT = v => v.toFixed(1) + "℃";
+const fmtR = v => (v >= 0 ? "+" : "−") + Math.abs(v).toFixed(2);
+const fmtZ = v => (v >= 0 ? "+" : "−") + Math.abs(v).toFixed(2);
+const MD = doy => { const d = new Date(2001, 0, 1); d.setDate(d.getDate() + Math.floor(doy) - 1); return (d.getMonth() + 1) + "/" + d.getDate(); };
+const T = (tag, attrs, parent) => { const e = document.createElementNS("http://www.w3.org/2000/svg", tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; };
+const txt = (parent, x, y, s, cls, anchor) => { const t = T("text", { x, y, class: cls || "", "text-anchor": anchor || "start" }, parent); t.textContent = s; return t; };
+const cssVar = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim() || "#888";
+
+/* ---------- 툴팁 ---------- */
+const tip = $("#tip");
+function showTip(ev, rows) { tip.replaceChildren(); rows.forEach(r => { const d = document.createElement("div"); if (r.k) { const k = document.createElement("span"); k.className = "k"; k.style.borderColor = r.k; d.appendChild(k); } if (r.b) { const b = document.createElement("b"); b.textContent = r.b; d.appendChild(b); d.appendChild(document.createTextNode(" ")); } const s = document.createElement("span"); s.className = r.b ? "dim" : ""; s.textContent = r.t || ""; d.appendChild(s); tip.appendChild(d); }); tip.classList.add("on"); moveTip(ev); }
+function moveTip(ev) { const w = tip.offsetWidth, h = tip.offsetHeight; let x = ev.clientX + 14, y = ev.clientY + 14; if (x + w > innerWidth - 8) x = ev.clientX - w - 14; if (y + h > innerHeight - 8) y = ev.clientY - h - 14; tip.style.left = x + "px"; tip.style.top = y + "px"; }
+function hideTip() { tip.classList.remove("on"); }
+
+/* ---------- 공통 스케일 ---------- */
+const lin = (d0, d1, r0, r1) => v => r0 + (v - d0) / (d1 - d0) * (r1 - r0);
+function svgIn(el, w, h) { el.replaceChildren(); return T("svg", { viewBox: `0 0 ${w} ${h}`, width: w, height: h, role: "img" }, el); }
+function widthOf(el) { return Math.max(280, el.clientWidth || 600); }
+function table(sel, head, rows) { const box = $(sel); box.replaceChildren(); const t = document.createElement("table"); const tr = document.createElement("tr"); head.forEach(h => { const th = document.createElement("th"); th.textContent = h; tr.appendChild(th); }); t.appendChild(tr); rows.forEach(r => { const tr = document.createElement("tr"); r.forEach(c => { const td = document.createElement("td"); td.textContent = c; tr.appendChild(td); }); t.appendChild(tr); }); box.appendChild(t); }
+function legend(sel, items) { const l = $(sel); l.replaceChildren(); items.forEach(it => { const sp = document.createElement("span"); const i = document.createElement("i"); i.style.borderColor = it.c; if (it.rect) { i.className = "rect"; i.style.background = it.c; } sp.appendChild(i); sp.appendChild(document.createTextNode(it.t)); l.appendChild(sp); }); }
+const COLORS = { pos: "var(--pos)", neg: "var(--neg)", gray: "var(--gray)", s1: "var(--s1)", s2: "var(--s2)", s3: "var(--s3)", s4: "var(--s4)" };
+const ITEM_C = { "가디건": "s1", "트렌치코트": "s2", "니트": "s3", "목도리": "s4", "패딩": "gray" };
+
+/* ---------- 선 그래프 공통 ---------- */
+function lineChart(sel, { series, xs, xlab, ylo, yhi, yticks, yfmt, xfmt, refs, endLabels, H = 260, m = { l: 44, r: 16, t: 18, b: 34 } }) {
+  const el = $(sel), W = widthOf(el); const s = svgIn(el, W, H);
+  const x = lin(0, xs.length - 1, m.l, W - m.r), y = lin(ylo, yhi, H - m.b, m.t);
+  yticks.forEach(v => { T("line", { x1: m.l, x2: W - m.r, y1: y(v), y2: y(v), class: v === 0 && ylo < 0 ? "base" : "grid" }, s); txt(s, m.l - 8, y(v) + 3.5, yfmt(v), "tick", "end"); });
+  (refs || []).forEach(r => { T("line", { x1: m.l, x2: W - m.r, y1: y(r.v), y2: y(r.v), class: "axis" }, s); txt(s, W - m.r, y(r.v) - 4, r.t, "tick", "end"); });
+  xfmt.forEach(([i, t]) => txt(s, x(i), H - m.b + 16, t, "tick", "middle"));
+  if (xlab) txt(s, W - m.r, H - 4, xlab, "note", "end");
+  series.forEach(sr => {
+    let d = "", pen = false; sr.v.forEach((v, i) => { if (v == null) { pen = false; return; } d += (pen ? " L" : " M") + x(i) + "," + y(v); pen = true; });
+    T("path", { d, class: "line l-" + sr.c, "stroke-width": sr.w || 2, opacity: sr.o || 1 }, s);
+    if (sr.dots) sr.v.forEach((v, i) => v != null && T("circle", { cx: x(i), cy: y(v), r: 4, class: "dot", fill: COLORS[sr.c] }, s));
+    if (sr.pointLabels) sr.pointLabels.forEach(i => sr.v[i] != null && txt(s, x(i), y(sr.v[i]) + (sr.labelBelow ? 16 : -9), yfmt(sr.v[i]), "lbl", "middle"));
+  });
+  if (endLabels) {
+    const ends = series.filter(sr => !sr.noLabel).map(sr => { let i = sr.v.length - 1; while (i >= 0 && sr.v[i] == null) i--; return { sr, i, yv: y(sr.v[i]) }; }).sort((a, b) => a.yv - b.yv);
+    let last = -Infinity; ends.forEach(e => { e.yv = Math.max(e.yv, last + 14); last = e.yv; txt(s, x(e.i) + 8, e.yv + 4, e.sr.name, "note"); });
+  }
+  const xh = T("line", { y1: m.t, y2: H - m.b, class: "xh", visibility: "hidden" }, s);
+  const hit = T("rect", { x: m.l, y: m.t, width: W - m.l - m.r, height: H - m.t - m.b, class: "hit" }, s);
+  hit.addEventListener("pointermove", ev => { const r = s.getBoundingClientRect(); const px = (ev.clientX - r.left) * W / r.width; const i = Math.max(0, Math.min(xs.length - 1, Math.round((px - m.l) / (W - m.l - m.r) * (xs.length - 1)))); xh.setAttribute("x1", x(i)); xh.setAttribute("x2", x(i)); xh.setAttribute("visibility", "visible"); showTip(ev, [{ t: xs[i] }].concat(series.filter(sr => sr.v[i] != null && !sr.noTip).map(sr => ({ k: cssVar(COLORS[sr.c].slice(4, -1)), b: (sr.tipFmt || yfmt)(sr.v[i]), t: sr.name })))); });
+  hit.addEventListener("pointerleave", () => { xh.setAttribute("visibility", "hidden"); hideTip(); });
+  return s;
+}
+
+/* ---------- 가로 막대 (F5a) ---------- */
+function hbars(sel, rows, { val, label, diverging, dmax, fmt, tipRows }) {
+  const el = $(sel), W = widthOf(el), rowH = 26, m = { l: 92, r: 54, t: 8, b: 26 }, H = m.t + rows.length * rowH + m.b;
+  const s = svgIn(el, W, H);
+  const lo = diverging ? -dmax : 0, hi = dmax;
+  const x = lin(lo, hi, m.l, W - m.r);
+  const ticks = diverging ? [-dmax, -dmax / 2, 0, dmax / 2, dmax] : [0, .25, .5, .75, 1];
+  ticks.forEach(v => { T("line", { x1: x(v), x2: x(v), y1: m.t, y2: H - m.b, class: v === 0 ? "base" : "grid" }, s); txt(s, x(v), H - m.b + 15, fmt(v, true), "tick", "middle"); });
+  rows.forEach((r, i) => {
+    const v = val(r), cy = m.t + i * rowH + rowH / 2, bh = 16;
+    const x0 = Math.min(x(0), x(v)), bw = Math.abs(x(v) - x(0));
+    const rect = T("rect", { x: x0, y: cy - bh / 2, width: Math.max(bw, 0), height: bh, rx: 3, class: "bar " + (diverging ? (v >= 0 ? "pos" : "negf") : "negf") }, s);
+    txt(s, m.l - 10, cy + 4, label(r), "", "end");
+    txt(s, v >= 0 ? x(v) + 6 : x(0) + 6, cy + 4, fmt(v), "lbl", "start");
+    const hit = T("rect", { x: m.l, y: cy - rowH / 2, width: W - m.l - m.r, height: rowH, class: "hit" }, s);
+    hit.addEventListener("pointermove", ev => { rect.classList.add("hover"); showTip(ev, tipRows(r)); });
+    hit.addEventListener("pointerleave", () => { rect.classList.remove("hover"); hideTip(); });
+  });
+}
+
+/* ---------- KPI ---------- */
+(function kpis() {
+  const H = D.headline; $("#m-asof").textContent = H.asof; $("#m-days").textContent = fmtN(H.kma_days); $("#m-start").textContent = H.kma_start;
+  const k = $("#kpis");
+  const tile = (lab, val, sub, cls, hero) => { const d = document.createElement("div"); d.className = "tile" + (hero ? " hero" : ""); d.innerHTML = `<div class="lab"></div><div class="val ${cls || ""}"></div><div class="sub"></div>`; d.children[0].textContent = lab; d.children[1].innerHTML = val; d.children[2].textContent = sub; k.appendChild(d); };
+  const knit = D.adapt.find(a => a.item === "니트"), shiftDays = Math.floor(knit.d2) - Math.floor(knit.d1);
+  tile("가디건 검색이 켜지는 밤 기온", `${H.cardigan_t.toFixed(1)}℃<small>10년 편차 ±${H.cardigan_sd.toFixed(1)}℃ · 트렌치코트 21.2 · 니트 18.0 · 목도리 4.9</small>`, "2016~2025 점화 주 평균 최저기온 (기상청 서울)", "pos", true);
+  tile("니트 점화일, 5년 새", `+${shiftDays}일`, `${MD(knit.d1)} → ${MD(knit.d2)} · 점화 온도 차이는 0.3℃`, "neg");
+  tile("더운 9월 ↔ 늦은 트렌치 점화", H.trench_r.toFixed(2), "연도별 상관계수 (10개 연도)", "pos");
+  tile("폭염 잡화의 반응 수명", "4일", "하루 전 시작 → 당일 정점 → 이틀 뒤 소멸", "pos");
+  tile("가을 시작일, 한 세기 동안", `+${Math.round(H.autumn_shift)}일`, `1910년대 ${H.autumn_1910s.replace("-", "/").replace(/^0/, "")} → 2020년대 ${H.autumn_2020s.replace("-", "/").replace(/^0/, "")} (기상청 계절 구분)`, "neg");
+})();
+
+/* ---------- F1 점화 산점 ---------- */
+function drawF1() {
+  const el = $("#c-f1"), W = widthOf(el), H = 360, m = { l: 48, r: 16, t: 24, b: 40 };
+  const s = svgIn(el, W, H);
+  const x = lin(213, 366, m.l, W - m.r), y = lin(0, 28, H - m.b, m.t);
+  [0, 5, 10, 15, 20, 25].forEach(v => { T("line", { x1: m.l, x2: W - m.r, y1: y(v), y2: y(v), class: "grid" }, s); txt(s, m.l - 8, y(v) + 3.5, v + "℃", "tick", "end"); });
+  [[213, "8월"], [244, "9월"], [274, "10월"], [305, "11월"], [335, "12월"]].forEach(([d, t]) => { T("line", { x1: x(d), x2: x(d), y1: H - m.b, y2: H - m.b + 4, class: "axis" }, s); txt(s, x(d) + 4, H - m.b + 16, t, "tick"); });
+  txt(s, m.l, 12, "점화 주 평균 밤 최저기온 (℃)", "note"); txt(s, W - m.r, H - 6, "검색이 켜진 주 (해마다 한 점)", "note", "end");
+  const labels = [];
+  D.ladder.forEach(L => {
+    const c = COLORS[ITEM_C[L.item]], pts = D.points[L.item];
+    const d0 = Math.min(...pts.map(p => p.doy)) - 3, d1 = Math.max(...pts.map(p => p.doy)) + 3;
+    T("rect", { x: x(d0), y: y(L.tmin + L.sd_tmin), width: x(d1) - x(d0), height: y(L.tmin - L.sd_tmin) - y(L.tmin + L.sd_tmin), fill: c, opacity: .13, rx: 3 }, s);
+    T("line", { x1: x(d0), x2: x(d1), y1: y(L.tmin), y2: y(L.tmin), stroke: c, "stroke-width": 1.2, "stroke-dasharray": "3 3" }, s);
+    pts.forEach(p => {
+      T("circle", { cx: x(p.doy), cy: y(p.tmin), r: 5, fill: c, class: "dot" }, s);
+      const hit = T("circle", { cx: x(p.doy), cy: y(p.tmin), r: 11, class: "hit" }, s);
+      hit.addEventListener("pointermove", ev => showTip(ev, [{ k: cssVar(ITEM_C[L.item] === "gray" ? "--gray" : "--" + ITEM_C[L.item]), b: fmtT(p.tmin), t: `${L.item} · ${p.yr}` }, { t: `점화 주 시작 ${p.yr}-${p.date}` }, { t: `9월 평균 밤기온 ${fmtT(p.sep_tmin)}` }]));
+      hit.addEventListener("pointerleave", hideTip);
+    });
+    labels.push({ yv: y(L.tmin), xv: x(d1) + 8, t: `${L.item} ${L.tmin.toFixed(1)}±${L.sd_tmin.toFixed(1)}℃`, c });
+  });
+  labels.sort((a, b) => a.yv - b.yv); let last = -Infinity; labels.forEach(l => { l.yv = Math.max(l.yv, last + 14); last = l.yv; const t = txt(s, Math.min(l.xv, W - m.r - 128), l.yv + 4, l.t, "lbl"); t.setAttribute("fill", l.c); });
+  legend("#lg-f1", D.ladder.map(L => ({ c: COLORS[ITEM_C[L.item]], t: `${L.item} (${L.verdict})` })));
+  table("#t-f1", ["아이템", "평균 점화일", "±일", "점화 주 밤기온", "±℃", "판정", "r(9월 밤기온, 점화일)", "기준 30% / 50%"], D.ladder.map(L => [L.item, L.date.replace("-", "/").replace(/^0/, ""), L.sd_day.toFixed(1), fmtT(L.tmin), L.sd_tmin.toFixed(1), L.verdict, fmtR(L.r_sep), D.sens[L.item] ? `${D.sens[L.item]["30"]} / ${D.sens[L.item]["50"]}` : "–"]));
+}
+
+/* ---------- F2 덤벨 ---------- */
+function dumbbell(sel, rows, { v1, v2, lo, hi, ticks, fmt, c2, tipRows }) {
+  const el = $(sel), W = widthOf(el), rowH = 40, m = { l: 78, r: 70, t: 10, b: 28 }, H = m.t + rows.length * rowH + m.b;
+  const s = svgIn(el, W, H); const x = lin(lo, hi, m.l, W - m.r);
+  ticks.forEach(v => { T("line", { x1: x(v), x2: x(v), y1: m.t, y2: H - m.b, class: "grid" }, s); txt(s, x(v), H - m.b + 15, fmt(v), "tick", "middle"); });
+  rows.forEach((r, i) => {
+    const cy = m.t + i * rowH + rowH / 2, a = v1(r), b = v2(r);
+    txt(s, m.l - 10, cy + 4, r.item, "", "end");
+    T("line", { x1: x(a), x2: x(b), y1: cy, y2: cy, stroke: "var(--axis)", "stroke-width": 3 }, s);
+    T("circle", { cx: x(a), cy, r: 6, fill: "var(--gray)", class: "dot" }, s);
+    T("circle", { cx: x(b), cy, r: 6, fill: c2, class: "dot" }, s);
+    const lab = txt(s, Math.max(x(a), x(b)) + 10, cy + 4, `${fmt(a)} → ${fmt(b)}`, "lbl");
+    const hit = T("rect", { x: m.l, y: cy - rowH / 2, width: W - m.l - m.r, height: rowH, class: "hit" }, s);
+    hit.addEventListener("pointermove", ev => showTip(ev, tipRows(r)));
+    hit.addEventListener("pointerleave", hideTip);
+  });
+}
+function drawF2() {
+  const A = D.adapt;
+  dumbbell("#c-f2a", A, { v1: r => r.t1, v2: r => r.t2, lo: 16, hi: 24, ticks: [16, 18, 20, 22, 24], fmt: v => v.toFixed(1), c2: "var(--pos)", tipRows: r => [{ b: `${r.t1.toFixed(1)} → ${r.t2.toFixed(1)}℃`, t: r.item }, { t: `차이 ${(r.t2 - r.t1 >= 0 ? "+" : "−")}${Math.abs(r.t2 - r.t1).toFixed(1)}℃` }] });
+  dumbbell("#c-f2b", A, { v1: r => r.d1, v2: r => r.d2, lo: 228, hi: 268, ticks: [232, 244, 258, 268], fmt: v => MD(v), c2: "var(--neg)", tipRows: r => [{ b: `${MD(r.d1)} → ${MD(r.d2)}`, t: r.item }, { t: `${Math.floor(r.d2) - Math.floor(r.d1)}일 늦어짐 (연속값 ${(r.d2 - r.d1).toFixed(1)}일)` }] });
+  legend("#lg-f2", [{ c: "var(--gray)", t: "2016~2020 평균" }, { c: "var(--pos)", t: "2021~2025 평균 (온도)" }, { c: "var(--neg)", t: "2021~2025 평균 (날짜)" }]);
+  table("#t-f2", ["아이템", "점화 밤기온 전반", "후반", "차이", "평균 점화일 전반", "후반", "지연"], A.map(r => [r.item, fmtT(r.t1), fmtT(r.t2), (r.t2 - r.t1 >= 0 ? "+" : "−") + Math.abs(r.t2 - r.t1).toFixed(1), MD(r.d1), MD(r.d2), `+${Math.floor(r.d2) - Math.floor(r.d1)}일`]));
+}
+
+/* ---------- F3 9월 밤기온 vs 트렌치 점화일 ---------- */
+function drawF3() {
+  const el = $("#c-f3"), W = widthOf(el), H = 300, m = { l: 52, r: 24, t: 22, b: 40 };
+  const s = svgIn(el, W, H); const P = D.points["트렌치코트"], G = D.points["가디건"];
+  const xs = P.map(p => p.sep_tmin), ys = P.map(p => p.doy);
+  const xlo = Math.floor(Math.min(...xs)) - .5, xhi = Math.ceil(Math.max(...xs)) + .5, ylo = Math.min(...ys) - 8, yhi = Math.max(...ys) + 8;
+  const x = lin(xlo, xhi, m.l, W - m.r), y = lin(ylo, yhi, H - m.b, m.t);
+  for (let v = Math.ceil(xlo); v <= xhi; v++) { T("line", { x1: x(v), x2: x(v), y1: m.t, y2: H - m.b, class: "grid" }, s); txt(s, x(v), H - m.b + 16, v + "℃", "tick", "middle"); }
+  [236, 244, 251, 258, 265, 274].filter(v => v > ylo && v < yhi).forEach(v => { T("line", { x1: m.l, x2: W - m.r, y1: y(v), y2: y(v), class: "grid" }, s); txt(s, m.l - 8, y(v) + 3.5, MD(v), "tick", "end"); });
+  txt(s, m.l, 12, "트렌치코트 검색 점화 주", "note"); txt(s, W - m.r, H - 6, "그해 9월 평균 밤 최저기온", "note", "end");
+  const n = P.length, mx = xs.reduce((a, b) => a + b) / n, my = ys.reduce((a, b) => a + b) / n;
+  const bta = xs.reduce((a, v, i) => a + (v - mx) * (ys[i] - my), 0) / xs.reduce((a, v) => a + (v - mx) ** 2, 0);
+  T("line", { x1: x(xlo + .3), x2: x(xhi - .3), y1: y(my + bta * (xlo + .3 - mx)), y2: y(my + bta * (xhi - .3 - mx)), class: "axis", "stroke-dasharray": "4 4" }, s);
+  P.forEach(p => {
+    T("circle", { cx: x(p.sep_tmin), cy: y(p.doy), r: 6, fill: "var(--s2)", class: "dot" }, s);
+    txt(s, x(p.sep_tmin) + 9, y(p.doy) + 4, String(p.yr), "tick");
+    const hit = T("circle", { cx: x(p.sep_tmin), cy: y(p.doy), r: 12, class: "hit" }, s);
+    const g = G.find(q => q.yr === p.yr);
+    hit.addEventListener("pointermove", ev => showTip(ev, [{ b: String(p.yr), t: `9월 밤기온 ${fmtT(p.sep_tmin)}` }, { k: cssVar("--s2"), t: `트렌치코트 점화 ${p.date.replace("-", "/").replace(/^0/, "")} · 그 주 밤 ${fmtT(p.tmin)}` }, g ? { k: cssVar("--s1"), t: `가디건 점화 ${g.date.replace("-", "/").replace(/^0/, "")}` } : {}]));
+    hit.addEventListener("pointerleave", hideTip);
+  });
+  const L = D.ladder.find(l => l.item === "트렌치코트"), Lg = D.ladder.find(l => l.item === "가디건");
+  txt(s, W - m.r, m.t + 10, `r = ${fmtR(L.r_sep)} (트렌치코트) · 가디건 ${fmtR(Lg.r_sep)}`, "lbl", "end");
+  table("#t-f3", ["연도", "9월 평균 밤기온", "트렌치코트 점화", "점화 주 밤기온", "가디건 점화", "니트 점화"], P.map(p => { const g = G.find(q => q.yr === p.yr), k = D.points["니트"].find(q => q.yr === p.yr); const f = d => d.replace("-", "/").replace(/^0/, ""); return [String(p.yr), fmtT(p.sep_tmin), f(p.date), fmtT(p.tmin), g ? f(g.date) : "–", k ? f(k.date) : "–"]; }));
+}
+
+/* ---------- F4 118년 ---------- */
+function roll(arr, w) { return arr.map((v, i) => { const seg = arr.slice(Math.max(0, i - Math.floor(w / 2)), i + Math.ceil(w / 2)).filter(q => q != null); return seg.length >= w / 2 ? seg.reduce((a, b) => a + b) / seg.length : null; }); }
+function drawF4() {
+  const C = D.century, yrs = C.years.map(String);
+  const xf = []; C.years.forEach((yv, i) => { if (yv % 20 === 0) xf.push([i, String(yv)]); });
+  lineChart("#c-f4a", { xs: yrs, ylo: 228, yhi: 300, yticks: [232, 244, 258, 274, 288], yfmt: v => MD(v), xfmt: xf, H: 280, m: { l: 44, r: 16, t: 18, b: 34 },
+    series: [{ name: "가을 시작일 (연도별)", v: C.autumn, c: "pos", w: 1, o: .3, noTip: false }, { name: "가을 시작일 10년 평균", v: roll(C.autumn, 10), c: "pos", w: 2.4, tipFmt: v => MD(v) },
+             { name: "더위의 끝 10년 평균", v: roll(C.last30, 10), c: "gray", w: 1.8 }] });
+  const Hd = D.heatdays, xf2 = []; Hd.years.forEach((yv, i) => { if (yv % 10 === 0) xf2.push([i, String(yv)]); });
+  lineChart("#c-f4b", { xs: Hd.years.map(String), ylo: 0, yhi: 80, yticks: [0, 20, 40, 60, 80], yfmt: v => String(v), xfmt: xf2, H: 280, m: { l: 36, r: 16, t: 18, b: 34 },
+    series: [{ name: "30℃ 이상 일수", v: Hd.hot, c: "s2", w: 1.2, o: .45 }, { name: "30℃ 이상 10년 평균", v: roll(Hd.hot, 10), c: "s2", w: 2.4 },
+             { name: "열대야 일수", v: Hd.trop, c: "neg", w: 1.2, o: .45 }, { name: "열대야 10년 평균", v: roll(Hd.trop, 10), c: "neg", w: 2.4 }] });
+  legend("#lg-f4", [{ c: "var(--pos)", t: "기상청 계절 구분 가을 시작일" }, { c: "var(--gray)", t: "더위의 끝 (마지막 30℃ 이상일)" }, { c: "var(--s2)", t: "30℃ 이상 일수" }, { c: "var(--neg)", t: "열대야(25℃ 이상) 일수" }]);
+  const decs = C.decades.map(d => { const h = Hd.decades.find(q => q.dec === d.dec); return [d.dec, d.autumn_md.replace("-", "/").replace(/^0/, ""), d.last30_md.replace("-", "/").replace(/^0/, ""), h ? h.hot.toFixed(0) : "–", h ? h.trop.toFixed(0) : "–", String(d.n)]; });
+  table("#t-f4", ["연대", "가을 시작일", "더위의 끝", "30℃+ 일수", "열대야 일수", "유효 연도"], decs);
+}
+
+/* ---------- F5 폭염 반응 ---------- */
+function drawF5() {
+  hbars("#c-f5a", D.anomr, { val: r => r.r, label: r => r.g, diverging: true, dmax: .4, fmt: (v, t) => (t ? (v > 0 ? "+" : v < 0 ? "−" : "") + Math.abs(v).toFixed(1) : fmtR(v)), tipRows: r => [{ b: fmtR(r.r), t: "r(검색, 기온 평년편차)" }, { t: `${r.g}: ${r.kw}` }, { t: `여름(6~9월) ${fmtN(D.headline.scan_days_n)}일` }] });
+  const lagLab = D.lags.map(k => (k < 0 ? "D−" + (-k) : k === 0 ? "D0" : "D+" + k));
+  lineChart("#c-f5b", { xs: lagLab, ylo: -.1, yhi: .4, yticks: [-.1, 0, .1, .2, .3, .4], yfmt: v => fmtR(v), xfmt: lagLab.map((t, i) => [i, t]), H: 260, m: { l: 48, r: 16, t: 18, b: 34 },
+    xlab: "검색일 기준 더위가 온 날 (D0 = 같은 날)",
+    series: [{ name: "폭염잡화", v: D.lagprof["폭염잡화"], c: "s1", dots: true, pointLabels: [3, 4, 6] }, { name: "냉감의류", v: D.lagprof["냉감의류"], c: "s3", w: 1.6 }, { name: "냉감침구", v: D.lagprof["냉감침구"], c: "s4", w: 1.6 }] });
+  legend("#lg-f5", [{ c: "var(--s1)", t: "폭염잡화 (휴대용선풍기·양산·쿨토시)" }, { c: "var(--s3)", t: "냉감의류" }, { c: "var(--s4)", t: "냉감침구" }]);
+  table("#t-f5", ["그룹", "키워드", "r(검색, 기온 평년편차)"].concat(lagLab.map(t => "시차 " + t)), D.anomr.map(r => [r.g, r.kw, fmtR(r.r)].concat(D.lagprof[r.g] ? D.lagprof[r.g].map(v => fmtR(v)) : D.lags.map(() => "–"))));
+}
+
+/* ---------- F6 4분면 ---------- */
+function drawF6() {
+  const el = $("#c-f6"), W = widthOf(el), H = 300, m = { l: 44, r: 16, t: 22, b: 54 };
+  const s = svgIn(el, W, H), Q = D.quad, n = Q.length;
+  const y = lin(-.3, 1.5, H - m.b, m.t), gw = (W - m.l - m.r) / n, bw = Math.min(46, gw * .3);
+  [-.25, 0, .25, .5, .75, 1, 1.25, 1.5].forEach(v => { T("line", { x1: m.l, x2: W - m.r, y1: y(v), y2: y(v), class: v === 0 ? "base" : "grid" }, s); txt(s, m.l - 8, y(v) + 3.5, fmtZ(v), "tick", "end"); });
+  txt(s, m.l, 12, "휴대용선풍기 검색 z (여름 평균 = 0)", "note");
+  Q.forEach((q, i) => {
+    const cx = m.l + gw * (i + .5);
+    [["z", "s1", -1, "당일 검색"], ["z_lead", "s2", 1, "전날 검색"]].forEach(([key, c, side, nm]) => {
+      const v = q[key], xb = cx + side * (bw / 2 + 1) - bw / 2 - (side < 0 ? 0 : 0);
+      const x0 = side < 0 ? cx - bw - 1 : cx + 1;
+      const rect = T("rect", { x: x0, y: Math.min(y(0), y(v)), width: bw, height: Math.abs(y(v) - y(0)), rx: 3, fill: COLORS[c], class: "bar" }, s);
+      txt(s, x0 + bw / 2, v >= 0 ? y(v) - 6 : y(v) + 14, fmtZ(v), "lbl", "middle");
+      const hit = T("rect", { x: x0, y: m.t, width: bw, height: H - m.t - m.b, class: "hit" }, s);
+      hit.addEventListener("pointermove", ev => { rect.classList.add("hover"); showTip(ev, [{ k: cssVar("--" + c), b: fmtZ(v), t: nm }, { t: `${q.q} · ${q.def}` }, { t: `${q.n}일` }]); });
+      hit.addEventListener("pointerleave", () => { rect.classList.remove("hover"); hideTip(); });
+    });
+    txt(s, cx, H - m.b + 18, q.q, "lbl", "middle"); txt(s, cx, H - m.b + 33, W < 640 ? `${q.n}일` : `${q.def} · ${q.n}일`, "tick", "middle");
+  });
+  legend("#lg-f6", [{ c: "var(--s1)", t: "당일 검색", rect: true }, { c: "var(--s2)", t: "전날 검색 (예보 발표 시점)", rect: true }]);
+  table("#t-f6", ["분면", "정의", "일수", "당일 z", "전날 z"], Q.map(q => [q.q, q.def, String(q.n), fmtZ(q.z), fmtZ(q.z_lead)]));
+}
+
+/* ---------- 렌더 & 리사이즈 ---------- */
+function drawAll() { drawF1(); drawF2(); drawF3(); drawF4(); drawF5(); drawF6(); }
+drawAll();
+let rt; addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(drawAll, 120); });
+</script>
+</body>
+</html>

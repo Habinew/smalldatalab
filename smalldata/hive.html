@@ -1,0 +1,446 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>최애는 한 명인데, 앨범은 왜 여러 장을 살까</title>
+<meta name="description" content="번개장터 포토카드 매물 12만 9천 건과 써클차트로 K팝 앨범 반복 구매의 가격 구조를 측정한 「김하빈의 스몰데이터」 10월 칼럼의 데이터 대시보드">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>html{color-scheme:light}img{max-width:100%}[hidden]{display:none!important}body{margin:0;font:14px system-ui,sans-serif}</style>
+</head>
+<body>
+<style>
+/* 레이아웃: 한 칸 짜리 데이터 에세이. 좌측 정렬 제목 → 수치 띠 → 도표 카드가 세로로 쌓이고, 각 카드는 제목(결론)·도표·표 보기·출처 순. */
+:root{
+  --bg:#f6f7f8; --surface:#fcfcfb; --ink:#0b0b0b; --ink-2:#52514e; --muted:#898781;
+  --grid:#e1e0d9; --axis:#c3c2b7; --ring:rgba(11,11,11,.10); --wash:rgba(42,120,214,.08);
+  --pos:#2a78d6; --neg:#e34948; --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100; --gray:#b9b8b2;
+  --f-body:"IBM Plex Sans KR",system-ui,-apple-system,"Segoe UI","Malgun Gothic",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0d0d0d; --surface:#1a1a19; --ink:#f0efec; --ink-2:#c3c2b7; --muted:#898781;
+  --grid:#2c2c2a; --axis:#383835; --ring:rgba(255,255,255,.10); --wash:rgba(57,135,229,.12);
+  --pos:#3987e5; --neg:#e66767; --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --gray:#6b6a66; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0d0d0d; --surface:#1a1a19; --ink:#f0efec; --ink-2:#c3c2b7; --muted:#898781;
+  --grid:#2c2c2a; --axis:#383835; --ring:rgba(255,255,255,.10); --wash:rgba(57,135,229,.12);
+  --pos:#3987e5; --neg:#e66767; --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --gray:#6b6a66; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased}
+.wrap{max-width:960px;margin:0 auto;padding-block:40px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+a{color:inherit}
+h1,h2,h3{margin:0;text-wrap:balance;line-height:1.25}
+.eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2);display:flex;gap:14px;flex-wrap:wrap}
+.eyebrow b{color:var(--pos);font-weight:500}
+h1{font-size:clamp(28px,4.6vw,44px);font-weight:700;margin-top:14px;letter-spacing:-.01em}
+.dek{margin:18px 0 0;max-width:62ch;color:var(--ink-2);font-size:16px}
+.dek p{margin:0 0 6px}
+.meta{margin-top:22px;display:flex;gap:10px 22px;flex-wrap:wrap;font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.meta span b{color:var(--ink-2);font-weight:500}
+
+.kpis{display:grid;grid-template-columns:1.6fr repeat(4,1fr);gap:12px;margin-top:36px}
+@media (max-width:760px){.kpis{grid-template-columns:1fr 1fr}.kpis .hero{grid-column:1/-1}}
+.tile{background:var(--surface);border:1px solid var(--ring);border-radius:10px;padding:16px 18px;min-width:0}
+.tile .lab{font-size:12.5px;color:var(--ink-2)}
+.tile .val{font-size:30px;font-weight:600;letter-spacing:-.02em;margin-top:4px;line-height:1.1}
+.tile .sub{font-size:12px;color:var(--muted);margin-top:6px}
+.tile.hero .val{font-size:clamp(48px,7vw,64px);font-weight:700}
+.tile.hero .val small{display:block;font-size:.3em;font-weight:500;color:var(--ink-2);margin-top:6px;letter-spacing:0;line-height:1.3}
+.neg{color:var(--neg)} .pos{color:var(--pos)}
+
+section.card{background:var(--surface);border:1px solid var(--ring);border-radius:12px;padding:22px 22px 16px;margin-top:22px;min-width:0}
+.card h2{font-size:19px;font-weight:600}
+.card .lede{margin:6px 0 0;color:var(--ink-2);font-size:14px;max-width:70ch}
+.chart{position:relative;margin-top:16px}
+.chart svg{display:block;width:100%;height:auto;overflow:visible}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media (max-width:700px){.row2{grid-template-columns:1fr}}
+.panel h3{font-size:13.5px;font-weight:500;color:var(--ink-2);margin-bottom:4px}
+.legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:12px;font-size:12.5px;color:var(--ink-2)}
+.legend i{display:inline-block;width:14px;height:0;border-top:2px solid;vertical-align:middle;margin-right:6px;border-radius:2px}
+.legend i.rect{height:10px;border:0;border-radius:2px}
+.source{font-family:var(--f-mono);font-size:11.5px;color:var(--muted);margin-top:12px;line-height:1.5}
+details.tbl{margin-top:10px;font-size:13px}
+details.tbl summary{cursor:pointer;color:var(--ink-2);font-size:12.5px;list-style:none;display:inline-flex;gap:6px;align-items:center;padding:4px 0}
+details.tbl summary::-webkit-details-marker{display:none}
+details.tbl summary::before{content:"▸";font-size:11px}
+details.tbl[open] summary::before{content:"▾"}
+.tscroll{overflow-x:auto;margin-top:6px}
+table{border-collapse:collapse;width:100%;font-size:12.5px;font-variant-numeric:tabular-nums}
+th,td{padding:5px 10px;border-bottom:1px solid var(--grid);text-align:right;white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+th{color:var(--ink-2);font-weight:500;font-size:12px}
+
+svg text{font-family:var(--f-body);font-size:11.5px;fill:var(--ink-2)}
+svg .tick{font-family:var(--f-mono);font-size:10.5px;fill:var(--muted);font-variant-numeric:tabular-nums}
+svg .grid{stroke:var(--grid);stroke-width:1}
+svg .axis{stroke:var(--axis);stroke-width:1}
+svg .base{stroke:var(--ink);stroke-width:1}
+svg .lbl{fill:var(--ink);font-weight:500;font-size:12px}
+svg .note{fill:var(--ink-2);font-size:11.5px}
+svg .pos{fill:var(--pos)} svg .negf{fill:var(--neg)} svg .wash{fill:var(--wash)} svg .grayf{fill:var(--gray)}
+svg .l-pos{stroke:var(--pos)} svg .l-neg{stroke:var(--neg)} svg .l-gray{stroke:var(--gray)}
+svg .l-s1{stroke:var(--s1)} svg .l-s2{stroke:var(--s2)} svg .l-s3{stroke:var(--s3)} svg .l-s4{stroke:var(--s4)}
+svg .line{fill:none;stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+svg .dot{stroke:var(--surface);stroke-width:2}
+svg .hit{fill:transparent;cursor:crosshair}
+svg .xh{stroke:var(--ink-2);stroke-width:1;pointer-events:none}
+svg .bar{shape-rendering:crispEdges}
+svg .bar.hover,svg .seg.hover,svg .dot.hover{filter:brightness(1.12)}
+
+.tip{position:fixed;z-index:20;pointer-events:none;background:var(--ink);color:var(--bg);padding:8px 10px;border-radius:6px;font-size:12px;line-height:1.45;max-width:260px;box-shadow:0 4px 18px rgba(0,0,0,.18);opacity:0;transition:opacity .08s}
+.tip.on{opacity:1}
+.tip b{font-size:14px;font-weight:600}
+.tip .k{display:inline-block;width:10px;border-top:2px solid;vertical-align:middle;margin-right:6px}
+.tip .dim{opacity:.7}
+
+.two{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:22px}
+@media (max-width:760px){.two{grid-template-columns:1fr}}
+
+/* 유동성: 한 덩어리를 나눈 굵은 분절 막대 */
+.segbar{display:flex;height:28px;gap:2px;margin-top:16px;border-radius:4px;overflow:hidden}
+.segbar div{display:flex;align-items:center;padding-left:8px;font-size:12.5px;font-weight:500;color:#fff;min-width:0;white-space:nowrap;overflow:hidden}
+.segbar .st{background:var(--gray);color:#0b0b0b} .segbar .go{background:var(--pos)} .segbar .so{background:var(--neg)}
+.segbar div:focus-visible{outline:2px solid var(--ink);outline-offset:-2px}
+
+.method{margin-top:30px;padding-top:22px;border-top:1px solid var(--grid);display:grid;grid-template-columns:1fr 1fr;gap:22px;font-size:13.5px;color:var(--ink-2)}
+@media (max-width:760px){.method{grid-template-columns:1fr}}
+.method h3{font-size:13px;color:var(--ink);font-weight:600;margin-bottom:6px}
+.method ul{margin:0;padding-left:18px}
+.method li{margin:3px 0}
+footer{margin-top:36px;font-family:var(--f-mono);font-size:11.5px;color:var(--muted);display:flex;gap:16px;flex-wrap:wrap;justify-content:space-between}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+:focus-visible{outline:2px solid var(--pos);outline-offset:2px}
+</style>
+
+<div class="wrap">
+<header>
+  <div class="eyebrow"><a href="./index.html" style="text-decoration:none"><b>김하빈의 스몰데이터</b></a><span>2026년 10월 27일</span><span>K팝 앨범 · 포토카드</span></div>
+  <h1>최애는 한 명인데, 앨범은 왜 여러 장을 살까</h1>
+  <div class="dek">
+    <p>앨범 한 장은 2만 4,400원인데, 원하는 멤버의 포토카드 한 장을 만나기까지는 평균 다섯 장이 든다. 다섯 장을 사고도 셋 중 하나는 빈손이다.</p>
+    <p>같은 종이라도 얻는 관문이 어려울수록 값이 오른다. 그러나 그 호가가 현금이 되는 경우는 드물다.</p>
+  </div>
+  <div class="meta">
+    <span>데이터 <b>번개장터 포토카드 매물</b> · <b>써클차트</b> · <b>알라딘 앨범 구성</b></span>
+    <span>매물 <b id="m-listings"></b> · 낱장 분석 <b id="m-single"></b> · 하이브 12팀</span>
+    <span>수집일 <b id="m-asof"></b></span>
+  </div>
+</header>
+
+<div class="kpis" id="kpis"></div>
+
+<section class="card">
+  <h2>같은 종이인데, 얻는 관문이 어려울수록 비싸다</h2>
+  <p class="lede">포토카드를 어떤 경로로 얻었는지에 따라 낱장 호가 중앙값이 세 층으로 갈린다. 앨범을 뜯어야 나오는 랜덤 카드가 가장 싸고, 사고 나서 추첨까지 통과해야 하는 카드가 가장 비싸다. 표본 500건 이상인 10팀 모두에서 ①보다 ③이 비쌌다.</p>
+  <div class="chart" id="c-layer"></div>
+  <details class="tbl"><summary>표로 보기 (7개 획득 조건 · 팀별 3층)</summary><div class="tscroll" id="t-layer"></div><div class="tscroll" id="t-teams3"></div></details>
+  <p class="source">번개장터 하이브 12팀 포토카드 매물 중 멤버 1명·낱장이 확인되고 획득 조건이 분류된 매물. 호가·수수료 전. 중앙값과 95% 부트스트랩 신뢰구간. 팀×멤버를 고정한 회귀에서도 럭키드로우 ×3.06, 콘서트·팝업 ×3.11.</p>
+</section>
+
+<section class="card">
+  <h2>원하는 카드 한 장의 기대 비용 vs 되팔 때 값</h2>
+  <p class="lede">멤버별 확률이 같고 앨범마다 따로 뽑힌다고 가정하면, 원하는 멤버 한 장의 기대 비용은 정가 × 멤버 수 ÷ 앨범당 랜덤 장수다. 랜덤 앨범 8종의 중앙값은 7만 9,125원(앨범 3.4장)이고, 그 카드를 되팔면 4,125원이다. 돌려받는 비율은 6% 이하다.</p>
+  <div class="row2">
+    <div class="panel"><h3>원하는 멤버 포카 1장의 기대 비용 (원)</h3><div class="chart" id="c-lot"></div></div>
+    <div class="panel"><h3>되팔 값 ÷ 장당 원가 — 앨범당 랜덤 장수(k)가 많을수록 회복</h3><div class="chart" id="c-k"></div></div>
+  </div>
+  <div class="legend" id="lg-lot"></div>
+  <details class="tbl"><summary>표로 보기</summary><div class="tscroll" id="t-lot"></div></details>
+  <p class="source">알라딘 판매 페이지의 앨범 구성(정가·랜덤 장수·멤버 수) × 번개장터 앨범 동봉 낱장 호가 중앙값. 균등 확률·호가·수수료 전이므로 모두 팬 쪽에 유리한 상한. 방탄소년단·뉴진스는 랜덤이 아닌 세트 동봉(비교용).</p>
+</section>
+
+<section class="card">
+  <h2>뜯지 않은 앨범의 값 3분의 2는 '확률'이다</h2>
+  <p class="lede">같은 팀의 중고 앨범을 미개봉과 개봉·포카 없음으로 나눠 비교했다. 차이는 미개봉가의 53~79%(엔하이픈 35%)다. CD와 포토북만 남은 본체는 정가의 2할 안팎에 거래된다.</p>
+  <div class="chart" id="c-gap"></div>
+  <div class="legend" id="lg-gap"></div>
+  <details class="tbl"><summary>표로 보기</summary><div class="tscroll" id="t-gap"></div></details>
+  <p class="source">번개장터 앨범 매물 6팀 20,535건 중 단품·비세트·비위버스 14,401건. 제목에 '미개봉' 또는 '포카 없음/제외'가 명시된 매물의 호가 중앙값.</p>
+</section>
+
+<section class="card">
+  <h2>같은 앨범, 같은 조건이라도 멤버에 따라 값은 최대 3배</h2>
+  <p class="lede">팀 안에서 멤버별 낱장 호가 중앙값을 늘어놓았다. 가장 비싼 멤버와 가장 싼 멤버의 차이는 앤팀 3.0배, 방탄소년단 2.8배, 세븐틴 2.7배다. 매물이 많은 멤버가 더 비싸므로(순위상관 +0.51) 매물 수는 공급 과잉이 아니라 수요의 지표다.</p>
+  <div class="chart" id="c-mem"></div>
+  <details class="tbl"><summary>표로 보기</summary><div class="tscroll" id="t-mem"></div></details>
+  <p class="source">멤버 1명이 식별된 낱장 매물, 멤버당 30건 이상. 가로축은 호가 중앙값(원). 점 위에 올리면 멤버 이름과 매물 수가 보인다.</p>
+</section>
+
+<div class="two">
+<section class="card" style="margin-top:0">
+  <h2>호가는 가격표일 뿐, 현금이 되는 건 드물다</h2>
+  <p class="lede">10월 8일에 판매 중이던 매물 11만 3,883건을 12일 뒤 다시 추적했다. 플랫폼이 판매 완료로 표시한 건은 0.8%, 삭제·숨김까지 합쳐도 7%다.</p>
+  <div class="segbar" id="c-liq" role="img" aria-label="12일 뒤 매물 상태 분포"></div>
+  <div class="legend" id="lg-liq"></div>
+  <details class="tbl"><summary>표로 보기 (팀별)</summary><div class="tscroll" id="t-liq"></div></details>
+  <p class="source">'사라짐'은 판매자 삭제·숨김·거래 후 삭제가 섞여 있다. 팔린 매물의 호가 중앙값(10,615원)은 남은 매물(8,000원)보다 높았다.</p>
+</section>
+<section class="card" style="margin-top:0">
+  <h2>앨범은 4.9배 팔렸는데 음원은 반토막</h2>
+  <p class="lede">써클차트 연간 상위 100 기준, 2018년을 100으로 둔 지수. 실물 앨범 출고량은 2023년 487까지 올랐다가 2025년 334로 내려왔고, 국내 음원 이용 지수는 같은 기간 54, 48로 줄었다.</p>
+  <div class="chart" id="c-circle"></div>
+  <div class="legend" id="lg-circle"></div>
+  <details class="tbl"><summary>표로 보기</summary><div class="tscroll" id="t-circle"></div></details>
+  <p class="source">앨범: 연간 상위 100 앨범 출고량 합. 음원: 연간 상위 100곡 가중 지수 합(써클차트 자체 지수, 추세만 해석). 2026 연간은 아직 없음.</p>
+</section>
+</div>
+
+<section class="card">
+  <h2>2025년 앨범 상위 100 아티스트 60팀 중 38팀은 음원 상위 200에 한 곡도 없다</h2>
+  <p class="lede">그 38팀이 앨범 판매의 54%를 차지한다. 가로축은 국내 음원 지수(로그), 세로축은 앨범 출고량(로그). 왼쪽 회색 띠가 음원 0인 아티스트다. 하이브 소속은 파란 점이다.</p>
+  <div class="chart" id="c-sc"></div>
+  <div class="legend" id="lg-sc"></div>
+  <details class="tbl"><summary>표로 보기 (앨범 상위 20)</summary><div class="tscroll" id="t-sc"></div></details>
+  <p class="source">써클차트 2025 연간. 음원 지수는 상위 200곡 합산, 아티스트명은 괄호 표기 제거 후 통합. 로그 축이므로 눈금 간격은 10배.</p>
+</section>
+
+<div class="method">
+  <div><h3>방법</h3><ul>
+    <li>번개장터에서 하이브 12팀 포토카드 매물 128,896건(2026-10-08)과 6팀 앨범 매물 20,535건을 수집하고, 제목에서 멤버·장수·획득 조건을 규칙으로 분류했다.</li>
+    <li>기대 비용은 알라딘 판매 페이지의 앨범 구성(정가·랜덤 포카 장수·멤버 수)으로 계산했다. 균등 확률을 가정했다.</li>
+    <li>거시 지표는 써클차트 연간 상위 100 앨범·상위 100곡을 2010~2025년에 걸쳐 수집했다.</li>
+  </ul></div>
+  <div><h3>한계</h3><ul>
+    <li>값은 호가다. 수수료 전, 단일 플랫폼이며 획득 조건이 분류되지 않은 매물이 절반이다.</li>
+    <li>멤버별 실제 확률은 공개되지 않아 균등 확률 가정은 팬 쪽에 유리한 상한이다.</li>
+    <li>음원 지수는 국내 가중 지수라 유튜브·해외 스트리밍은 집계 밖이다. 특정 기획사가 확률을 조작했다는 뜻이 아니라, 공개하지 않는다는 사실만을 다룬다.</li>
+  </ul></div>
+</div>
+
+<footer>
+  <span>© 2026 김하빈 · 스몰데이터랩 · 국립순천대학교</span>
+  <span><a href="https://www.sisajournal.com/news/articleView.html?idxno=391797">칼럼 원문 (시사저널, 2026.10.27)</a> · 집계 데이터·코드 공개 준비 중</span>
+</footer>
+</div>
+<div class="tip" id="tip" role="status" aria-live="polite"></div>
+
+<script>
+const D = {"headline":{"listings":128896,"single":50850,"single3":25356,"snapshot":"2026-10-08","teams":12,"l1":4500.0,"l2":10600.0,"l3":15000.0,"ratio3":3.33,"ok13":10,"ok123":7,"teams_n":10,"fe_luckydraw":3.06,"fe_concert":3.11,"fe_n":25356,"txt":{"team":"TXT","ko":"투모로우바이투게더","album":"별의 장: TOGETHER","release":"2025-07","list_price":24400,"k":1,"members":5,"random":true,"per_card":24400.0,"exp_albums":5.0,"exp_cost":122000.0,"resale":4250.0,"resale_n":546,"r_percard":0.1741803278688524,"r_expcost":0.0348360655737704},"lot":{"n_random":8,"exp_cost_med":79125.0,"exp_albums_med":3.375,"resale_med":4125.0,"per_card_med":12150.0,"r_expcost_med":0.052132701421800945},"transition":{"n":113883,"still":105394,"still_pct":92.5,"gone":7529,"gone_pct":6.6,"sold":960,"sold_pct":0.8,"from":"2026-10-08","to":"2026-10-20","days":12,"teams":[{"team":"CORTIS","ko":"코르티스","gone":8.5,"sold":2.8,"still":88.7,"n":1188,"med":12172.5},{"team":"&TEAM","ko":"앤팀","gone":7.0,"sold":2.5,"still":90.6,"n":1781,"med":8000.0},{"team":"ILLIT","ko":"아일릿","gone":6.5,"sold":2.1,"still":91.4,"n":756,"med":12000.0},{"team":"ENHYPEN","ko":"엔하이픈","gone":6.4,"sold":1.8,"still":91.8,"n":4386,"med":9000.0},{"team":"LE SSERAFIM","ko":"르세라핌","gone":5.9,"sold":1.7,"still":92.3,"n":1262,"med":12000.0},{"team":"BOYNEXTDOOR","ko":"보이넥스트도어","gone":9.0,"sold":1.2,"still":89.8,"n":6065,"med":8000.0},{"team":"BTS","ko":"방탄소년단","gone":5.6,"sold":1.2,"still":93.3,"n":6457,"med":14000.0},{"team":"TXT","ko":"투모로우바이투게더","gone":5.4,"sold":0.7,"still":94.0,"n":7229,"med":6380.0},{"team":"TWS","ko":"투어스","gone":9.0,"sold":0.7,"still":90.3,"n":3663,"med":10000.0},{"team":"NewJeans","ko":"뉴진스","gone":7.2,"sold":0.6,"still":92.2,"n":994,"med":4500.0},{"team":"SEVENTEEN","ko":"세븐틴","gone":5.0,"sold":0.3,"still":94.6,"n":10086,"med":5000.0}],"price_sold_vs_still":"{'gone': 7000.0, 'sold': 10615.0, 'still': 8000.0}"},"album_x":4.87,"digital_x":0.54,"zero_share":0.5362505041760838,"zero_n":38,"gap_min":0.5296331138287864,"gap_max":0.7873333333333333},"layers":[{"layer":"앨범을 뜯어야 나온다","sub":"랜덤 동봉","n":3951,"med":4500.0,"lo":4250.0,"hi":5000.0,"q25":2000.0,"q75":9000.0,"sold_pct":0.12503163756011137,"sold_med":6000.0,"sold_n":494,"ratio":1.0},{"layer":"정해진 곳에서 사거나 행사에 가야 한다","sub":"판매처 특전 · 콘서트 MD · 시즌그리팅 · 미공개","n":16484,"med":10600.0,"lo":10000.0,"hi":10630.0,"q25":5000.0,"q75":24250.0,"sold_pct":0.15979131278815822,"sold_med":13000.0,"sold_n":2634,"ratio":2.36},{"layer":"사고 나서 추첨에 당첨돼야 한다","sub":"럭키드로우 · 팬사인회","n":4921,"med":15000.0,"lo":15000.0,"hi":15000.0,"q25":8500.0,"q75":27000.0,"sold_pct":0.16500711237553342,"sold_med":18500.0,"sold_n":812,"ratio":3.33}],"cond7":[{"cond":"앨범 동봉(랜덤)","layer":"앨범을 뜯어야 나온다","n":3951,"med":4500.0,"q25":2000.0,"q75":9000.0},{"cond":"미공개 포카(비매품·이벤트)","layer":"정해진 곳에서 사거나 행사에 가야 한다","n":1651,"med":8000.0,"q25":2650.0,"q75":20000.0},{"cond":"시즌그리팅·DVD·매거진","layer":"정해진 곳에서 사거나 행사에 가야 한다","n":1351,"med":10000.0,"q25":4000.0,"q75":25000.0},{"cond":"구매처 특전(지정 판매처)","layer":"정해진 곳에서 사거나 행사에 가야 한다","n":6801,"med":10000.0,"q25":5000.0,"q75":19000.0},{"cond":"콘서트·팝업·MD","layer":"정해진 곳에서 사거나 행사에 가야 한다","n":6681,"med":12500.0,"q25":5000.0,"q75":35000.0},{"cond":"팬사인회·영통(다량 구매 추첨)","layer":"사고 나서 추첨에 당첨돼야 한다","n":234,"med":10000.0,"q25":6000.0,"q75":15600.0},{"cond":"럭키드로우(구매 후 추첨)","layer":"사고 나서 추첨에 당첨돼야 한다","n":4687,"med":15000.0,"q25":8510.0,"q75":28000.0}],"teams3":[{"team":"SEVENTEEN","ko":"세븐틴","l1":4000.0,"l2":7000.0,"l3":12000.0,"n":4305},{"team":"TWS","ko":"투어스","l1":11220.0,"l2":9000.0,"l3":15000.0,"n":4250},{"team":"TXT","ko":"투모로우바이투게더","l1":4250.0,"l2":10630.0,"l3":10665.0,"n":3402},{"team":"BTS","ko":"방탄소년단","l1":8000.0,"l2":21270.0,"l3":28400.0,"n":3215},{"team":"BOYNEXTDOOR","ko":"보이넥스트도어","l1":3000.0,"l2":9000.0,"l3":13500.0,"n":3159},{"team":"ENHYPEN","ko":"엔하이픈","l1":5310.0,"l2":11000.0,"l3":15000.0,"n":2953},{"team":"&TEAM","ko":"앤팀","l1":4250.0,"l2":10000.0,"l3":10900.0,"n":1208},{"team":"CORTIS","ko":"코르티스","l1":7000.0,"l2":18000.0,"l3":18000.0,"n":947},{"team":"LE SSERAFIM","ko":"르세라핌","l1":3550.0,"l2":23900.0,"l3":13000.0,"n":923},{"team":"ILLIT","ko":"아일릿","l1":4000.0,"l2":14000.0,"l3":18000.0,"n":573}],"members":[{"team":"&TEAM","ko":"앤팀","ratio":3.0,"members":[{"m":"니콜라스","med":15000.0,"n":475},{"m":"의주","med":13000.0,"n":310},{"m":"유마","med":10000.0,"n":392},{"m":"하루아","med":10000.0,"n":359},{"m":"케이","med":9000.0,"n":192},{"m":"후마","med":6645.0,"n":156},{"m":"타키","med":6000.0,"n":205},{"m":"마키","med":5000.0,"n":164}]},{"team":"TWS","ko":"투어스","ratio":2.824858757062147,"members":[{"m":"신유","med":15000.0,"n":771},{"m":"도훈","med":14000.0,"n":882},{"m":"영재","med":10000.0,"n":668},{"m":"지훈","med":9000.0,"n":626},{"m":"경민","med":5500.0,"n":635},{"m":"한진","med":5310.0,"n":745}]},{"team":"BTS","ko":"방탄소년단","ratio":2.75,"members":[{"m":"정국","med":22000.0,"n":1427},{"m":"지민","med":16000.0,"n":1139},{"m":"뷔","med":15000.0,"n":1202},{"m":"진","med":15000.0,"n":1267},{"m":"슈가","med":15000.0,"n":959},{"m":"제이홉","med":10000.0,"n":832},{"m":"RM","med":8000.0,"n":677}]},{"team":"SEVENTEEN","ko":"세븐틴","ratio":2.6666666666666665,"members":[{"m":"원우","med":8000.0,"n":826},{"m":"정한","med":7500.0,"n":1239},{"m":"에스쿱스","med":7000.0,"n":1353},{"m":"민규","med":6000.0,"n":990},{"m":"도겸","med":5000.0,"n":749},{"m":"호시","med":5000.0,"n":1043},{"m":"디에잇","med":4890.0,"n":618},{"m":"조슈아","med":4000.0,"n":707},{"m":"디노","med":4000.0,"n":815},{"m":"승관","med":4000.0,"n":678},{"m":"우지","med":3500.0,"n":517},{"m":"버논","med":3000.0,"n":583},{"m":"준","med":3000.0,"n":544}]},{"team":"TXT","ko":"투모로우바이투게더","ratio":2.380952380952381,"members":[{"m":"연준","med":10000.0,"n":2233},{"m":"수빈","med":8000.0,"n":1743},{"m":"범규","med":7000.0,"n":1646},{"m":"태현","med":5000.0,"n":1368},{"m":"휴닝카이","med":4200.0,"n":989}]},{"team":"ILLIT","ko":"아일릿","ratio":2.1675760520218255,"members":[{"m":"원희","med":14500.0,"n":285},{"m":"민주","med":12000.0,"n":198},{"m":"모카","med":11000.0,"n":155},{"m":"이로하","med":11000.0,"n":137},{"m":"윤아","med":6689.5,"n":136}]},{"team":"CORTIS","ko":"코르티스","ratio":2.1333333333333333,"members":[{"m":"주훈","med":16000.0,"n":512},{"m":"건호","med":15000.0,"n":555},{"m":"성현","med":15000.0,"n":515},{"m":"제임스","med":8000.0,"n":275},{"m":"마틴","med":7500.0,"n":317}]},{"team":"NewJeans","ko":"뉴진스","ratio":2.0384615384615383,"members":[{"m":"해린","med":7950.0,"n":254},{"m":"하니","med":5310.0,"n":262},{"m":"민지","med":4450.0,"n":234},{"m":"다니엘","med":4000.0,"n":203},{"m":"혜인","med":3900.0,"n":204}]},{"team":"LE SSERAFIM","ko":"르세라핌","ratio":1.5197713196760363,"members":[{"m":"사쿠라","med":15950.0,"n":291},{"m":"채원","med":15400.0,"n":310},{"m":"은채","med":12760.0,"n":357},{"m":"카즈하","med":11000.0,"n":255},{"m":"윤진","med":10495.0,"n":254}]},{"team":"ENHYPEN","ko":"엔하이픈","ratio":1.5,"members":[{"m":"정원","med":12000.0,"n":1021},{"m":"성훈","med":10000.0,"n":923},{"m":"선우","med":10000.0,"n":870},{"m":"제이크","med":9500.0,"n":717},{"m":"제이","med":9400.0,"n":772},{"m":"희승","med":9000.0,"n":460},{"m":"니키","med":8000.0,"n":913}]},{"team":"BOYNEXTDOOR","ko":"보이넥스트도어","ratio":1.3671428571428572,"members":[{"m":"태산","med":9570.0,"n":1257},{"m":"명재현","med":9000.0,"n":1130},{"m":"운학","med":7500.0,"n":1232},{"m":"성호","med":7500.0,"n":1113},{"m":"리우","med":7000.0,"n":956},{"m":"이한","med":7000.0,"n":1048}]}],"lottery":[{"team":"SEVENTEEN","ko":"세븐틴","album":"HAPPY BURSTDAY (DAREDEVIL)","release":"2025-05","list_price":15100,"k":4,"members":13,"random":true,"per_card":3775.0,"exp_albums":3.25,"exp_cost":49075.0,"resale":4000.0,"resale_n":1480,"r_percard":1.0596026490066226,"r_expcost":0.0815078960774325},{"team":"TXT","ko":"투모로우바이투게더","album":"별의 장: TOGETHER","release":"2025-07","list_price":24400,"k":1,"members":5,"random":true,"per_card":24400.0,"exp_albums":5.0,"exp_cost":122000.0,"resale":4250.0,"resale_n":546,"r_percard":0.1741803278688524,"r_expcost":0.0348360655737704},{"team":"ENHYPEN","ko":"엔하이픈","album":"THE SIN: BLISS","release":"2026-08","list_price":24900,"k":2,"members":7,"random":true,"per_card":12450.0,"exp_albums":3.5,"exp_cost":87150.0,"resale":5500.0,"resale_n":588,"r_percard":0.4417670682730923,"r_expcost":0.0631095811818703},{"team":"LE SSERAFIM","ko":"르세라핌","album":"SPAGHETTI (일반반)","release":"2025-10","list_price":22300,"k":1,"members":5,"random":true,"per_card":22300.0,"exp_albums":5.0,"exp_cost":111500.0,"resale":3900.0,"resale_n":77,"r_percard":0.1748878923766816,"r_expcost":0.0349775784753363},{"team":"BOYNEXTDOOR","ko":"보이넥스트도어","album":"HOME (일반반)","release":"2026-06","list_price":23700,"k":2,"members":6,"random":true,"per_card":11850.0,"exp_albums":3.0,"exp_cost":71100.0,"resale":3000.0,"resale_n":378,"r_percard":0.2531645569620253,"r_expcost":0.0421940928270042},{"team":"ILLIT","ko":"아일릿","album":"BREAK EVEN (일반반)","release":"2026-10","list_price":23900,"k":3,"members":5,"random":true,"per_card":7966.666666666667,"exp_albums":1.6666666666666667,"exp_cost":39833.333333333336,"resale":4000.0,"resale_n":133,"r_percard":0.502092050209205,"r_expcost":0.100418410041841},{"team":"CORTIS","ko":"코르티스","album":"GREENGREEN (일반반)","release":"2026-05","list_price":23700,"k":1,"members":5,"random":true,"per_card":23700.0,"exp_albums":5.0,"exp_cost":118500.0,"resale":7000.0,"resale_n":179,"r_percard":0.2953586497890295,"r_expcost":0.0590717299578059},{"team":"TWS","ko":"투어스","album":"play hard (일반반)","release":"2025-10","list_price":23200,"k":2,"members":6,"random":true,"per_card":11600.0,"exp_albums":3.0,"exp_cost":69600.0,"resale":11220.0,"resale_n":6,"r_percard":0.9672413793103448,"r_expcost":0.1612068965517241},{"team":"BTS","ko":"방탄소년단","album":"Arirang (Rooted ver.)","release":"2026-03","list_price":26400,"k":7,"members":7,"random":false,"per_card":3771.428571428572,"exp_albums":1.0,"exp_cost":26400.0,"resale":8000.0,"resale_n":424,"r_percard":2.121212121212121,"r_expcost":0.303030303030303},{"team":"NewJeans","ko":"뉴진스","album":"Get Up (Bunny Beach Bag)","release":"2023-07","list_price":24100,"k":5,"members":5,"random":false,"per_card":4820.0,"exp_albums":1.0,"exp_cost":24100.0,"resale":3000.0,"resale_n":65,"r_percard":0.6224066390041494,"r_expcost":0.1244813278008298}],"albumgap":[{"team":"SEVENTEEN","ko":"세븐틴","sealed":15000.0,"n_sealed":300,"nocard":3190.0,"n_nocard":59,"gap_share":0.7873333333333333},{"team":"TXT","ko":"투모로우바이투게더","sealed":12950.0,"n_sealed":332,"nocard":4000.0,"n_nocard":54,"gap_share":0.6911196911196911},{"team":"LE SSERAFIM","ko":"르세라핌","sealed":11000.0,"n_sealed":137,"nocard":4000.0,"n_nocard":6,"gap_share":0.6363636363636364},{"team":"CORTIS","ko":"코르티스","sealed":43000.0,"n_sealed":227,"nocard":17000.0,"n_nocard":17,"gap_share":0.6046511627906976},{"team":"BOYNEXTDOOR","ko":"보이넥스트도어","sealed":10630.0,"n_sealed":496,"nocard":5000.0,"n_nocard":70,"gap_share":0.5296331138287864},{"team":"ENHYPEN","ko":"엔하이픈","sealed":10000.0,"n_sealed":333,"nocard":6500.0,"n_nocard":18,"gap_share":0.35}],"transition":{"n":113883,"still":105394,"still_pct":92.5,"gone":7529,"gone_pct":6.6,"sold":960,"sold_pct":0.8,"from":"2026-10-08","to":"2026-10-20","days":12,"teams":[{"team":"CORTIS","ko":"코르티스","gone":8.5,"sold":2.8,"still":88.7,"n":1188,"med":12172.5},{"team":"&TEAM","ko":"앤팀","gone":7.0,"sold":2.5,"still":90.6,"n":1781,"med":8000.0},{"team":"ILLIT","ko":"아일릿","gone":6.5,"sold":2.1,"still":91.4,"n":756,"med":12000.0},{"team":"ENHYPEN","ko":"엔하이픈","gone":6.4,"sold":1.8,"still":91.8,"n":4386,"med":9000.0},{"team":"LE SSERAFIM","ko":"르세라핌","gone":5.9,"sold":1.7,"still":92.3,"n":1262,"med":12000.0},{"team":"BOYNEXTDOOR","ko":"보이넥스트도어","gone":9.0,"sold":1.2,"still":89.8,"n":6065,"med":8000.0},{"team":"BTS","ko":"방탄소년단","gone":5.6,"sold":1.2,"still":93.3,"n":6457,"med":14000.0},{"team":"TXT","ko":"투모로우바이투게더","gone":5.4,"sold":0.7,"still":94.0,"n":7229,"med":6380.0},{"team":"TWS","ko":"투어스","gone":9.0,"sold":0.7,"still":90.3,"n":3663,"med":10000.0},{"team":"NewJeans","ko":"뉴진스","gone":7.2,"sold":0.6,"still":92.2,"n":994,"med":4500.0},{"team":"SEVENTEEN","ko":"세븐틴","gone":5.0,"sold":0.3,"still":94.6,"n":10086,"med":5000.0}],"price_sold_vs_still":"{'gone': 7000.0, 'sold': 10615.0, 'still': 8000.0}"},"circle":{"years":[2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025],"album":[7194544.0,9465586.0,14483828.0,19328835.0,21051180.0,34913554.0,45468887.0,60476914.0,94167827.0,71198127.0,64615322.0],"digital":[0.0,0.0,0.0,54578450108.0,51735874030.0,42690257340.0,36871963928.0,34721665285.0,29347866688.0,27791975857.0,26069722989.0],"album_idx":[37.2,49.0,74.9,100.0,108.9,180.6,235.2,312.9,487.2,368.4,334.3],"digital_idx":[0.0,0.0,0.0,100.0,94.8,78.2,67.6,63.6,53.8,50.9,47.8],"album_2018_2023":4.87,"digital_2018_2023":0.54,"album_peak_to_2025":-0.314},"scatter":{"n":60,"zero_n":38,"zero_share":0.5362505041760838,"points":[{"a":"Stray Kids","ko":"스트레이키즈","album":6270853,"digital":0.0,"hybe":false,"label":true},{"a":"SEVENTEEN","ko":"세븐틴","album":4665831,"digital":216715944.0,"hybe":true,"label":true},{"a":"ZEROBASEONE","ko":"제로베이스원","album":2742877,"digital":0.0,"hybe":false,"label":true},{"a":"NCT WISH","ko":"NCT 위시","album":2719885,"digital":0.0,"hybe":false,"label":true},{"a":"IVE","ko":"아이브","album":2638864,"digital":1406510526.0,"hybe":false,"label":true},{"a":"ENHYPEN","ko":"엔하이픈","album":2508335,"digital":0.0,"hybe":true,"label":true},{"a":"BOYNEXTDOOR","ko":"보이넥스트도어","album":2475239,"digital":651173240.0,"hybe":true,"label":true},{"a":"PLAVE","ko":"플레이브","album":2464850,"digital":139807196.0,"hybe":false,"label":true},{"a":"aespa","ko":"에스파","album":2193210,"digital":1945905495.0,"hybe":false,"label":true},{"a":"RIIZE","ko":"라이즈","album":2117537,"digital":390902411.0,"hybe":false,"label":false},{"a":"TREASURE","ko":"트레저","album":1936034,"digital":0.0,"hybe":false,"label":false},{"a":"NCT DREAM","ko":"NCT 드림","album":1934310,"digital":0.0,"hybe":false,"label":false},{"a":"TXT","ko":"투모로우바이투게더","album":1801907,"digital":109461945.0,"hybe":true,"label":true},{"a":"CORTIS","ko":"코르티스","album":1366547,"digital":0.0,"hybe":true,"label":true},{"a":"&TEAM","ko":"앤팀","album":1331733,"digital":0.0,"hybe":true,"label":true},{"a":"TWS","ko":"투어스","album":1276099,"digital":250672902.0,"hybe":true,"label":true},{"a":"LE SSERAFIM","ko":"르세라핌","album":1255237,"digital":430863926.0,"hybe":true,"label":true},{"a":"더보이즈","ko":"더보이즈","album":1216107,"digital":0.0,"hybe":false,"label":false},{"a":"NMIXX","ko":"엔믹스","album":1188187,"digital":152431714.0,"hybe":false,"label":false},{"a":"G-Dragon","ko":"지드래곤","album":1107137,"digital":1640622167.0,"hybe":false,"label":false},{"a":"TWICE","ko":"TWICE","album":1098787,"digital":89518568.0,"hybe":false,"label":false},{"a":"i-dle","ko":"i-dle","album":990662,"digital":322953925.0,"hybe":false,"label":false},{"a":"백현","ko":"백현","album":868822,"digital":0.0,"hybe":false,"label":false},{"a":"KickFlip","ko":"KickFlip","album":825199,"digital":0.0,"hybe":false,"label":false},{"a":"제니","ko":"제니","album":786281,"digital":583913301.0,"hybe":false,"label":false},{"a":"ITZY","ko":"ITZY","album":743704,"digital":0.0,"hybe":false,"label":false},{"a":"진","ko":"진","album":736712,"digital":0.0,"hybe":false,"label":false},{"a":"BTS","ko":"방탄소년단","album":734151,"digital":142845719.0,"hybe":true,"label":true},{"a":"ILLIT","ko":"아일릿","album":719701,"digital":655590940.0,"hybe":true,"label":true},{"a":"tripleS","ko":"tripleS","album":717017,"digital":0.0,"hybe":false,"label":false},{"a":"연준","ko":"연준","album":683875,"digital":0.0,"hybe":false,"label":false},{"a":"Hearts2Hearts","ko":"Hearts2Hearts","album":683122,"digital":369142944.0,"hybe":false,"label":false},{"a":"BABYMONSTER","ko":"BABYMONSTER","album":660326,"digital":294234342.0,"hybe":false,"label":false},{"a":"ATEEZ","ko":"ATEEZ","album":639849,"digital":0.0,"hybe":false,"label":false},{"a":"이찬원","ko":"이찬원","album":612633,"digital":0.0,"hybe":false,"label":false},{"a":"CLOSE YOUR EYES","ko":"CLOSE YOUR EYES","album":546483,"digital":0.0,"hybe":false,"label":false},{"a":"마크","ko":"마크","album":530545,"digital":0.0,"hybe":false,"label":false},{"a":"IDID","ko":"IDID","album":447420,"digital":0.0,"hybe":false,"label":false},{"a":"지수","ko":"지수","album":445343,"digital":87829622.0,"hybe":false,"label":false},{"a":"몬스타엑스","ko":"몬스타엑스","album":431261,"digital":0.0,"hybe":false,"label":false},{"a":"해찬","ko":"해찬","album":424611,"digital":0.0,"hybe":false,"label":false},{"a":"우기","ko":"우기","album":407160,"digital":0.0,"hybe":false,"label":false},{"a":"P1Harmony","ko":"P1Harmony","album":397108,"digital":0.0,"hybe":false,"label":false},{"a":"idntt","ko":"idntt","album":322660,"digital":0.0,"hybe":false,"label":false},{"a":"도영","ko":"도영","album":316957,"digital":0.0,"hybe":false,"label":false},{"a":"슈퍼주니어","ko":"슈퍼주니어","album":299038,"digital":0.0,"hybe":false,"label":false},{"a":"NEXZ","ko":"NEXZ","album":286294,"digital":0.0,"hybe":false,"label":false},{"a":"예지","ko":"예지","album":278113,"digital":0.0,"hybe":false,"label":false},{"a":"CRAVITY","ko":"CRAVITY","album":272597,"digital":0.0,"hybe":false,"label":false},{"a":"WayV","ko":"WayV","album":272320,"digital":0.0,"hybe":false,"label":false},{"a":"MEOVV","ko":"MEOVV","album":253912,"digital":196501939.0,"hybe":false,"label":false},{"a":"박지현","ko":"박지현","album":250967,"digital":0.0,"hybe":false,"label":false},{"a":"샤이니","ko":"샤이니","album":244094,"digital":0.0,"hybe":false,"label":false},{"a":"카이","ko":"카이","album":235515,"digital":0.0,"hybe":false,"label":false},{"a":"민니 )","ko":"민니 )","album":235068,"digital":0.0,"hybe":false,"label":false},{"a":"KiiiKiii","ko":"KiiiKiii","album":210484,"digital":215317840.0,"hybe":false,"label":false},{"a":"xikers","ko":"xikers","album":207972,"digital":0.0,"hybe":false,"label":false},{"a":"아이유","ko":"아이유","album":198456,"digital":779059813.0,"hybe":false,"label":false},{"a":"엔싸인","ko":"엔싸인","album":195925,"digital":0.0,"hybe":false,"label":false},{"a":"AHOF","ko":"AHOF","album":193399,"digital":0.0,"hybe":false,"label":false}]}};
+const $ = s => document.querySelector(s);
+const fmtP = v => (v >= 0 ? "+" : "−") + Math.abs(Math.round(v * 100)) + "%";
+const fmtPct = v => Math.round(v * 100) + "%";
+const fmtN = v => v.toLocaleString("ko-KR");
+const fmtW = v => fmtN(Math.round(v)) + "원";
+const T = (tag, attrs, parent) => { const e = document.createElementNS("http://www.w3.org/2000/svg", tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; };
+const txt = (parent, x, y, s, cls, anchor) => { const t = T("text", { x, y, class: cls || "", "text-anchor": anchor || "start" }, parent); t.textContent = s; return t; };
+
+/* ---------- 툴팁 ---------- */
+const tip = $("#tip");
+function showTip(ev, rows) { tip.replaceChildren(); rows.forEach(r => { const d = document.createElement("div"); if (r.k) { const k = document.createElement("span"); k.className = "k"; k.style.borderColor = r.k; d.appendChild(k); } if (r.b) { const b = document.createElement("b"); b.textContent = r.b; d.appendChild(b); d.appendChild(document.createTextNode(" ")); } const s = document.createElement("span"); s.className = r.b ? "dim" : ""; s.textContent = r.t || ""; d.appendChild(s); tip.appendChild(d); }); tip.classList.add("on"); moveTip(ev); }
+function moveTip(ev) { const w = tip.offsetWidth, h = tip.offsetHeight; let x = ev.clientX + 14, y = ev.clientY + 14; if (x + w > innerWidth - 8) x = ev.clientX - w - 14; if (y + h > innerHeight - 8) y = ev.clientY - h - 14; tip.style.left = x + "px"; tip.style.top = y + "px"; }
+function hideTip() { tip.classList.remove("on"); }
+
+/* ---------- 공통 스케일 ---------- */
+const lin = (d0, d1, r0, r1) => v => r0 + (v - d0) / (d1 - d0) * (r1 - r0);
+function svgIn(el, w, h) { el.replaceChildren(); return T("svg", { viewBox: `0 0 ${w} ${h}`, width: w, height: h, role: "img" }, el); }
+function widthOf(el) { return Math.max(280, el.clientWidth || 600); }
+
+/* ---------- KPI ---------- */
+(function kpis() {
+  const H = D.headline; $("#m-asof").textContent = H.snapshot; $("#m-listings").textContent = fmtN(H.listings) + "건"; $("#m-single").textContent = fmtN(H.single3) + "건";
+  const k = $("#kpis");
+  const tile = (lab, val, sub, cls, hero) => { const d = document.createElement("div"); d.className = "tile" + (hero ? " hero" : ""); d.innerHTML = `<div class="lab"></div><div class="val ${cls || ""}"></div><div class="sub"></div>`; d.children[0].textContent = lab; d.children[1].innerHTML = val; d.children[2].textContent = sub; k.appendChild(d); };
+  const t = H.txt;
+  tile("원하는 멤버 포카 1장을 만나기까지의 기대 비용", `<span style="white-space:nowrap;font-size:clamp(40px,5.6vw,56px)">${fmtN(t.exp_cost / 10000)}만 원</span><small>투모로우바이투게더 《별의 장: TOGETHER》 · 정가 ${fmtN(t.list_price)}원 × 평균 ${t.exp_albums}장</small>`, "5명 중 1명 랜덤 1장, 균등 확률 가정", "neg", true);
+  tile("그 카드를 되팔 때 값", fmtW(t.resale), `기대 비용의 ${fmtPct(t.r_expcost)} · 8종 중앙값 ${fmtPct(H.lot.r_expcost_med)} 이하`, "neg");
+  tile("추첨형 카드 vs 앨범 동봉 카드", "×" + H.ratio3.toFixed(1), `${fmtW(H.l1)} → ${fmtW(H.l3)} · 10팀 중 ${H.ok13}팀 성립`, "pos");
+  tile("12일 뒤 판매 완료된 매물", H.transition.sold_pct + "%", `삭제·숨김 포함 ${(H.transition.sold_pct + H.transition.gone_pct).toFixed(1)}% · ${fmtN(H.transition.n)}건 추적`, "neg");
+  tile("앨범 ×" + H.album_x.toFixed(1) + " / 음원 ×" + H.digital_x.toFixed(2), "2018→2023", "써클차트 상위 100 · 앨범 출고량 vs 음원 지수", "pos");
+})();
+
+/* ---------- 가로 막대 (공통) ---------- */
+function hbars(sel, rows, { val, label, diverging, dmax, fmt, tipRows, cls, ticks: tk, m: mm, rowH: rh }) {
+  const el = $(sel), W = widthOf(el), rowH = rh || 26, m = mm || { l: 118, r: 54, t: 8, b: 26 }, H = m.t + rows.length * rowH + m.b;
+  const s = svgIn(el, W, H);
+  const lo = diverging ? -dmax : 0, hi = dmax;
+  const x = lin(lo, hi, m.l, W - m.r);
+  const ticks = tk || (diverging ? [-dmax, -dmax / 2, 0, dmax / 2, dmax] : [0, .25, .5, .75, 1]);
+  ticks.forEach(v => { T("line", { x1: x(v), x2: x(v), y1: m.t, y2: H - m.b, class: v === 0 ? "base" : "grid" }, s); txt(s, x(v), H - m.b + 15, fmt(v, true), "tick", "middle"); });
+  rows.forEach((r, i) => {
+    const v = val(r), cy = m.t + i * rowH + rowH / 2, bh = 16;
+    const x0 = Math.min(x(0), x(v)), bw = Math.abs(x(v) - x(0));
+    const rect = T("rect", { x: x0, y: cy - bh / 2, width: Math.max(bw, 0), height: bh, rx: 3, class: "bar " + (cls ? cls(r) : (diverging ? (v >= 0 ? "pos" : "negf") : "negf")) }, s);
+    txt(s, m.l - 10, cy + 4, label(r), "", "end");
+    txt(s, v >= 0 ? x(v) + 6 : x(v) - 6, cy + 4, fmt(v), "lbl", v >= 0 ? "start" : "end");
+    const hit = T("rect", { x: m.l, y: cy - rowH / 2, width: W - m.l - m.r, height: rowH, class: "hit" }, s);
+    hit.addEventListener("pointermove", ev => { rect.classList.add("hover"); showTip(ev, tipRows(r)); });
+    hit.addEventListener("pointerleave", () => { rect.classList.remove("hover"); hideTip(); });
+  });
+}
+
+/* ---------- 선 그래프 공통 ---------- */
+function lineChart(sel, { series, xs, xlab, ylo, yhi, yticks, yfmt, xfmt, refs, endLabels, H = 260, m = { l: 44, r: 16, t: 18, b: 34 } }) {
+  const el = $(sel), W = widthOf(el); const s = svgIn(el, W, H);
+  const x = lin(0, xs.length - 1, m.l, W - m.r), y = lin(ylo, yhi, H - m.b, m.t);
+  yticks.forEach(v => { T("line", { x1: m.l, x2: W - m.r, y1: y(v), y2: y(v), class: v === 0 && ylo < 0 ? "base" : "grid" }, s); txt(s, m.l - 8, y(v) + 3.5, yfmt(v), "tick", "end"); });
+  (refs || []).forEach(r => { T("line", { x1: m.l, x2: W - m.r, y1: y(r.v), y2: y(r.v), class: "axis" }, s); txt(s, W - m.r, y(r.v) - 4, r.t, "tick", "end"); });
+  xfmt.forEach(([i, t]) => txt(s, x(i), H - m.b + 16, t, "tick", "middle"));
+  if (xlab) txt(s, W - m.r, H - 4, xlab, "note", "end");
+  series.forEach(sr => {
+    let d = "", pen = false; sr.v.forEach((v, i) => { if (v == null) { pen = false; return; } d += (pen ? " L" : " M") + x(i) + "," + y(v); pen = true; });
+    T("path", { d, class: "line l-" + sr.c, "stroke-width": sr.w || 2, opacity: sr.o || 1 }, s);
+    if (sr.dots) sr.v.forEach((v, i) => v != null && T("circle", { cx: x(i), cy: y(v), r: 4, class: "dot " + (sr.c === "neg" ? "negf" : sr.c === "gray" ? "" : "pos"), fill: sr.c === "gray" ? "var(--gray)" : undefined }, s));
+    if (sr.pointLabels) sr.pointLabels.forEach(i => sr.v[i] != null && txt(s, x(i), y(sr.v[i]) + (sr.labelBelow ? 16 : -9), yfmt(sr.v[i]), "lbl", "middle"));
+  });
+  if (endLabels) { // 끝 라벨 충돌 회피
+    const ends = series.map(sr => { let i = sr.v.length - 1; while (i >= 0 && sr.v[i] == null) i--; return { sr, i, yv: y(sr.v[i]) }; }).sort((a, b) => a.yv - b.yv);
+    let last = -Infinity; ends.forEach(e => { e.yv = Math.max(e.yv, last + 14); last = e.yv; txt(s, x(e.i) + 8, e.yv + 4, e.sr.name, "note"); });
+  }
+  const xh = T("line", { y1: m.t, y2: H - m.b, class: "xh", visibility: "hidden" }, s);
+  const hit = T("rect", { x: m.l, y: m.t, width: W - m.l - m.r, height: H - m.t - m.b, class: "hit" }, s);
+  const colors = { pos: "var(--pos)", neg: "var(--neg)", gray: "var(--gray)", s1: "var(--s1)", s2: "var(--s2)", s3: "var(--s3)", s4: "var(--s4)" };
+  hit.addEventListener("pointermove", ev => { const r = s.getBoundingClientRect(); const px = (ev.clientX - r.left) * W / r.width; const i = Math.max(0, Math.min(xs.length - 1, Math.round((px - m.l) / (W - m.l - m.r) * (xs.length - 1)))); xh.setAttribute("x1", x(i)); xh.setAttribute("x2", x(i)); xh.setAttribute("visibility", "visible"); showTip(ev, [{ t: xs[i] }].concat(series.filter(sr => sr.v[i] != null).map(sr => ({ k: getComputedStyle(document.documentElement).getPropertyValue(colors[sr.c].slice(4, -1)) || "#888", b: yfmt(sr.v[i]), t: sr.name })))); });
+  hit.addEventListener("pointerleave", () => { xh.setAttribute("visibility", "hidden"); hideTip(); });
+  return s;
+}
+function legend(sel, items) { const l = $(sel); l.replaceChildren(); items.forEach(it => { const sp = document.createElement("span"); const i = document.createElement("i"); i.style.borderColor = it.c; if (it.rect) { i.className = "rect"; i.style.background = it.c; } sp.appendChild(i); sp.appendChild(document.createTextNode(it.t)); l.appendChild(sp); }); }
+
+/* ---------- 1. 획득 조건 3층 ---------- */
+function drawLayer() {
+  const el = $("#c-layer"), W = widthOf(el), rowH = 58, m = { l: 12, r: 90, t: 6, b: 28 }, rows = D.layers, H = m.t + rows.length * rowH + m.b;
+  const s = svgIn(el, W, H); const xmax = 20000; const x = lin(0, xmax, m.l, W - m.r);
+  [0, 5000, 10000, 15000, 20000].forEach(v => { T("line", { x1: x(v), x2: x(v), y1: m.t, y2: H - m.b, class: v === 0 ? "base" : "grid" }, s); txt(s, x(v), H - m.b + 15, v === 0 ? "0" : (v / 10000).toLocaleString("ko-KR", { maximumFractionDigits: 1 }) + "만", "tick", "middle"); });
+  txt(s, W - m.r, H - 2, "낱장 호가 중앙값 (원)", "note", "end");
+  rows.forEach((r, i) => {
+    const top = m.t + i * rowH; const by = top + 26, bh = 16;
+    const head = `${["①", "②", "③"][i]} ${r.layer}`; const subTxt = `${r.sub} · n=${fmtN(r.n)}`;
+    const fits = head.length * 12.2 + subTxt.length * 6.8 + 20 < W - m.l - m.r;
+    txt(s, m.l, top + 14, fits ? head : `${head} · n=${fmtN(r.n)}`, "lbl");
+    if (fits) txt(s, m.l + 6 + head.length * 12.2, top + 14, subTxt, "tick");
+    const rect = T("rect", { x: x(0), y: by, width: x(r.med) - x(0), height: bh, rx: 3, class: "bar " + (i === 0 ? "grayf" : i === 1 ? "pos" : "negf") }, s);
+    T("line", { x1: x(r.lo), x2: x(r.hi), y1: by + bh / 2, y2: by + bh / 2, class: "base" }, s);
+    T("line", { x1: x(r.lo), x2: x(r.lo), y1: by + 4, y2: by + bh - 4, class: "base" }, s); T("line", { x1: x(r.hi), x2: x(r.hi), y1: by + 4, y2: by + bh - 4, class: "base" }, s);
+    txt(s, x(r.hi) + 8, by + bh / 2 + 4, fmtW(r.med) + (i ? ` (×${r.ratio.toFixed(1)})` : ""), "lbl");
+    const hit = T("rect", { x: m.l, y: top, width: W - m.l - m.r, height: rowH, class: "hit" }, s);
+    hit.addEventListener("pointermove", ev => { rect.classList.add("hover"); showTip(ev, [{ b: fmtW(r.med), t: `중앙값 [${fmtN(r.lo)}–${fmtN(r.hi)}]` }, { t: `${r.layer} · ${fmtN(r.n)}건` }, { t: `사분위 ${fmtN(r.q25)}–${fmtN(r.q75)}원 · 판매완료 ${fmtPct(r.sold_pct)} · 팔린 매물 중앙값 ${fmtW(r.sold_med)}` }]); });
+    hit.addEventListener("pointerleave", () => { rect.classList.remove("hover"); hideTip(); });
+  });
+  table("#t-layer", ["획득 조건", "층", "매물", "중앙값", "사분위(25–75%)"], D.cond7.map(c => [c.cond, c.layer, fmtN(c.n), fmtW(c.med), `${fmtN(c.q25)}–${fmtN(c.q75)}`]));
+  table("#t-teams3", ["팀 (낱장 n)", "① 앨범 동봉", "② 특전·행사", "③ 추첨", "①<②<③"], D.teams3.map(t => [`${t.ko} (${fmtN(t.n)})`, fmtW(t.l1), fmtW(t.l2), fmtW(t.l3), t.l1 < t.l2 && t.l2 < t.l3 ? "성립" : (t.l1 < t.l3 ? "①<③만" : "–")]));
+}
+
+/* ---------- 2. 복권 기대값 ---------- */
+function drawLottery() {
+  const rnd = D.lottery.filter(l => l.random).slice().sort((a, b) => b.exp_cost - a.exp_cost);
+  hbars("#c-lot", rnd, { val: r => r.exp_cost, label: r => r.ko, dmax: 140000, ticks: [0, 50000, 100000], m: { l: 118, r: 70, t: 8, b: 26 },
+    fmt: (v, t) => t ? (v ? (v / 10000) + "만" : "0") : fmtN(Math.round(v / 10000 * 10) / 10) + "만 원", cls: () => "negf",
+    tipRows: r => [{ b: fmtW(r.exp_cost), t: `기대 비용 = 정가 ${fmtN(r.list_price)} × ${r.members}명 ÷ ${r.k}장 = 앨범 ${r.exp_albums}장` }, { t: `${r.ko} 《${r.album}》 ${r.release}` }, { t: `되팔 값 ${fmtW(r.resale)} (${fmtPct(r.r_expcost)}, 매물 ${fmtN(r.resale_n)}건)` }] });
+  const byK = D.lottery.slice().sort((a, b) => (a.random === b.random ? a.k - b.k || a.r_percard - b.r_percard : (a.random ? -1 : 1)));
+  hbars("#c-k", byK, { val: r => r.r_percard, label: r => `${r.ko} · k=${r.k}${r.random ? "" : " 세트"}`, dmax: 2.2, ticks: [0, .5, 1, 1.5, 2], m: { l: 150, r: 54, t: 8, b: 26 },
+    fmt: (v, t) => Math.round(v * 100) + "%", cls: r => r.random ? "pos" : "grayf",
+    tipRows: r => [{ b: fmtPct(r.r_percard), t: "되팔 값 ÷ 장당 원가" }, { t: `${r.ko} 《${r.album}》 · 앨범당 ${r.k}장 ${r.random ? "랜덤" : "세트(랜덤 아님)"}` }, { t: `장당 원가 ${fmtW(r.per_card)} vs 되팔 값 ${fmtW(r.resale)}` }] });
+  legend("#lg-lot", [{ c: "var(--neg)", rect: true, t: "기대 비용 (랜덤 앨범 8종)" }, { c: "var(--pos)", rect: true, t: "랜덤 앨범: 되팔 값 ÷ 장당 원가" }, { c: "var(--gray)", rect: true, t: "세트 동봉(랜덤 아님) 비교용 — 방탄소년단 《ARIRANG》은 뽑기 없이도 212%" }]);
+  table("#t-lot", ["팀 · 앨범", "정가", "앨범당 장수", "멤버", "장당 원가", "기대 앨범 수", "기대 비용", "되팔 값", "되팔/기대"], D.lottery.map(r => [`${r.ko} 《${r.album}》`, fmtN(r.list_price), `${r.k}${r.random ? "" : " (세트)"}`, r.members, fmtN(Math.round(r.per_card)), r.exp_albums, fmtN(r.exp_cost), fmtN(r.resale), fmtPct(r.r_expcost)]));
+}
+
+/* ---------- 3. 미개봉 vs 개봉 (덤벨) ---------- */
+function drawGap() {
+  const el = $("#c-gap"), W = widthOf(el), rowH = 30, m = { l: 110, r: 78, t: 8, b: 28 }, rows = D.albumgap, H = m.t + rows.length * rowH + m.b;
+  const s = svgIn(el, W, H); const xmax = 45000; const x = lin(0, xmax, m.l, W - m.r);
+  [0, 10000, 20000, 30000, 40000].forEach(v => { T("line", { x1: x(v), x2: x(v), y1: m.t, y2: H - m.b, class: v === 0 ? "base" : "grid" }, s); txt(s, x(v), H - m.b + 15, v ? (v / 10000) + "만" : "0", "tick", "middle"); });
+  txt(s, W - m.r, H - 2, "중고 앨범 호가 중앙값 (원)", "note", "end");
+  rows.forEach((r, i) => {
+    const cy = m.t + i * rowH + rowH / 2;
+    txt(s, m.l - 10, cy + 4, r.ko, "", "end");
+    T("line", { x1: x(r.nocard), x2: x(r.sealed), y1: cy, y2: cy, class: "axis", "stroke-width": 2 }, s);
+    const d1 = T("circle", { cx: x(r.nocard), cy, r: 5, class: "dot grayf" }, s); const d2 = T("circle", { cx: x(r.sealed), cy, r: 5, class: "dot pos" }, s);
+    txt(s, x(r.sealed) + 10, cy + 4, `차이 ${fmtPct(r.gap_share)}`, "lbl");
+    const hit = T("rect", { x: m.l, y: cy - rowH / 2, width: W - m.l - m.r, height: rowH, class: "hit" }, s);
+    hit.addEventListener("pointermove", ev => { d1.classList.add("hover"); d2.classList.add("hover"); showTip(ev, [{ b: fmtW(r.sealed), t: `미개봉 (n=${r.n_sealed})` }, { b: fmtW(r.nocard), t: `개봉·포카 없음 (n=${r.n_nocard})` }, { t: `${r.ko} · 차이 ${fmtW(r.sealed - r.nocard)} = 미개봉가의 ${fmtPct(r.gap_share)}` }]); });
+    hit.addEventListener("pointerleave", () => { d1.classList.remove("hover"); d2.classList.remove("hover"); hideTip(); });
+  });
+  legend("#lg-gap", [{ c: "var(--pos)", rect: true, t: "미개봉" }, { c: "var(--gray)", rect: true, t: "개봉 · 포토카드 없음" }]);
+  table("#t-gap", ["팀", "미개봉 (n)", "개봉·포카 없음 (n)", "차이", "미개봉가 대비"], rows.map(r => [r.ko, `${fmtN(r.sealed)} (${r.n_sealed})`, `${fmtN(r.nocard)} (${r.n_nocard})`, fmtN(r.sealed - r.nocard), fmtPct(r.gap_share)]));
+}
+
+/* ---------- 4. 멤버 격차 (점 띠) ---------- */
+function drawMembers() {
+  const el = $("#c-mem"), W = widthOf(el), rowH = 34, m = { l: 110, r: 56, t: 8, b: 28 }, rows = D.members, H = m.t + rows.length * rowH + m.b;
+  const s = svgIn(el, W, H); const xmax = 25000; const x = lin(0, xmax, m.l, W - m.r);
+  [0, 5000, 10000, 15000, 20000, 25000].forEach(v => { T("line", { x1: x(v), x2: x(v), y1: m.t, y2: H - m.b, class: v === 0 ? "base" : "grid" }, s); txt(s, x(v), H - m.b + 15, v ? (v / 10000).toLocaleString("ko-KR", { maximumFractionDigits: 1 }) + "만" : "0", "tick", "middle"); });
+  txt(s, W - m.r, H - 2, "멤버별 낱장 호가 중앙값 (원)", "note", "end");
+  rows.forEach((r, i) => {
+    const cy = m.t + i * rowH + rowH / 2; const ms = r.members; const hi = ms[0], lo = ms[ms.length - 1];
+    txt(s, m.l - 10, cy + 4, r.ko, "", "end");
+    T("line", { x1: x(lo.med), x2: x(hi.med), y1: cy, y2: cy, class: "grid" }, s);
+    txt(s, W - m.r + 10, cy + 4, `×${r.ratio.toFixed(1)}`, "lbl");
+    ms.forEach((mb, j) => {
+      const dot = T("circle", { cx: x(mb.med), cy, r: 5, class: "dot " + (j === 0 ? "negf" : j === ms.length - 1 ? "grayf" : "pos") }, s);
+      const hit = T("circle", { cx: x(mb.med), cy, r: 13, class: "hit" }, s);
+      hit.addEventListener("pointermove", ev => { dot.classList.add("hover"); showTip(ev, [{ b: fmtW(mb.med), t: `${r.ko} ${mb.m}` }, { t: `낱장 매물 ${fmtN(mb.n)}건` }]); });
+      hit.addEventListener("pointerleave", () => { dot.classList.remove("hover"); hideTip(); });
+    });
+    if (W >= 560) { txt(s, x(hi.med) + 9, cy - 6, hi.m, "tick"); txt(s, x(lo.med) - 9, cy - 6, lo.m, "tick", "end"); }
+  });
+  table("#t-mem", ["팀", "최고/최저", "가장 비싼 멤버", "가장 싼 멤버", "멤버 수(n≥30)"], rows.map(r => { const h = r.members[0], l = r.members[r.members.length - 1]; return [r.ko, "×" + r.ratio.toFixed(2), `${h.m} ${fmtN(h.med)}원 (${h.n})`, `${l.m} ${fmtN(l.med)}원 (${l.n})`, r.members.length]; }));
+}
+
+/* ---------- 5. 유동성 (분절 막대) ---------- */
+function drawLiq() {
+  const t = D.transition, box = $("#c-liq"); box.replaceChildren();
+  [["st", "그대로 판매 중", t.still_pct, t.still], ["go", "사라짐 (삭제·숨김)", t.gone_pct, t.gone], ["so", "판매 완료", t.sold_pct, t.sold]].forEach(([c, name, pct, n]) => {
+    const d = document.createElement("div"); d.className = c; d.style.flex = `${pct} 0 0`; d.tabIndex = 0; d.setAttribute("aria-label", `${name} ${pct}%, ${fmtN(n)}건`);
+    if (pct > 12) d.textContent = pct + "%";
+    const show = ev => showTip(ev, [{ b: pct + "%", t: name }, { t: `${fmtN(n)}건 / ${fmtN(t.n)}건` }]);
+    d.addEventListener("pointermove", show); d.addEventListener("pointerleave", hideTip); d.addEventListener("focus", ev => { const r = d.getBoundingClientRect(); showTip({ clientX: r.left + 10, clientY: r.bottom }, [{ b: pct + "%", t: name }, { t: `${fmtN(n)}건` }]); }); d.addEventListener("blur", hideTip);
+    box.appendChild(d);
+  });
+  legend("#lg-liq", [{ c: "var(--gray)", rect: true, t: "그대로 판매 중" }, { c: "var(--pos)", rect: true, t: "사라짐 (삭제·숨김)" }, { c: "var(--neg)", rect: true, t: "판매 완료" }]);
+  table("#t-liq", ["팀", "추적 매물", "판매 완료", "사라짐", "그대로", "호가 중앙값"], t.teams.map(r => [r.ko, fmtN(r.n), r.sold + "%", r.gone + "%", r.still + "%", fmtW(r.med)]));
+}
+
+/* ---------- 6. 써클차트 지수 ---------- */
+function drawCircle() {
+  const C = D.circle, xs = C.years.map(String), xfmt = C.years.map((y, i) => [i, y % 2 === 0 ? String(y) : ""]).filter(a => a[1]);
+  const last = C.years.length - 1, pk = C.album_idx.indexOf(Math.max(...C.album_idx));
+  lineChart("#c-circle", { xs, ylo: 0, yhi: 520, yticks: [0, 100, 200, 300, 400, 500], yfmt: v => String(Math.round(v)), xfmt, H: 260, m: { l: 40, r: 40, t: 18, b: 34 }, refs: [{ v: 100, t: "2018 = 100" }],
+    series: [{ name: "실물 앨범 출고량 (상위 100 합)", v: C.album_idx, c: "pos", dots: true, pointLabels: [pk, last] }, { name: "디지털 음원 지수 (상위 100곡 합)", v: C.digital_idx, c: "neg", dots: true, pointLabels: [last], labelBelow: true }] });
+  legend("#lg-circle", [{ c: "var(--pos)", t: "실물 앨범 출고량 (상위 100 합)" }, { c: "var(--neg)", t: "디지털 음원 지수 (상위 100곡 합)" }]);
+  table("#t-circle", ["연도", "앨범 (만 장)", "앨범 지수", "음원 지수"], C.years.map((y, i) => [String(y), fmtN(Math.round(C.album[i] / 10000)), String(C.album_idx[i]), C.digital_idx[i] == null ? "–" : String(C.digital_idx[i])]));
+}
+
+/* ---------- 7. 2025 아티스트 산점도 (로그-로그) ---------- */
+function drawScatter() {
+  const el = $("#c-sc"), W = widthOf(el), H = Math.max(360, Math.min(460, W * .55)), m = { l: 56, r: 24, t: 14, b: 40 }; const s = svgIn(el, W, H);
+  const P = D.scatter.points; const XL = 1e7;
+  const lx = v => Math.log10(v), x = lin(lx(XL / 2.5), lx(3e9), m.l, W - m.r), y = lin(lx(1.2e5), lx(1e7), H - m.b, m.t);
+  // 음원 0 띠
+  T("rect", { x: x(lx(XL / 1.6)), y: m.t, width: x(lx(XL * 1.6)) - x(lx(XL / 1.6)), height: H - m.t - m.b, class: "wash" }, s);
+  [1e8, 1e9].forEach(v => { T("line", { x1: x(lx(v)), x2: x(lx(v)), y1: m.t, y2: H - m.b, class: "grid" }, s); txt(s, x(lx(v)), H - m.b + 16, v === 1e8 ? "1억" : "10억", "tick", "middle"); });
+  txt(s, x(lx(XL)), H - m.b + 16, "0", "tick", "middle");
+  [2e5, 5e5, 1e6, 2e6, 5e6].forEach(v => { T("line", { x1: m.l, x2: W - m.r, y1: y(lx(v)), y2: y(lx(v)), class: "grid" }, s); txt(s, m.l - 8, y(lx(v)) + 3.5, v >= 1e6 ? (v / 1e6) + "백만" : (v / 1e4) + "만", "tick", "end"); });
+  txt(s, W - m.r, H - 4, "디지털 음원 지수 (2025, 로그)", "note", "end"); txt(s, m.l, 10, "앨범 출고량 (장, 2025, 로그)", "note");
+  txt(s, x(lx(XL)), H - m.b - 8, `음원 상위 200에 없음 ${D.scatter.zero_n}팀 · 앨범의 ${fmtPct(D.scatter.zero_share)}`, "note", "middle");
+  const placed = [];
+  const zeroPts = P.filter(p => p.digital === 0).sort((a, b) => b.album - a.album);
+  P.forEach(p => {
+    const px = x(lx(p.digital || XL)), py = y(lx(p.album));
+    const dot = T("circle", { cx: px, cy: py, r: p.hybe ? 6 : 4.5, class: "dot " + (p.hybe ? "pos" : "grayf") }, s);
+    const hit = T("circle", { cx: px, cy: py, r: 13, class: "hit" }, s);
+    hit.addEventListener("pointermove", ev => { dot.classList.add("hover"); showTip(ev, [{ b: fmtN(p.album) + "장", t: p.ko }, { t: p.digital ? `음원 지수 ${(p.digital / 1e8).toFixed(1)}억` : "음원 상위 200에 없음" }, { t: p.hybe ? "하이브 소속" : "" }]); });
+    hit.addEventListener("pointerleave", () => { dot.classList.remove("hover"); hideTip(); });
+  });
+  // 라벨: 음원 0 열은 오른쪽으로 빼서 세로 간격 확보, 나머지는 점 옆
+  let lastY = -Infinity;
+  zeroPts.filter(p => p.label && (W >= 560 || p.hybe)).forEach(p => { const px = x(lx(XL)), py0 = y(lx(p.album)); const py = Math.max(py0, lastY + 13); lastY = py; T("line", { x1: px + 7, x2: x(lx(XL * 2.6)) - 4, y1: py0, y2: py, class: "axis" }, s); txt(s, x(lx(XL * 2.6)), py + 4, p.ko, p.hybe ? "lbl" : "tick"); });
+  const right = P.filter(p => p.label && p.digital > 0).map(p => ({ p, px: x(lx(p.digital)), py: y(lx(p.album)) }));
+  right.forEach(a => { let dy = -8; right.forEach(b => { if (b !== a && Math.abs(b.px - a.px) < 70 && Math.abs(b.py - a.py) < 14 && b.p.album > a.p.album) dy = 16; }); txt(s, a.px + 8, a.py + dy + 4, a.p.ko, a.p.hybe ? "lbl" : "tick"); });
+  legend("#lg-sc", [{ c: "var(--pos)", rect: true, t: "하이브 소속" }, { c: "var(--gray)", rect: true, t: "그 외 앨범 상위 100 아티스트" }]);
+  table("#t-sc", ["아티스트", "앨범 (장)", "음원 지수", "하이브"], P.slice(0, 20).map(p => [p.ko, fmtN(p.album), p.digital ? (p.digital / 1e8).toFixed(2) + "억" : "–", p.hybe ? "○" : ""]));
+}
+
+/* ---------- 표 ---------- */
+function table(sel, head, rows) { const box = $(sel); box.replaceChildren(); const t = document.createElement("table"); const tr = document.createElement("tr"); head.forEach(h => { const th = document.createElement("th"); th.textContent = h; tr.appendChild(th); }); t.appendChild(tr); rows.forEach(r => { const tr = document.createElement("tr"); r.forEach(c => { const td = document.createElement("td"); td.textContent = c; tr.appendChild(td); }); t.appendChild(tr); }); box.appendChild(t); }
+
+/* ---------- 렌더 & 리사이즈 ---------- */
+function drawAll() { drawLayer(); drawLottery(); drawGap(); drawMembers(); drawLiq(); drawCircle(); drawScatter(); }
+drawAll();
+let rt; addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(drawAll, 120); });
+</script>
+</body>
+</html>

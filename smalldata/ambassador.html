@@ -1,0 +1,368 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>럭셔리 브랜드는 왜 K팝 아이돌 스타를 고용할까</title>
+<meta name="description" content="48개 럭셔리 하우스의 앰버서더 576건과 발탁 직후 국가별 관심도를 추적한 「김하빈의 스몰데이터」 7월 칼럼의 데이터 대시보드">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>html{color-scheme:light}img{max-width:100%}[hidden]{display:none!important}body{margin:0;font:14px system-ui,sans-serif}</style>
+</head>
+<body>
+<style>
+/* 레이아웃: 한 칸 짜리 데이터 에세이. 좌측 정렬 제목 → 수치 띠 → 도표 카드가 세로로 쌓이고, 각 카드는 제목(결론)·도표·표 보기·출처 순. */
+:root{
+  --bg:#f6f7f8; --surface:#fcfcfb; --ink:#0b0b0b; --ink-2:#52514e; --muted:#898781;
+  --grid:#e1e0d9; --axis:#c3c2b7; --ring:rgba(11,11,11,.10); --wash:rgba(42,120,214,.08);
+  --pos:#2a78d6; --neg:#e34948; --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100; --gray:#b9b8b2;
+  --f-body:"IBM Plex Sans KR",system-ui,-apple-system,"Segoe UI","Malgun Gothic",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0d0d0d; --surface:#1a1a19; --ink:#f0efec; --ink-2:#c3c2b7; --muted:#898781;
+  --grid:#2c2c2a; --axis:#383835; --ring:rgba(255,255,255,.10); --wash:rgba(57,135,229,.12);
+  --pos:#3987e5; --neg:#e66767; --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --gray:#6b6a66; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0d0d0d; --surface:#1a1a19; --ink:#f0efec; --ink-2:#c3c2b7; --muted:#898781;
+  --grid:#2c2c2a; --axis:#383835; --ring:rgba(255,255,255,.10); --wash:rgba(57,135,229,.12);
+  --pos:#3987e5; --neg:#e66767; --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --gray:#6b6a66; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased}
+.wrap{max-width:960px;margin:0 auto;padding-block:40px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+a{color:inherit}
+h1,h2,h3{margin:0;text-wrap:balance;line-height:1.25}
+.eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2);display:flex;gap:14px;flex-wrap:wrap}
+.eyebrow b{color:var(--pos);font-weight:500}
+h1{font-size:clamp(28px,4.6vw,44px);font-weight:700;margin-top:14px;letter-spacing:-.01em}
+.dek{margin:18px 0 0;max-width:62ch;color:var(--ink-2);font-size:16px}
+.dek p{margin:0 0 6px}
+.meta{margin-top:22px;display:flex;gap:10px 22px;flex-wrap:wrap;font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.meta span b{color:var(--ink-2);font-weight:500}
+
+.kpis{display:grid;grid-template-columns:1.6fr repeat(4,1fr);gap:12px;margin-top:36px}
+@media (max-width:760px){.kpis{grid-template-columns:1fr 1fr}.kpis .hero{grid-column:1/-1}}
+.tile{background:var(--surface);border:1px solid var(--ring);border-radius:10px;padding:16px 18px;min-width:0}
+.tile .lab{font-size:12.5px;color:var(--ink-2)}
+.tile .val{font-size:30px;font-weight:600;letter-spacing:-.02em;margin-top:4px;line-height:1.1}
+.tile .sub{font-size:12px;color:var(--muted);margin-top:6px}
+.tile.hero .val{font-size:clamp(48px,7vw,64px);font-weight:700}
+.tile.hero .val small{display:block;font-size:.3em;font-weight:500;color:var(--ink-2);margin-top:6px;letter-spacing:0;line-height:1.3}
+.neg{color:var(--neg)} .pos{color:var(--pos)}
+
+section.card{background:var(--surface);border:1px solid var(--ring);border-radius:12px;padding:22px 22px 16px;margin-top:22px;min-width:0}
+.card h2{font-size:19px;font-weight:600}
+.card .lede{margin:6px 0 0;color:var(--ink-2);font-size:14px;max-width:70ch}
+.chart{position:relative;margin-top:16px}
+.chart svg{display:block;width:100%;height:auto;overflow:visible}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media (max-width:700px){.row2{grid-template-columns:1fr}}
+.panel h3{font-size:13.5px;font-weight:500;color:var(--ink-2);margin-bottom:4px}
+.legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:12px;font-size:12.5px;color:var(--ink-2)}
+.legend i{display:inline-block;width:14px;height:0;border-top:2px solid;vertical-align:middle;margin-right:6px;border-radius:2px}
+.legend i.rect{height:10px;border:0;border-radius:2px}
+.source{font-family:var(--f-mono);font-size:11.5px;color:var(--muted);margin-top:12px;line-height:1.5}
+details.tbl{margin-top:10px;font-size:13px}
+details.tbl summary{cursor:pointer;color:var(--ink-2);font-size:12.5px;list-style:none;display:inline-flex;gap:6px;align-items:center;padding:4px 0}
+details.tbl summary::-webkit-details-marker{display:none}
+details.tbl summary::before{content:"▸";font-size:11px}
+details.tbl[open] summary::before{content:"▾"}
+.tscroll{overflow-x:auto;margin-top:6px}
+table{border-collapse:collapse;width:100%;font-size:12.5px;font-variant-numeric:tabular-nums}
+th,td{padding:5px 10px;border-bottom:1px solid var(--grid);text-align:right;white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+th{color:var(--ink-2);font-weight:500;font-size:12px}
+
+svg text{font-family:var(--f-body);font-size:11.5px;fill:var(--ink-2)}
+svg .tick{font-family:var(--f-mono);font-size:10.5px;fill:var(--muted);font-variant-numeric:tabular-nums}
+svg .grid{stroke:var(--grid);stroke-width:1}
+svg .axis{stroke:var(--axis);stroke-width:1}
+svg .base{stroke:var(--ink);stroke-width:1}
+svg .lbl{fill:var(--ink);font-weight:500;font-size:12px}
+svg .note{fill:var(--ink-2);font-size:11.5px}
+svg .pos{fill:var(--pos)} svg .negf{fill:var(--neg)} svg .wash{fill:var(--wash)}
+svg .l-pos{stroke:var(--pos)} svg .l-neg{stroke:var(--neg)} svg .l-gray{stroke:var(--gray)}
+svg .l-s1{stroke:var(--s1)} svg .l-s2{stroke:var(--s2)} svg .l-s3{stroke:var(--s3)} svg .l-s4{stroke:var(--s4)}
+svg .line{fill:none;stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+svg .dot{stroke:var(--surface);stroke-width:2}
+svg .hit{fill:transparent;cursor:crosshair}
+svg .xh{stroke:var(--ink-2);stroke-width:1;pointer-events:none}
+svg .bar{shape-rendering:crispEdges}
+svg .bar.hover,svg .seg.hover{filter:brightness(1.12)}
+svg .f-s1{fill:var(--s1)} svg .f-s2{fill:var(--s2)} svg .f-s3{fill:var(--s3)} svg .f-gray{fill:var(--gray)}
+svg .ref{stroke:var(--ink);stroke-width:1.2}
+
+.tip{position:fixed;z-index:20;pointer-events:none;background:var(--ink);color:var(--bg);padding:8px 10px;border-radius:6px;font-size:12px;line-height:1.45;max-width:260px;box-shadow:0 4px 18px rgba(0,0,0,.18);opacity:0;transition:opacity .08s}
+.tip.on{opacity:1}
+.tip b{font-size:14px;font-weight:600}
+.tip .k{display:inline-block;width:10px;border-top:2px solid;vertical-align:middle;margin-right:6px}
+.tip .dim{opacity:.7}
+
+.two{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:22px}
+@media (max-width:760px){.two{grid-template-columns:1fr}}
+
+.geo{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:16px}
+@media (max-width:700px){.geo{grid-template-columns:1fr 1fr}}
+.geo .g{border:1px solid var(--ring);border-radius:8px;padding:12px 14px;min-width:0}
+.geo .g .city{font-size:12.5px;color:var(--ink-2)}
+.geo .g .v{font-size:26px;font-weight:600;letter-spacing:-.02em;line-height:1.1;margin-top:4px}
+.geo .g .r{font-size:12px;color:var(--muted);margin-top:6px}
+.geo .g .r b{color:var(--ink);font-weight:500}
+.zero{margin-top:12px;font-size:13px;color:var(--ink-2)}
+.zero b{color:var(--ink);font-weight:500}
+
+.method{margin-top:30px;padding-top:22px;border-top:1px solid var(--grid);display:grid;grid-template-columns:1fr 1fr;gap:22px;font-size:13.5px;color:var(--ink-2)}
+@media (max-width:760px){.method{grid-template-columns:1fr}}
+.method h3{font-size:13px;color:var(--ink);font-weight:600;margin-bottom:6px}
+.method ul{margin:0;padding-left:18px}
+.method li{margin:3px 0}
+footer{margin-top:36px;font-family:var(--f-mono);font-size:11.5px;color:var(--muted);display:flex;gap:16px;flex-wrap:wrap;justify-content:space-between}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+:focus-visible{outline:2px solid var(--pos);outline-offset:2px}
+</style>
+
+<div class="wrap">
+<header>
+  <div class="eyebrow"><a href="./index.html" style="text-decoration:none"><b>김하빈의 스몰데이터</b></a><span>2026년 7월</span><span>럭셔리 앰버서더</span></div>
+  <h1>럭셔리 브랜드는 왜 K팝 아이돌 스타를 고용할까</h1>
+  <div class="dek">
+    <p>48개 럭셔리 하우스가 2016년부터 공식 발표한 앰버서더 576건의 국적을 집계하고, 한국 스타 발탁 직후 국가별 관심도가 어떻게 움직였는지 추적했다.</p>
+    <p>브랜드가 산 것은 스타의 이름값이 아니라 'K팝 팬덤이라는 입장권'이다. 주요 타깃은 젊은 아시아이고, 뜨거운 관심은 포화된 서울이 아니라 자카르타·하노이에서 일어났다.</p>
+  </div>
+  <div class="meta">
+    <span>데이터 <b>앰버서더 명단 576건(자체 구축)</b> · <b>위키피디아 언어판별 조회수</b> · <b>구글 트렌드</b></span>
+    <span>기간 <b>2016.1 ~ 2026.6</b></span>
+    <span>게재 <b id="m-pub"></b></span>
+  </div>
+</header>
+
+<div class="kpis" id="kpis"></div>
+
+<section class="card">
+  <h2>2016년 1건에서 2023년 34건으로, 열흘에 한 번꼴</h2>
+  <p class="lede">럭셔리 하우스의 한국 셀럽 앰버서더 발탁 건수. 2016년 지드래곤이 샤넬의 한국인 최초 앰버서더가 된 해에 발탁은 단 한 건이었다. 그중 10명 중 7명이 아이돌이다.</p>
+  <div class="chart" id="c-inf"></div>
+  <div class="legend" id="lg-inf"></div>
+  <details class="tbl"><summary>표로 보기</summary><div class="tscroll" id="t-inf"></div></details>
+  <p class="source">브랜드 공식 발표·주요 매체 보도를 개별 검증해 구축한 자체 데이터(한국 셀럽 167건, 42개 하우스). 아이돌·배우 154건만 표시. 2026년은 6월까지.</p>
+</section>
+
+<section class="card">
+  <h2>데이터가 가리키는 종착지는 아시아였다</h2>
+  <p class="lede">하우스별 앰버서더 가운데 한국·아시아 출신 비율. 셀린느는 전원 아시아인이고, 펜디 90%, 프라다 86%, 구찌 81%가 아시아인의 얼굴로 채워졌다.</p>
+  <div class="chart" id="c-house"></div>
+  <p class="zero" id="zero"></p>
+  <details class="tbl"><summary>표로 보기 (전체 하우스)</summary><div class="tscroll" id="t-house"></div></details>
+  <p class="source">48개 하우스 576건(한국 164 · 기타 아시아 215 · 서구 197). 도표는 8건 이상 하우스. 아시아계 서구 국적 셀럽은 서구로 집계.</p>
+</section>
+
+<section class="card">
+  <h2>배우는 시계로, 아이돌은 옷과 보석으로</h2>
+  <p class="lede">한국 셀럽 발탁을 부문별로 나눴다. 배우 발탁의 19.6%가 중장년층 고소득 고객을 겨냥한 시계 부문에 몰려 아이돌(3.7%)의 5배를 넘는다. 발탁된 K팝 스타의 연령 중앙값은 <b id="age-idol"></b>세, 배우는 <b id="age-actor"></b>세다.</p>
+  <div class="chart" id="c-div"></div>
+  <div class="legend" id="lg-div"></div>
+  <details class="tbl"><summary>표로 보기</summary><div class="tscroll" id="t-div"></div></details>
+  <p class="source">부문은 발탁 직함 기준(패션·주얼리·시계·뷰티). 아이돌 108건, 배우 46건.</p>
+</section>
+
+<section class="card">
+  <h2>포화된 서울과 뜨겁게 반응하는 자카르타</h2>
+  <p class="lede">한국 스타 발탁 직후 7일간 해당 브랜드의 위키피디아 조회수가 평소보다 '유의하게' 뛴 사건의 비율. 우연이라면 5%가 나와야 한다. 인도네시아 29%, 베트남 26%인 반면 파리는 6%, 서울은 10%에 그쳤다.</p>
+  <div class="chart" id="c-wiki"></div>
+  <details class="tbl"><summary>표로 보기</summary><div class="tscroll" id="t-wiki"></div></details>
+  <h3 style="font-size:13.5px;font-weight:500;color:var(--ink-2);margin-top:18px">같은 질문을 구글 검색어 트렌드로 — 발탁 직후 일주일 검색량 상승 중앙값</h3>
+  <div class="geo" id="geo"></div>
+  <p class="source">위키: 발탁일 직후 7일 평균 ÷ 직전 8주 평균, 언어판별·봇 제외. 유의성은 같은 브랜드의 무작위 비(非)발탁일 300개 귀무분포와 비교(경험적 p&lt;0.05). 발탁일이 확정된 117건, 교란 의심 2건 제외. 구글 트렌드는 국가별 풀링 귀무분포로 재검정한 값(발탁일 확정 사건, 국가별 72~103건).</p>
+</section>
+
+<section class="card">
+  <h2>같은 하우스, 같은 자리. 누구를 앉히느냐에 따라 세계가 갈린다</h2>
+  <p class="lede">같은 브랜드가 서구권 스타를 앰버서더로 발탁한 사건을 대조군으로 두었다. 자카르타는 한국 스타에는 29% 반응했지만 서구 스타에는 <b id="west-id"></b>만 반응했다. 파리는 누구를 앉혀도 조용하다.</p>
+  <div class="chart" id="c-ctrl"></div>
+  <div class="legend" id="lg-ctrl"></div>
+  <details class="tbl"><summary>표로 보기</summary><div class="tscroll" id="t-ctrl"></div></details>
+  <p class="source">발탁일이 확정된 사건(한국 <span id="n-kr"></span> · 서구 <span id="n-west"></span> · 중화권·일본·동남아 <span id="n-asia"></span>건). 상위 1% 이상치 제외. 한국·서구 셀럽을 둘 다 발탁한 29개 하우스 안에서만 비교해도 결과는 유지된다(인도네시아 p&lt;0.001).</p>
+</section>
+
+<section class="card">
+  <h2>스타의 이름값이 아니라 K팝이라는 범주</h2>
+  <p class="lede">같은 한국 연예인이라도 배우를 내세우면 반응은 잦아들었고, 강한 반응은 오직 아이돌일 때, 그리고 인도네시아·베트남 같은 시장에서만 나타났다. 발탁 직후 브랜드 관심도 변화의 중앙값.</p>
+  <div class="chart" id="c-ia"></div>
+  <div class="legend" id="lg-ia"></div>
+  <details class="tbl"><summary>표로 보기</summary><div class="tscroll" id="t-ia"></div></details>
+  <p class="source">위키피디아 조회수 기준, 한국 셀럽 발탁 중 아이돌·배우만. 전 세계 합계 아이돌 +7.6% vs 배우 −2.0%(Mann-Whitney p=0.018), 인도네시아 +41.8% vs +7.1%(p=0.001).</p>
+</section>
+
+<div class="method">
+  <div><h3>방법</h3><ul>
+    <li>2016년부터 2026년 6월까지 48개 하우스의 공식 발표·주요 매체 보도를 개별 검증해 앰버서더 576건을 구축했다. 출처 URL이 없는 건은 전량 제외했다.</li>
+    <li>관심도는 발탁일 직후 7일 평균을 직전 8주 평균으로 나눈 값이다. 위키피디아는 언어판별로 지역을 나눌 수 있고 팬덤이 부풀리기 어렵다.</li>
+    <li>유의성은 같은 브랜드의 무작위 비발탁일 300개로 귀무분포를 만들어 비교했다. 패션위크·명절·세일 같은 계절성이 브랜드 자기 분포에 흡수된다.</li>
+  </ul></div>
+  <div><h3>한계</h3><ul>
+    <li>관심과 매출은 다르다. LVMH·케링 같은 지주사는 개별 하우스의 국가별 매출을 공시하지 않아, 관심이 매출로 이어지는지는 이 데이터로 답할 수 없다.</li>
+    <li>위키·구글은 '정보 탐색'을 잰다. 인스타그램·틱톡에서 일어나는 팬덤 내부의 열광은 측정하지 못한다.</li>
+    <li>브랜드가 이미 화제인 셀럽을 고른 것일 수 있다. 인과로 읽지 말 것.</li>
+  </ul></div>
+</div>
+
+<footer>
+  <span>© 2026 김하빈 · 스몰데이터랩 · 국립순천대학교</span>
+  <span><a href="https://www.sisajournal.com/news/articleView.html?idxno=381811">칼럼 원문 (시사저널, 2026.07.30)</a> · 집계 데이터·코드 공개 준비 중</span>
+</footer>
+</div>
+<div class="tip" id="tip" role="status" aria-live="polite"></div>
+
+<script>
+const D = {"roster":{"n":576,"houses":48,"kr":164,"asia":215,"west":197,"houses_with_kr":42,"asia_share":0.6579861111111112},"houses":[{"house":"Celine","n":9,"kr":6,"asia":3,"west":0,"share":1.0},{"house":"Miu Miu","n":11,"kr":5,"asia":5,"west":1,"share":0.9090909090909091},{"house":"Fendi","n":20,"kr":7,"asia":11,"west":2,"share":0.9},{"house":"Piaget","n":10,"kr":4,"asia":5,"west":1,"share":0.9},{"house":"Burberry","n":17,"kr":8,"asia":7,"west":2,"share":0.8823529411764706},{"house":"Prada","n":28,"kr":11,"asia":13,"west":4,"share":0.8571428571428571},{"house":"Gucci","n":32,"kr":11,"asia":15,"west":6,"share":0.8125},{"house":"Bulgari","n":32,"kr":4,"asia":20,"west":8,"share":0.75},{"house":"Givenchy","n":8,"kr":3,"asia":3,"west":2,"share":0.75},{"house":"Bottega Veneta","n":11,"kr":2,"asia":6,"west":3,"share":0.7272727272727273},{"house":"Loewe","n":19,"kr":6,"asia":7,"west":6,"share":0.6842105263157895},{"house":"Versace","n":9,"kr":2,"asia":4,"west":3,"share":0.6666666666666666},{"house":"Louis Vuitton","n":48,"kr":14,"asia":17,"west":17,"share":0.6458333333333334},{"house":"Valentino","n":16,"kr":4,"asia":6,"west":6,"share":0.625},{"house":"Chanel","n":29,"kr":10,"asia":8,"west":11,"share":0.6206896551724138},{"house":"Boucheron","n":10,"kr":2,"asia":4,"west":4,"share":0.6},{"house":"TAG Heuer","n":12,"kr":2,"asia":5,"west":5,"share":0.5833333333333334},{"house":"Tiffany","n":30,"kr":5,"asia":12,"west":13,"share":0.5666666666666667},{"house":"Dior","n":57,"kr":14,"asia":18,"west":25,"share":0.5614035087719298},{"house":"Cartier","n":20,"kr":4,"asia":6,"west":10,"share":0.5},{"house":"Omega","n":14,"kr":4,"asia":3,"west":7,"share":0.5},{"house":"Jaeger-LeCoultre","n":8,"kr":2,"asia":2,"west":4,"share":0.5},{"house":"Saint Laurent","n":18,"kr":4,"asia":4,"west":10,"share":0.4444444444444444},{"house":"Hublot","n":9,"kr":1,"asia":3,"west":5,"share":0.4444444444444444},{"house":"Balenciaga","n":14,"kr":2,"asia":1,"west":11,"share":0.21428571428571427},{"house":"Breitling","n":12,"kr":1,"asia":0,"west":11,"share":0.08333333333333333}],"zero_west":[{"house":"Celine","n":9},{"house":"Chaumet","n":6},{"house":"Tod's","n":6},{"house":"Jimmy Choo","n":4}],"inflation":[{"year":2016,"idol":1,"actor":0},{"year":2017,"idol":1,"actor":0},{"year":2018,"idol":0,"actor":3},{"year":2019,"idol":4,"actor":4},{"year":2020,"idol":7,"actor":2},{"year":2021,"idol":13,"actor":7},{"year":2022,"idol":12,"actor":9},{"year":2023,"idol":29,"actor":5},{"year":2024,"idol":20,"actor":8},{"year":2025,"idol":14,"actor":6},{"year":2026,"idol":7,"actor":2}],"division":[{"div":"패션(의류·가방)","idol":0.7129629629629629,"actor":0.5869565217391305,"idol_n":77,"actor_n":27},{"div":"주얼리","idol":0.1388888888888889,"actor":0.08695652173913043,"idol_n":15,"actor_n":4},{"div":"시계","idol":0.037037037037037035,"actor":0.1956521739130435,"idol_n":4,"actor_n":9},{"div":"뷰티","idol":0.1111111111111111,"actor":0.13043478260869565,"idol_n":12,"actor_n":6}],"idol_actor":{"idol_n":108,"actor_n":46,"idol_age_med":27.0,"actor_age_med":34.5,"core_n":167,"core_houses":42},"wiki_map":[{"lang":"인도네시아","code":"id","n":104,"med":24.06953413590581,"rate":0.3076923076923077},{"lang":"베트남","code":"vi","n":91,"med":14.222972972972968,"rate":0.2967032967032967},{"lang":"태국","code":"th","n":64,"med":6.674613340924185,"rate":0.125},{"lang":"중화권","code":"zh","n":95,"med":5.750487329434684,"rate":0.15789473684210525},{"lang":"스페인어권","code":"es","n":102,"med":5.632648786350247,"rate":0.10784313725490197},{"lang":"영어권","code":"en","n":108,"med":3.565838128963528,"rate":0.16666666666666666},{"lang":"일본","code":"ja","n":96,"med":4.730691830723388,"rate":0.14583333333333334},{"lang":"브라질","code":"pt","n":94,"med":0.994554216903587,"rate":0.09574468085106383},{"lang":"프랑스","code":"fr","n":87,"med":-0.251389256417045,"rate":0.10344827586206896},{"lang":"한국","code":"ko","n":103,"med":-3.085026335590668,"rate":0.0970873786407767}],"wiki_events":117,"idol_vs_actor":[{"lang":"인도네시아","idol":41.7948717948718,"actor":7.10382513661203,"idol_n":73,"actor_n":23},{"lang":"베트남","idol":20.083682008368207,"actor":-0.2614379084967422,"idol_n":63,"actor_n":21},{"lang":"중화권","idol":11.561216022921663,"actor":-1.6082832040844264,"idol_n":68,"actor_n":20},{"lang":"영어권","idol":5.778621812262608,"actor":-3.8087794266368933,"idol_n":75,"actor_n":24},{"lang":"프랑스","idol":3.126851530267738,"actor":-5.822187254130617,"idol_n":58,"actor_n":23},{"lang":"한국","idol":-1.7293997965411978,"actor":-4.68256927333247,"idol_n":69,"actor_n":26}],"control":[{"lang":"인도네시아","code":"id","KR":0.28846153846153844,"KR_n":104,"KR_med":24.069534135905812,"KR_sig":30,"WEST":0.025423728813559324,"WEST_n":118,"WEST_med":-7.72829644008114,"WEST_sig":3,"ASIA":0.09230769230769231,"ASIA_n":130,"ASIA_med":-8.645976250177412,"ASIA_sig":12},{"lang":"베트남","code":"vi","KR":0.26373626373626374,"KR_n":91,"KR_med":14.222972972972968,"KR_sig":24,"WEST":0.08411214953271028,"WEST_n":107,"WEST_med":-2.186924493554321,"WEST_sig":9,"ASIA":0.1694915254237288,"ASIA_n":118,"ASIA_med":0.19493844049247583,"ASIA_sig":20},{"lang":"중화권","code":"zh","KR":0.2127659574468085,"KR_n":94,"KR_med":5.740958541605401,"KR_sig":20,"WEST":0.017543859649122806,"WEST_n":114,"WEST_med":-4.4092648715856555,"WEST_sig":2,"ASIA":0.13709677419354838,"ASIA_n":124,"ASIA_med":2.961056805364959,"ASIA_sig":17},{"lang":"태국","code":"th","KR":0.125,"KR_n":64,"KR_med":6.674613340924185,"KR_sig":8,"WEST":0.06329113924050633,"WEST_n":79,"WEST_med":0.6932409012131657,"WEST_sig":5,"ASIA":0.15384615384615385,"ASIA_n":78,"ASIA_med":3.1298911511278504,"ASIA_sig":12},{"lang":"일본","code":"ja","KR":0.14736842105263157,"KR_n":95,"KR_med":4.6254151802189725,"KR_sig":14,"WEST":0.035398230088495575,"WEST_n":113,"WEST_med":-2.860411899313497,"WEST_sig":4,"ASIA":0.1774193548387097,"ASIA_n":124,"ASIA_med":1.1452568529744744,"ASIA_sig":22},{"lang":"영어권","code":"en","KR":0.16822429906542055,"KR_n":107,"KR_med":3.188361408882079,"KR_sig":18,"WEST":0.0703125,"WEST_n":128,"WEST_med":-1.909325473859519,"WEST_sig":9,"ASIA":0.11888111888111888,"ASIA_n":143,"ASIA_med":-0.5566311713456007,"ASIA_sig":17},{"lang":"스페인어권","code":"es","KR":0.13725490196078433,"KR_n":102,"KR_med":5.632648786350247,"KR_sig":14,"WEST":0.0743801652892562,"WEST_n":121,"WEST_med":-0.3911618564330199,"WEST_sig":9,"ASIA":0.10294117647058823,"ASIA_n":136,"ASIA_med":-5.989920602935744,"ASIA_sig":14},{"lang":"브라질","code":"pt","KR":0.053763440860215055,"KR_n":93,"KR_med":0.8215661103979421,"KR_sig":5,"WEST":0.06722689075630252,"WEST_n":119,"WEST_med":-6.25,"WEST_sig":8,"ASIA":0.041666666666666664,"ASIA_n":120,"ASIA_med":-9.80662312299685,"ASIA_sig":5},{"lang":"프랑스","code":"fr","KR":0.05813953488372093,"KR_n":86,"KR_med":-0.4278094318339032,"KR_sig":5,"WEST":0.0423728813559322,"WEST_n":118,"WEST_med":-3.4400310726641017,"WEST_sig":5,"ASIA":0.1271186440677966,"ASIA_n":118,"ASIA_med":-3.7220759712174756,"ASIA_sig":15},{"lang":"한국","code":"ko","KR":0.08823529411764706,"KR_n":102,"KR_med":-3.1206647459469163,"KR_sig":9,"WEST":0.04132231404958678,"WEST_n":121,"WEST_med":-8.97689768976897,"WEST_sig":5,"ASIA":0.022727272727272728,"ASIA_n":132,"ASIA_med":-6.087138483226506,"ASIA_sig":3}],"cohort_n":{"KR":116,"WEST":142,"ASIA":149},"west_id":{"n":118,"sig":3,"med":-7.72829644008114},"gtrends":[{"geo":"인도네시아","city":"자카르타","n":91,"med":6.4,"rate":11.0,"src":"csv"},{"geo":"베트남","city":"하노이","n":82,"med":5.0,"rate":13.4,"src":"csv"},{"geo":"프랑스","city":"파리","n":103,"med":-0.8,"rate":6.8,"src":"csv"},{"geo":"한국","city":"서울","n":72,"med":-0.2,"rate":2.8,"src":"csv"}],"published":{"date":"2026.07.30","outlet":"시사저널"}};
+const $ = s => document.querySelector(s);
+const fmtP = v => (v >= 0 ? "+" : "−") + Math.abs(Math.round(v * 100)) + "%";
+const fmtPct = v => Math.round(v * 100) + "%";
+const fmtN = v => v.toLocaleString("ko-KR");
+const T = (tag, attrs, parent) => { const e = document.createElementNS("http://www.w3.org/2000/svg", tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; };
+const txt = (parent, x, y, s, cls, anchor) => { const t = T("text", { x, y, class: cls || "", "text-anchor": anchor || "start" }, parent); t.textContent = s; return t; };
+
+/* ---------- 툴팁 ---------- */
+const tip = $("#tip");
+function showTip(ev, rows) { tip.replaceChildren(); rows.forEach(r => { const d = document.createElement("div"); if (r.k) { const k = document.createElement("span"); k.className = "k"; k.style.borderColor = r.k; d.appendChild(k); } if (r.b) { const b = document.createElement("b"); b.textContent = r.b; d.appendChild(b); d.appendChild(document.createTextNode(" ")); } const s = document.createElement("span"); s.className = r.b ? "dim" : ""; s.textContent = r.t || ""; d.appendChild(s); tip.appendChild(d); }); tip.classList.add("on"); moveTip(ev); }
+function moveTip(ev) { const w = tip.offsetWidth, h = tip.offsetHeight; let x = ev.clientX + 14, y = ev.clientY + 14; if (x + w > innerWidth - 8) x = ev.clientX - w - 14; if (y + h > innerHeight - 8) y = ev.clientY - h - 14; tip.style.left = x + "px"; tip.style.top = y + "px"; }
+function hideTip() { tip.classList.remove("on"); }
+
+/* ---------- 공통 스케일 ---------- */
+const lin = (d0, d1, r0, r1) => v => r0 + (v - d0) / (d1 - d0) * (r1 - r0);
+function svgIn(el, w, h) { el.replaceChildren(); return T("svg", { viewBox: `0 0 ${w} ${h}`, width: w, height: h, role: "img" }, el); }
+function widthOf(el) { return Math.max(280, el.clientWidth || 600); }
+const pf1 = v => (v > 0 ? "+" : v < 0 ? "−" : "") + Math.abs(v).toFixed(1) + "%";
+const pf0 = v => (v > 0 ? "+" : v < 0 ? "−" : "") + Math.abs(Math.round(v)) + "%";
+const cssVar = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim() || "#888";
+
+/* ---------- KPI ---------- */
+(function kpis() {
+  const R = D.roster, A = D.idol_actor; $("#m-pub").textContent = `${D.published.outlet} ${D.published.date}`;
+  const k = $("#kpis");
+  const tile = (lab, val, sub, cls, hero) => { const d = document.createElement("div"); d.className = "tile" + (hero ? " hero" : ""); d.innerHTML = `<div class="lab"></div><div class="val ${cls || ""}"></div><div class="sub"></div>`; d.children[0].textContent = lab; d.children[1].innerHTML = val; d.children[2].textContent = sub; k.appendChild(d); };
+  const peak = D.inflation.reduce((a, b) => (a.idol + a.actor) >= (b.idol + b.actor) ? a : b);
+  tile("앰버서더 576건 중 한국·아시아 출신", `${fmtPct(R.asia_share)}<small>한국 ${R.kr} · 기타 아시아 ${R.asia} · 서구 ${R.west}</small>`, `48개 하우스 · 2016 ~ 2026.6`, "pos", true);
+  tile("한국 셀럽 발탁, 정점의 해", `${peak.idol + peak.actor}건`, `${peak.year}년 · 열흘에 한 번꼴`, "");
+  tile("배우 발탁 중 시계 부문", fmtPct(D.division.find(d => d.div === "시계").actor), `아이돌은 ${fmtPct(D.division.find(d => d.div === "시계").idol)} · 5배 차이`, "");
+  tile("발탁된 K팝 스타 연령 중앙값", `${A.idol_age_med}세`, `배우는 ${A.actor_age_med}세`, "");
+  const wk = D.wiki_map; const idn = wk.find(w => w.code === "id"), kor = wk.find(w => w.code === "ko");
+  tile("발탁 직후 관심이 유의하게 뛴 비율", `${fmtPct(idn.rate)}<small style="display:block;font-size:.42em;font-weight:500;color:var(--ink-2);margin-top:4px">인도네시아</small>`, `서울 ${fmtPct(kor.rate)} · 우연 수준 5%`, "pos");
+  $("#age-idol").textContent = A.idol_age_med; $("#age-actor").textContent = A.actor_age_med;
+})();
+
+/* ---------- 세로 누적 막대 (인플레이션) ---------- */
+function columns(sel, rows, { keys, cls, xlab, total, labelYears, ymax, ystep, tipRows }) {
+  const el = $(sel), W = widthOf(el), H = 280, m = { l: 36, r: 12, t: 24, b: 32 }; const s = svgIn(el, W, H);
+  const n = rows.length, band = (W - m.l - m.r) / n, bw = Math.min(24, band * .62);
+  const y = lin(0, ymax, H - m.b, m.t);
+  for (let v = 0; v <= ymax; v += ystep) { T("line", { x1: m.l, x2: W - m.r, y1: y(v), y2: y(v), class: v === 0 ? "base" : "grid" }, s); txt(s, m.l - 8, y(v) + 3.5, String(v), "tick", "end"); }
+  txt(s, m.l, 12, "발탁 건수", "note");
+  rows.forEach((r, i) => {
+    const cx = m.l + band * (i + .5); let acc = 0; const segs = [];
+    keys.forEach((k, j) => { const v = r[k]; if (!v) return; const y1 = y(acc + v), y0 = y(acc); const gap = acc > 0 ? 2 : 0; segs.push(T("rect", { x: cx - bw / 2, y: y1, width: bw, height: Math.max(0, y0 - y1 - gap), rx: j === keys.length - 1 || acc + v === total(r) ? 3 : 0, class: "bar seg " + cls[j] }, s)); acc += v; });
+    txt(s, cx, H - m.b + 15, String(r.year), "tick", "middle");
+    if (labelYears.includes(r.year)) txt(s, cx, y(total(r)) - 6, String(total(r)), "lbl", "middle");
+    const hit = T("rect", { x: cx - band / 2, y: m.t, width: band, height: H - m.t - m.b, class: "hit" }, s);
+    hit.addEventListener("pointermove", ev => { segs.forEach(g => g.classList.add("hover")); showTip(ev, tipRows(r)); });
+    hit.addEventListener("pointerleave", () => { segs.forEach(g => g.classList.remove("hover")); hideTip(); });
+  });
+  if (xlab) txt(s, W - m.r, H - 4, xlab, "note", "end");
+}
+function drawInflation() {
+  const rows = D.inflation, tot = r => r.idol + r.actor;
+  columns("#c-inf", rows, { keys: ["idol", "actor"], cls: ["f-s1", "f-s2"], total: tot, labelYears: [2016, 2021, 2023, 2026], ymax: 35, ystep: 5,
+    tipRows: r => [{ b: `${tot(r)}건`, t: `${r.year}년${r.year === 2026 ? " (6월까지)" : ""}` }, { k: cssVar("--s1"), t: `아이돌 ${r.idol}` }, { k: cssVar("--s2"), t: `배우 ${r.actor}` }] });
+  legend("#lg-inf", [{ c: cssVar("--s1"), t: "아이돌", rect: true }, { c: cssVar("--s2"), t: "배우", rect: true }]);
+  table("#t-inf", ["연도", "아이돌", "배우", "합계"], rows.map(r => [String(r.year), String(r.idol), String(r.actor), String(tot(r))]));
+}
+
+/* ---------- 가로 막대: 단일 계열 + 강조 + 기준선 ---------- */
+function ebars(sel, rows, { val, label, fmt, cls, ref, refLabel, xmax, ticks, tipRows, extra, rowH = 26, ml = 118 }) {
+  const el = $(sel), W = widthOf(el), m = { l: ml, r: 150, t: ref ? 22 : 8, b: 26 }, H = m.t + rows.length * rowH + m.b;
+  const s = svgIn(el, W, H);
+  const x = lin(0, xmax, m.l, W - m.r);
+  ticks.forEach(v => { T("line", { x1: x(v), x2: x(v), y1: m.t, y2: H - m.b, class: v === 0 ? "base" : "grid" }, s); txt(s, x(v), H - m.b + 15, fmt(v, true), "tick", "middle"); });
+  if (ref != null) { T("line", { x1: x(ref), x2: x(ref), y1: m.t - 6, y2: H - m.b, class: "ref" }, s); txt(s, x(ref) + 5, m.t - 8, refLabel, "note"); }
+  rows.forEach((r, i) => {
+    const v = val(r), cy = m.t + i * rowH + rowH / 2, bh = 16;
+    const rect = T("rect", { x: x(0), y: cy - bh / 2, width: Math.max(0, x(v) - x(0)), height: bh, rx: 3, class: "bar " + cls(r) }, s);
+    txt(s, m.l - 10, cy + 4, label(r), "", "end");
+    txt(s, x(v) + 6, cy + 4, fmt(v), "lbl");
+    if (extra) txt(s, x(v) + 6 + (fmt(v).length * 7.5) + 6, cy + 4, extra(r), "tick");
+    const hit = T("rect", { x: m.l, y: cy - rowH / 2, width: W - m.l - m.r + 140, height: rowH, class: "hit" }, s);
+    hit.addEventListener("pointermove", ev => { rect.classList.add("hover"); showTip(ev, tipRows(r)); });
+    hit.addEventListener("pointerleave", () => { rect.classList.remove("hover"); hideTip(); });
+  });
+}
+function drawHouses() {
+  const rows = D.houses.slice(0, 16);
+  ebars("#c-house", rows, { val: r => r.share, label: r => `${r.house} (${r.n})`, fmt: (v) => Math.round(v * 100) + "%", cls: r => "f-s1", xmax: 1, ticks: [0, .25, .5, .75, 1],
+    tipRows: r => [{ b: fmtPct(r.share), t: "한국·아시아 출신 비율" }, { t: `${r.house} · 앰버서더 ${r.n}건` }, { t: `한국 ${r.kr} · 기타 아시아 ${r.asia} · 서구 ${r.west}` }] });
+  const z = D.zero_west; const names = { Celine: "셀린느", Chaumet: "쇼메", "Tod's": "토즈", "Jimmy Choo": "지미추" };
+  const zEl = $("#zero"); zEl.replaceChildren(); zEl.appendChild(document.createTextNode("서구 앰버서더가 한 명도 없는 하우스: "));
+  z.forEach((h, i) => { const b = document.createElement("b"); b.textContent = `${names[h.house] || h.house}(${h.n}건)`; zEl.appendChild(b); if (i < z.length - 1) zEl.appendChild(document.createTextNode(" · ")); });
+  table("#t-house", ["하우스", "합계", "한국", "기타 아시아", "서구", "아시아 비율"], D.houses.map(r => [r.house, String(r.n), String(r.kr), String(r.asia), String(r.west), fmtPct(r.share)]));
+}
+function drawWiki() {
+  const rows = D.wiki_map;
+  ebars("#c-wiki", rows, { val: r => r.rate, label: r => r.lang, fmt: (v) => Math.round(v * 100) + "%", cls: r => r.rate >= .25 ? "f-s1" : "f-gray", ref: .05, refLabel: "우연히 나올 수준 (5%)", xmax: .4, ticks: [0, .1, .2, .3, .4], extra: r => `중앙값 ${pf0(r.med)}`,
+    tipRows: r => [{ b: fmtPct(r.rate), t: "유의하게 오른 사건 비율" }, { t: `${r.lang}어판 위키피디아 · ${r.n}건` }, { t: `관심도 변화 중앙값 ${pf1(r.med)}` }] });
+  table("#t-wiki", ["언어판", "사건 수", "유의 비율", "관심도 변화 중앙값"], rows.map(r => [r.lang, String(r.n), fmtPct(r.rate), pf1(r.med)]));
+  const g = $("#geo"); g.replaceChildren();
+  D.gtrends.forEach(t => { const d = document.createElement("div"); d.className = "g"; d.innerHTML = `<div class="city"></div><div class="v"></div><div class="r"></div>`; d.children[0].textContent = `${t.city} (${t.geo})`; d.children[1].textContent = pf1(t.med); d.children[1].className = "v " + (t.med >= 2 ? "pos" : ""); d.children[2].innerHTML = `유의 비율 <b></b>` + (t.n ? ` · ${t.n}건` : ""); d.children[2].querySelector("b").textContent = t.rate.toFixed(1) + "%"; g.appendChild(d); });
+}
+
+/* ---------- 가로 그룹 막대 (2~3 계열) ---------- */
+function ghbars(sel, rows, { series, label, fmt, ref, refLabel, xlo = 0, xmax, ticks, tipRows, directLabel, rowH }) {
+  const el = $(sel), W = widthOf(el), k = series.length, bh = 9, gap = 2, rh = rowH || (k * (bh + gap) + 14), m = { l: 118, r: 60, t: ref != null ? 22 : 8, b: 26 }, H = m.t + rows.length * rh + m.b;
+  const s = svgIn(el, W, H); const x = lin(xlo, xmax, m.l, W - m.r);
+  ticks.forEach(v => { T("line", { x1: x(v), x2: x(v), y1: m.t, y2: H - m.b, class: v === 0 ? "base" : "grid" }, s); txt(s, x(v), H - m.b + 15, fmt(v, true), "tick", "middle"); });
+  if (ref != null) { T("line", { x1: x(ref), x2: x(ref), y1: m.t - 6, y2: H - m.b, class: "ref" }, s); txt(s, x(ref) + 5, m.t - 8, refLabel, "note"); }
+  rows.forEach((r, i) => {
+    const top = m.t + i * rh + 7; const rects = [];
+    series.forEach((sr, j) => { const v = sr.val(r); const y0 = top + j * (bh + gap); const x0 = Math.min(x(0), x(v)); rects.push(T("rect", { x: x0, y: y0, width: Math.abs(x(v) - x(0)), height: bh, rx: 2, class: "bar " + sr.cls }, s)); if (directLabel && directLabel(sr, j)) txt(s, v >= 0 ? x(v) + 5 : x(v) - 5, y0 + bh - 1, fmt(v), "lbl", v >= 0 ? "start" : "end"); });
+    txt(s, m.l - 10, top + (k * (bh + gap)) / 2 + 3, label(r), "", "end");
+    const hit = T("rect", { x: m.l - 110, y: m.t + i * rh, width: W - m.l - m.r + 110 + 50, height: rh, class: "hit" }, s);
+    hit.addEventListener("pointermove", ev => { rects.forEach(g => g.classList.add("hover")); showTip(ev, tipRows(r)); });
+    hit.addEventListener("pointerleave", () => { rects.forEach(g => g.classList.remove("hover")); hideTip(); });
+  });
+}
+function drawDivision() {
+  const rows = D.division;
+  ghbars("#c-div", rows, { series: [{ name: "아이돌", val: r => r.idol, cls: "f-s1" }, { name: "배우", val: r => r.actor, cls: "f-s2" }], label: r => r.div, fmt: (v) => Math.round(v * 100) + "%", xmax: .8, ticks: [0, .2, .4, .6, .8], directLabel: () => true, rowH: 40,
+    tipRows: r => [{ t: r.div }, { k: cssVar("--s1"), b: fmtPct(r.idol), t: `아이돌 ${r.idol_n}건` }, { k: cssVar("--s2"), b: fmtPct(r.actor), t: `배우 ${r.actor_n}건` }] });
+  legend("#lg-div", [{ c: cssVar("--s1"), t: `아이돌 (${D.idol_actor.idol_n}건)`, rect: true }, { c: cssVar("--s2"), t: `배우 (${D.idol_actor.actor_n}건)`, rect: true }]);
+  table("#t-div", ["부문", "아이돌", "아이돌 비율", "배우", "배우 비율"], rows.map(r => [r.div, String(r.idol_n), fmtPct(r.idol), String(r.actor_n), fmtPct(r.actor)]));
+}
+function drawControl() {
+  const rows = D.control, C = D.cohort_n;
+  ghbars("#c-ctrl", rows, { series: [{ name: "한국 셀럽", val: r => r.KR, cls: "f-s1" }, { name: "중화권·일본·동남아 셀럽", val: r => r.ASIA, cls: "f-s2" }, { name: "서구 셀럽", val: r => r.WEST, cls: "f-s3" }], label: r => r.lang, fmt: (v) => Math.round(v * 100) + "%", ref: .05, refLabel: "우연히 나올 수준 (5%)", xmax: .32, ticks: [0, .1, .2, .3], directLabel: (sr, j) => j === 0,
+    tipRows: r => [{ t: `${r.lang}어판 · 유의하게 오른 사건 비율` }, { k: cssVar("--s1"), b: fmtPct(r.KR), t: `한국 셀럽 ${r.KR_sig}/${r.KR_n}건 · 중앙값 ${pf1(r.KR_med)}` }, { k: cssVar("--s2"), b: fmtPct(r.ASIA), t: `아시아 셀럽 ${r.ASIA_sig}/${r.ASIA_n}건 · 중앙값 ${pf1(r.ASIA_med)}` }, { k: cssVar("--s3"), b: fmtPct(r.WEST), t: `서구 셀럽 ${r.WEST_sig}/${r.WEST_n}건 · 중앙값 ${pf1(r.WEST_med)}` }] });
+  legend("#lg-ctrl", [{ c: cssVar("--s1"), t: `한국 셀럽 발탁 (${C.KR}건)`, rect: true }, { c: cssVar("--s2"), t: `중화권·일본·동남아 셀럽 (${C.ASIA}건)`, rect: true }, { c: cssVar("--s3"), t: `서구 셀럽 발탁 (${C.WEST}건)`, rect: true }]);
+  $("#west-id").textContent = `${(D.west_id.sig / D.west_id.n * 100).toFixed(1)}%(${D.west_id.n}건 중 ${D.west_id.sig}건)`;
+  $("#n-kr").textContent = C.KR; $("#n-west").textContent = C.WEST; $("#n-asia").textContent = C.ASIA;
+  table("#t-ctrl", ["언어판", "한국 셀럽", "아시아 셀럽", "서구 셀럽", "한국 중앙값", "서구 중앙값"], rows.map(r => [r.lang, `${fmtPct(r.KR)} (${r.KR_n})`, `${fmtPct(r.ASIA)} (${r.ASIA_n})`, `${fmtPct(r.WEST)} (${r.WEST_n})`, pf1(r.KR_med), pf1(r.WEST_med)]));
+}
+function drawIdolActor() {
+  const rows = D.idol_vs_actor;
+  ghbars("#c-ia", rows, { series: [{ name: "아이돌 발탁", val: r => r.idol, cls: "f-s1" }, { name: "배우 발탁", val: r => r.actor, cls: "f-s2" }], label: r => r.lang, fmt: (v, t) => t ? pf0(v) : pf1(v), xlo: -10, xmax: 45, ticks: [-10, 0, 10, 20, 30, 40], directLabel: () => true, rowH: 36,
+    tipRows: r => [{ t: `${r.lang}어판 · 관심도 변화 중앙값` }, { k: cssVar("--s1"), b: pf1(r.idol), t: `아이돌 ${r.idol_n}건` }, { k: cssVar("--s2"), b: pf1(r.actor), t: `배우 ${r.actor_n}건` }] });
+  legend("#lg-ia", [{ c: cssVar("--s1"), t: "아이돌 발탁", rect: true }, { c: cssVar("--s2"), t: "배우 발탁", rect: true }]);
+  table("#t-ia", ["언어판", "아이돌 중앙값", "아이돌 건수", "배우 중앙값", "배우 건수"], rows.map(r => [r.lang, pf1(r.idol), String(r.idol_n), pf1(r.actor), String(r.actor_n)]));
+}
+
+function legend(sel, items) { const l = $(sel); l.replaceChildren(); items.forEach(it => { const sp = document.createElement("span"); const i = document.createElement("i"); i.style.borderColor = it.c; if (it.rect) { i.className = "rect"; i.style.background = it.c; } sp.appendChild(i); sp.appendChild(document.createTextNode(it.t)); l.appendChild(sp); }); }
+
+/* ---------- 표 ---------- */
+function table(sel, head, rows) { const box = $(sel); box.replaceChildren(); const t = document.createElement("table"); const tr = document.createElement("tr"); head.forEach(h => { const th = document.createElement("th"); th.textContent = h; tr.appendChild(th); }); t.appendChild(tr); rows.forEach(r => { const tr = document.createElement("tr"); r.forEach(c => { const td = document.createElement("td"); td.textContent = c; tr.appendChild(td); }); t.appendChild(tr); }); box.appendChild(t); }
+
+/* ---------- 렌더 & 리사이즈 ---------- */
+function drawAll() { drawInflation(); drawHouses(); drawDivision(); drawWiki(); drawControl(); drawIdolActor(); }
+drawAll();
+let rt; addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(drawAll, 120); });
+</script>
+</body>
+</html>

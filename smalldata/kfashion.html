@@ -1,0 +1,376 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>K패션에는 'K'가 없다</title>
+<meta name="description" content="패션 특화 AI(Fashion-CLIP)로 18개 브랜드 상품컷 1만 장을 비교한 「김하빈의 스몰데이터」 6월 칼럼의 데이터 대시보드">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>html{color-scheme:light}img{max-width:100%}[hidden]{display:none!important}body{margin:0;font:14px system-ui,sans-serif}</style>
+</head>
+<body>
+<style>
+/* 레이아웃: 한 칸 짜리 데이터 에세이. 좌측 정렬 제목 → 수치 띠 → 도표 카드가 세로로 쌓이고, 각 카드는 제목(결론)·도표·표 보기·출처 순. */
+:root{
+  --bg:#f6f7f8; --surface:#fcfcfb; --ink:#0b0b0b; --ink-2:#52514e; --muted:#898781;
+  --grid:#e1e0d9; --axis:#c3c2b7; --ring:rgba(11,11,11,.10); --wash:rgba(42,120,214,.08);
+  --pos:#2a78d6; --neg:#e34948; --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100; --gray:#b9b8b2;
+  --f-body:"IBM Plex Sans KR",system-ui,-apple-system,"Segoe UI","Malgun Gothic",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0d0d0d; --surface:#1a1a19; --ink:#f0efec; --ink-2:#c3c2b7; --muted:#898781;
+  --grid:#2c2c2a; --axis:#383835; --ring:rgba(255,255,255,.10); --wash:rgba(57,135,229,.12);
+  --pos:#3987e5; --neg:#e66767; --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --gray:#6b6a66; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0d0d0d; --surface:#1a1a19; --ink:#f0efec; --ink-2:#c3c2b7; --muted:#898781;
+  --grid:#2c2c2a; --axis:#383835; --ring:rgba(255,255,255,.10); --wash:rgba(57,135,229,.12);
+  --pos:#3987e5; --neg:#e66767; --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --gray:#6b6a66; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased}
+.wrap{max-width:960px;margin:0 auto;padding-block:40px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+a{color:inherit}
+h1,h2,h3{margin:0;text-wrap:balance;line-height:1.25}
+.eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2);display:flex;gap:14px;flex-wrap:wrap}
+.eyebrow b{color:var(--pos);font-weight:500}
+h1{font-size:clamp(28px,4.6vw,44px);font-weight:700;margin-top:14px;letter-spacing:-.01em}
+.dek{margin:18px 0 0;max-width:62ch;color:var(--ink-2);font-size:16px}
+.dek p{margin:0 0 6px}
+.meta{margin-top:22px;display:flex;gap:10px 22px;flex-wrap:wrap;font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.meta span b{color:var(--ink-2);font-weight:500}
+
+.kpis{display:grid;grid-template-columns:1.6fr repeat(4,1fr);gap:12px;margin-top:36px}
+@media (max-width:760px){.kpis{grid-template-columns:1fr 1fr}.kpis .hero{grid-column:1/-1}}
+.tile{background:var(--surface);border:1px solid var(--ring);border-radius:10px;padding:16px 18px;min-width:0}
+.tile .lab{font-size:12.5px;color:var(--ink-2)}
+.tile .val{font-size:30px;font-weight:600;letter-spacing:-.02em;margin-top:4px;line-height:1.1}
+.tile .val.sm{font-size:26px;white-space:nowrap}
+.tile .sub{font-size:12px;color:var(--muted);margin-top:6px}
+.tile.hero .val{font-size:clamp(48px,7vw,64px);font-weight:700}
+.tile.hero .val small{display:block;font-size:.3em;font-weight:500;color:var(--ink-2);margin-top:6px;letter-spacing:0;line-height:1.3}
+.neg{color:var(--neg)} .pos{color:var(--pos)}
+
+section.card{background:var(--surface);border:1px solid var(--ring);border-radius:12px;padding:22px 22px 16px;margin-top:22px;min-width:0}
+.card h2{font-size:19px;font-weight:600}
+.card .lede{margin:6px 0 0;color:var(--ink-2);font-size:14px;max-width:70ch}
+.chart{position:relative;margin-top:16px}
+.chart svg{display:block;width:100%;height:auto;overflow:visible}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media (max-width:700px){.row2{grid-template-columns:1fr}}
+.panel h3{font-size:13.5px;font-weight:500;color:var(--ink-2);margin-bottom:4px}
+.legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:12px;font-size:12.5px;color:var(--ink-2)}
+.legend i{display:inline-block;width:14px;height:0;border-top:2px solid;vertical-align:middle;margin-right:6px;border-radius:2px}
+.legend i.rect{height:10px;border:0;border-radius:2px}
+.source{font-family:var(--f-mono);font-size:11.5px;color:var(--muted);margin-top:12px;line-height:1.5}
+details.tbl{margin-top:10px;font-size:13px}
+details.tbl summary{cursor:pointer;color:var(--ink-2);font-size:12.5px;list-style:none;display:inline-flex;gap:6px;align-items:center;padding:4px 0}
+details.tbl summary::-webkit-details-marker{display:none}
+details.tbl summary::before{content:"▸";font-size:11px}
+details.tbl[open] summary::before{content:"▾"}
+.tscroll{overflow-x:auto;margin-top:6px}
+table{border-collapse:collapse;width:100%;font-size:12.5px;font-variant-numeric:tabular-nums}
+th,td{padding:5px 10px;border-bottom:1px solid var(--grid);text-align:right;white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+th{color:var(--ink-2);font-weight:500;font-size:12px}
+
+svg text{font-family:var(--f-body);font-size:11.5px;fill:var(--ink-2)}
+svg .tick{font-family:var(--f-mono);font-size:10.5px;fill:var(--muted);font-variant-numeric:tabular-nums}
+svg .grid{stroke:var(--grid);stroke-width:1}
+svg .axis{stroke:var(--axis);stroke-width:1}
+svg .base{stroke:var(--ink);stroke-width:1}
+svg .lbl{fill:var(--ink);font-weight:500;font-size:12px}
+svg .note{fill:var(--ink-2);font-size:11.5px}
+svg .pos{fill:var(--pos)} svg .negf{fill:var(--neg)} svg .wash{fill:var(--wash)}
+svg .l-pos{stroke:var(--pos)} svg .l-neg{stroke:var(--neg)} svg .l-gray{stroke:var(--gray)}
+svg .l-s1{stroke:var(--s1)} svg .l-s2{stroke:var(--s2)} svg .l-s3{stroke:var(--s3)} svg .l-s4{stroke:var(--s4)}
+svg .line{fill:none;stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+svg .dot{stroke:var(--surface);stroke-width:2}
+svg .hit{fill:transparent;cursor:crosshair}
+svg .xh{stroke:var(--ink-2);stroke-width:1;pointer-events:none}
+svg .bar{shape-rendering:crispEdges}
+svg .bar.hover,svg .seg.hover{filter:brightness(1.12)}
+svg .s1f{fill:var(--s1)} svg .s2f{fill:var(--s2)} svg .grayf{fill:var(--gray)}
+svg .ci{stroke:var(--ink-2);stroke-width:1.5}
+
+.tip{position:fixed;z-index:20;pointer-events:none;background:var(--ink);color:var(--bg);padding:8px 10px;border-radius:6px;font-size:12px;line-height:1.45;max-width:260px;box-shadow:0 4px 18px rgba(0,0,0,.18);opacity:0;transition:opacity .08s}
+.tip.on{opacity:1}
+.tip b{font-size:14px;font-weight:600}
+.tip .k{display:inline-block;width:10px;border-top:2px solid;vertical-align:middle;margin-right:6px}
+.tip .dim{opacity:.7}
+
+.two{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:22px}
+@media (max-width:760px){.two{grid-template-columns:1fr}}
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:16px}
+@media (max-width:700px){.cmp{grid-template-columns:1fr}}
+.cmp .box{border:1px solid var(--ring);border-radius:10px;padding:16px 18px}
+.cmp .box .lab{font-size:12.5px;color:var(--ink-2)}
+.cmp .box .val{font-size:44px;font-weight:700;letter-spacing:-.02em;line-height:1.1;margin-top:4px}
+.cmp .box .sub{font-size:12px;color:var(--muted);margin-top:6px}
+.meter{height:8px;border-radius:4px;background:var(--grid);margin-top:12px;overflow:hidden}
+.meter i{display:block;height:100%;border-radius:4px;background:var(--pos)}
+.meter i.n{background:var(--neg)}
+
+.method{margin-top:30px;padding-top:22px;border-top:1px solid var(--grid);display:grid;grid-template-columns:1fr 1fr;gap:22px;font-size:13.5px;color:var(--ink-2)}
+@media (max-width:760px){.method{grid-template-columns:1fr}}
+.method h3{font-size:13px;color:var(--ink);font-weight:600;margin-bottom:6px}
+.method ul{margin:0;padding-left:18px}
+.method li{margin:3px 0}
+footer{margin-top:36px;font-family:var(--f-mono);font-size:11.5px;color:var(--muted);display:flex;gap:16px;flex-wrap:wrap;justify-content:space-between}
+footer a{color:var(--ink-2)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+:focus-visible{outline:2px solid var(--pos);outline-offset:2px}
+</style>
+
+<div class="wrap">
+<header>
+  <div class="eyebrow"><a href="./index.html" style="text-decoration:none"><b>김하빈의 스몰데이터</b></a><span>2026년 6월</span><span>Fashion-CLIP · 브랜드 18개</span></div>
+  <h1>K패션에는 'K'가 없다</h1>
+  <div class="dek">
+    <p>패션 특화 AI에게 한국 브랜드 9곳과 글로벌 브랜드 9곳의 상품컷 1만 장을 보여주고 물었다. 한국 옷은 한쪽에, 글로벌 옷은 다른 쪽에 모이는가.</p>
+    <p>가려내지 못했다. 두 집단의 분리도는 0.02로 사실상 0이다. 옷이 무리를 짓는 단위는 국적이 아니라 개별 브랜드였다.</p>
+  </div>
+  <div class="meta">
+    <span>데이터 <b>네이버 쇼핑 상품컷</b></span>
+    <span>브랜드 <b>18</b> · 이미지 <b id="m-n"></b> · 모델 <b>Fashion-CLIP</b></span>
+    <span>수집 <b>2026.06</b></span>
+  </div>
+</header>
+
+<div class="kpis" id="kpis"></div>
+
+<section class="card">
+  <h2>통제를 더할수록 '한국다움'은 사라졌다</h2>
+  <p class="lede">분리도(실루엣 계수)는 0이면 완전히 섞임, 1이면 완전히 다른 옷이다. 브랜드를 늘리고 출처·가격대·사진 형식을 맞출수록 값이 바닥으로 내려갔다. 남은 0.02도 브랜드를 아무렇게나 두 편으로 나눴을 때 생기는 차이와 구별되지 않는다.</p>
+  <div class="row2">
+    <div class="panel"><h3>통제 단계별 한국 vs 글로벌 분리도</h3><div class="chart" id="c-stage"></div></div>
+    <div class="panel"><h3>관측치(점)와 무작위 브랜드 분할의 평균(세로선)</h3><div class="chart" id="c-sig"></div></div>
+  </div>
+  <details class="tbl"><summary>표로 보기 (유의성 검정)</summary><div class="tscroll" id="t-sig"></div></details>
+  <p class="source">실루엣 계수(코사인). 오른쪽은 브랜드 단위 순열검정: 18개 브랜드를 국적과 무관하게 9:9로 다시 나눴을 때의 분리도 평균. 모든 조건 p&gt;0.05.</p>
+</section>
+
+<section class="card">
+  <h2>옷이 뭉치는 단위는 국적이 아니라 브랜드다</h2>
+  <p class="lede">각 상품컷에서 가장 닮은 다른 한 장을 찾았다. 그 옷이 같은 브랜드일 확률은 78%로 우연(6%)의 열네 배다. 반면 가장 닮은 옷이 다른 브랜드일 때, 그 브랜드가 같은 국적일 확률은 60%로 우연(47%)과 큰 차이가 없다.</p>
+  <div class="chart" id="c-nn"></div>
+  <div class="legend" id="lg-nn"></div>
+  <details class="tbl"><summary>표로 보기</summary><div class="tscroll" id="t-nn"></div></details>
+  <p class="source">Fashion-CLIP 임베딩의 1-최근접이웃(자기 제외), 10,640장 전체. 같은 상품의 색상 변형이 이웃으로 잡히는 경우가 있어 '같은 브랜드' 비율은 상향 편향일 수 있다.</p>
+</section>
+
+<section class="card">
+  <h2>브랜드 지도: 한국과 글로벌은 같은 자리에 겹쳐 있다</h2>
+  <p class="lede">브랜드마다 상품컷의 평균 위치(중심점)를 구해 가까운 브랜드끼리 가깝게 배치했다. 색이 한쪽으로 갈리지 않는다. 같은 국적 브랜드끼리의 평균 유사도와 다른 국적 간 유사도의 차이는 0.01이 되지 않는다.</p>
+  <div class="chart" id="c-map"></div>
+  <div class="legend" id="lg-map"></div>
+  <details class="tbl"><summary>표로 보기 (브랜드별 구성)</summary><div class="tscroll" id="t-map"></div></details>
+  <p class="source">18개 브랜드 중심점 간 코사인 거리를 2차원으로 펼친 것(고전 MDS). 축에 의미는 없고 거리만 읽는다. 칼럼 지면의 UMAP 그림과 방법이 다르지만 결론은 같다.</p>
+</section>
+
+<div class="two">
+<section class="card" style="margin-top:0">
+  <h2>'한국은 모델을 안 쓴다'는 착시였다</h2>
+  <p class="lede">처음 4개 브랜드만 봤을 때는 한국이 모델 없는 평면컷을 훨씬 많이 쓰는 것처럼 보였다. 18개로 늘리자 73% 대 73%로 같아졌다. 사진 형식은 국적이 아니라 브랜드의 습관이었다.</p>
+  <div class="row2">
+    <div class="panel"><h3>초기 4개 브랜드</h3><div class="chart" id="c-fmt4"></div></div>
+    <div class="panel"><h3>18개 브랜드</h3><div class="chart" id="c-fmt18"></div></div>
+  </div>
+  <p class="source">평면컷 = 모델 없이 옷만 찍은 상품 사진. Fashion-CLIP 제로샷으로 분류.</p>
+</section>
+<section class="card" style="margin-top:0">
+  <h2>성급하게 보면 갈리고, 제대로 보면 섞인다</h2>
+  <p class="lede">한국 브랜드는 평면컷만, 글로벌 브랜드는 모델컷만 골라 비교하면 분리도가 0.15까지 올라간다. 옷이 아니라 사진 종류가 갈린 것이다. 18개 브랜드 평면컷을 브랜드당 같은 수로 맞추면 0.02로 돌아온다.</p>
+  <div class="cmp" id="cmp"></div>
+  <p class="source">실루엣 계수. 왼쪽은 우영미·아더에러·마뗑킴 평면컷 500장 vs 자라·코스 모델컷 500장. 오른쪽은 18개 브랜드 평면컷 2,970장.</p>
+</section>
+</div>
+
+<section class="card">
+  <h2>스타일 23종도 섬이 아니라 그라데이션이다</h2>
+  <p class="lede">같은 AI로 AI허브 K-패션 데이터셋의 스타일 23종(스타일당 382장)을 봤다. 펑크·힙합·프레피·밀리터리처럼 제복에 가까운 스타일만 또렷하고, 데이터셋에서 가장 흔한 라벨인 '스트리트'는 가장 비특이적이다. 23종 전체의 분리도는 −0.03으로 역시 0이다.</p>
+  <div class="chart" id="c-style"></div>
+  <details class="tbl"><summary>표로 보기</summary><div class="tscroll" id="t-style"></div></details>
+  <p class="source">값 = 가장 닮은 옷이 같은 스타일일 비율(NN-1 순도), 95% 부트스트랩 구간. 무작위 기준 1/23 = 4.3%. 의복 영역만 크롭해 배경을 통제한 Training 균형표본 8,786장.</p>
+</section>
+
+<div class="method">
+  <div><h3>방법</h3><ul>
+    <li>브랜드 선정은 기준(한국/글로벌 × SPA·컨템포러리·디자이너)을 먼저 고정한 뒤 LLM 세 관점의 독립 제안을 합의·검증해 18개를 확정했다.</li>
+    <li>네이버 쇼핑 API로 브랜드당 약 600장의 상품컷을 모아 Fashion-CLIP(Chia 외, 2022)으로 512차원 임베딩을 만들고, L2 정규화 후 코사인 거리로 분석했다.</li>
+    <li>유의성은 이미지 단위가 아니라 브랜드 단위 순열검정으로 판단했다. 같은 브랜드의 사진은 독립이 아니기 때문이다.</li>
+  </ul></div>
+  <div><h3>한계</h3><ul>
+    <li>단일 모델(Fashion-CLIP)의 눈이다. 다른 시각 모델과 사람 평가로 재확인이 필요하다.</li>
+    <li>네이버 마켓플레이스 이미지라 공식몰과 형식이 다를 수 있다.</li>
+    <li>"차이가 없다"는 p&gt;0.05로 말했다. 동등성 검정(TOST)으로 마진 안의 동등을 적극 입증하는 것은 후속 과제다.</li>
+  </ul></div>
+</div>
+
+<footer>
+  <span>© 2026 김하빈 · 스몰데이터랩 · 국립순천대학교</span>
+  <span><a href="https://n.news.naver.com/mnews/article/586/0000132686?sid=101">칼럼 원문 (시사저널, 2026.06.30)</a> · <a href="https://huggingface.co/datasets/HabinKim/kfashion-visual-distinctiveness">데이터·코드 (Hugging Face)</a></span>
+</footer>
+</div>
+<div class="tip" id="tip" role="status" aria-live="polite"></div>
+
+<script>
+const D = {"headline":{"n_images":10640,"n_brands":18,"sil_all":0.017,"sil_flat":0.018,"p_all":0.0759,"p_flat":0.0639,"null_mean_all":0.011,"flat_kr":0.7309014514896868,"flat_gl":0.7281643227239082,"nn_same_brand":0.7778195488721804,"nn_same_origin":0.9111842105263158,"collected":"2026.06","published":"2026.06.30"},"stages":[{"stage":"초기","sub":"4개 브랜드 · 미통제","sil":0.105},{"stage":"중간","sub":"8개 브랜드 · 출처 통일","sil":0.076},{"stage":"최종","sub":"18개 브랜드 · 가격대·형식 통제","sil":0.017}],"sig":[{"format":"전체","scope":"전체(tier미통제)","n":8136,"sil":0.0173,"lo":0.0167,"hi":0.0178,"null_mean":0.011,"p":0.0759},{"format":"전체","scope":"SPA","n":3600,"sil":0.0358,"lo":0.0343,"hi":0.0373,"null_mean":0.0287,"p":0.2381},{"format":"전체","scope":"컨템포러리","n":2712,"sil":0.0437,"lo":0.0419,"hi":0.0456,"null_mean":0.0376,"p":0.2381},{"format":"전체","scope":"디자이너","n":3600,"sil":0.0311,"lo":0.0297,"hi":0.0325,"null_mean":0.0167,"p":0.1429},{"format":"평면컷","scope":"전체(tier미통제)","n":2970,"sil":0.018,"lo":0.017,"hi":0.0189,"null_mean":0.0114,"p":0.0639},{"format":"평면컷","scope":"SPA","n":990,"sil":0.0343,"lo":0.0309,"hi":0.0373,"null_mean":0.0306,"p":0.4286},{"format":"평면컷","scope":"컨템포러리","n":1428,"sil":0.0479,"lo":0.0453,"hi":0.0506,"null_mean":0.0387,"p":0.2381},{"format":"평면컷","scope":"디자이너","n":2592,"sil":0.0355,"lo":0.0337,"hi":0.0374,"null_mean":0.0184,"p":0.1429}],"fmt":{"four":{"KR":0.82,"GLOBAL":0.48},"eighteen":{"KR":0.7309014514896868,"GLOBAL":0.7281643227239082}},"nn":{"n":10640,"same_brand":0.7778195488721804,"same_origin":0.9111842105263158,"chance_brand":0.05555555555555555,"chance_origin":0.5,"same_origin_given_diff_brand":0.600253807106599,"chance_origin_diff_brand":0.47058823529411764,"n_diff_brand":2364},"brands":[{"brand":"에잇세컨즈","origin":"KR","tier":"SPA","n":606,"flat":0.6072607260726073,"nn_same_brand":0.8382838283828383,"nn_same_origin":0.9471947194719472},{"brand":"스파오","origin":"KR","tier":"SPA","n":600,"flat":0.62,"nn_same_brand":0.7983333333333333,"nn_same_origin":0.9433333333333334},{"brand":"탑텐","origin":"KR","tier":"SPA","n":600,"flat":0.8516666666666667,"nn_same_brand":0.7866666666666666,"nn_same_origin":0.91},{"brand":"유니클로","origin":"GLOBAL","tier":"SPA","n":600,"flat":0.6733333333333333,"nn_same_brand":0.8066666666666666,"nn_same_origin":0.8833333333333333},{"brand":"자라","origin":"GLOBAL","tier":"SPA","n":602,"flat":0.27408637873754155,"nn_same_brand":0.7774086378737541,"nn_same_origin":0.8837209302325582},{"brand":"H&M","origin":"GLOBAL","tier":"SPA","n":601,"flat":0.6522462562396006,"nn_same_brand":0.7653910149750416,"nn_same_origin":0.913477537437604},{"brand":"마르디메크르디","origin":"KR","tier":"컨템포러리","n":452,"flat":0.5265486725663717,"nn_same_brand":0.9358407079646017,"nn_same_origin":0.9778761061946902},{"brand":"마뗑킴","origin":"KR","tier":"컨템포러리","n":577,"flat":0.7937608318890814,"nn_same_brand":0.8110918544194108,"nn_same_origin":0.9532062391681109},{"brand":"앤더슨벨","origin":"KR","tier":"컨템포러리","n":600,"flat":0.635,"nn_same_brand":0.73,"nn_same_origin":0.8833333333333333},{"brand":"코스","origin":"GLOBAL","tier":"컨템포러리","n":600,"flat":0.4716666666666667,"nn_same_brand":0.8366666666666667,"nn_same_origin":0.925},{"brand":"아미 파리","origin":"GLOBAL","tier":"컨템포러리","n":600,"flat":0.9083333333333333,"nn_same_brand":0.7566666666666667,"nn_same_origin":0.9166666666666666},{"brand":"아크네 스튜디오","origin":"GLOBAL","tier":"컨템포러리","n":601,"flat":0.8885191347753744,"nn_same_brand":0.6855241264559068,"nn_same_origin":0.8569051580698835},{"brand":"아더에러","origin":"KR","tier":"디자이너","n":600,"flat":0.8483333333333334,"nn_same_brand":0.835,"nn_same_origin":0.9333333333333333},{"brand":"준지","origin":"KR","tier":"디자이너","n":601,"flat":0.718801996672213,"nn_same_brand":0.7920133111480865,"nn_same_origin":0.9101497504159733},{"brand":"우영미","origin":"KR","tier":"디자이너","n":600,"flat":0.93,"nn_same_brand":0.785,"nn_same_origin":0.8983333333333333},{"brand":"꼼데가르송","origin":"GLOBAL","tier":"디자이너","n":600,"flat":0.875,"nn_same_brand":0.87,"nn_same_origin":0.9416666666666667},{"brand":"질 샌더","origin":"GLOBAL","tier":"디자이너","n":600,"flat":0.915,"nn_same_brand":0.6366666666666667,"nn_same_origin":0.8816666666666667},{"brand":"메종 마르지엘라","origin":"GLOBAL","tier":"디자이너","n":600,"flat":0.8966666666666666,"nn_same_brand":0.5933333333333334,"nn_same_origin":0.86}],"centroid":{"brands":["에잇세컨즈","스파오","탑텐","유니클로","자라","H&M","마르디메크르디","마뗑킴","앤더슨벨","코스","아미 파리","아크네 스튜디오","아더에러","준지","우영미","꼼데가르송","질 샌더","메종 마르지엘라"],"origin":["KR","KR","KR","GLOBAL","GLOBAL","GLOBAL","KR","KR","KR","GLOBAL","GLOBAL","GLOBAL","KR","KR","KR","GLOBAL","GLOBAL","GLOBAL"],"tier":["SPA","SPA","SPA","SPA","SPA","SPA","컨템포러리","컨템포러리","컨템포러리","컨템포러리","컨템포러리","컨템포러리","디자이너","디자이너","디자이너","디자이너","디자이너","디자이너"],"xy":[[-0.4457,-0.1808],[-0.4566,0.0445],[-0.1891,0.0168],[-0.2278,-0.0892],[-0.5962,-0.1169],[-0.2964,-0.3841],[-0.5386,1.0],[-0.0516,0.3256],[0.4278,0.1121],[-0.6712,-0.4853],[0.3941,-0.1288],[0.3664,-0.0571],[0.4179,0.2135],[0.3203,-0.0298],[0.5013,0.1104],[0.2706,0.0922],[0.3253,-0.2542],[0.4493,-0.1889]],"sim":[[1.0,0.945,0.923,0.906,0.892,0.928,0.83,0.91,0.87,0.852,0.886,0.901,0.87,0.887,0.868,0.876,0.901,0.891],[0.945,1.0,0.948,0.948,0.901,0.912,0.871,0.934,0.885,0.874,0.9,0.906,0.89,0.913,0.897,0.891,0.902,0.888],[0.923,0.948,1.0,0.921,0.877,0.917,0.84,0.939,0.884,0.827,0.906,0.922,0.902,0.91,0.909,0.901,0.925,0.906],[0.906,0.948,0.921,1.0,0.896,0.891,0.84,0.911,0.901,0.884,0.913,0.914,0.9,0.934,0.92,0.907,0.909,0.909],[0.892,0.901,0.877,0.896,1.0,0.92,0.848,0.893,0.869,0.873,0.852,0.88,0.846,0.88,0.84,0.871,0.878,0.871],[0.928,0.912,0.917,0.891,0.92,1.0,0.806,0.896,0.886,0.852,0.903,0.92,0.868,0.894,0.878,0.888,0.92,0.908],[0.83,0.871,0.84,0.84,0.848,0.806,1.0,0.888,0.835,0.777,0.815,0.835,0.826,0.825,0.826,0.84,0.805,0.806],[0.91,0.934,0.939,0.911,0.893,0.896,0.888,1.0,0.924,0.842,0.917,0.937,0.945,0.937,0.942,0.923,0.924,0.92],[0.87,0.885,0.884,0.901,0.869,0.886,0.835,0.924,1.0,0.815,0.947,0.966,0.951,0.961,0.968,0.937,0.939,0.96],[0.852,0.874,0.827,0.884,0.873,0.852,0.777,0.842,0.815,1.0,0.832,0.83,0.807,0.847,0.82,0.825,0.84,0.831],[0.886,0.9,0.906,0.913,0.852,0.903,0.815,0.917,0.947,0.832,1.0,0.973,0.931,0.942,0.962,0.938,0.97,0.97],[0.901,0.906,0.922,0.914,0.88,0.92,0.835,0.937,0.966,0.83,0.973,1.0,0.947,0.96,0.969,0.944,0.977,0.982],[0.87,0.89,0.902,0.9,0.846,0.868,0.826,0.945,0.951,0.807,0.931,0.947,1.0,0.958,0.971,0.931,0.929,0.937],[0.887,0.913,0.91,0.934,0.88,0.894,0.825,0.937,0.961,0.847,0.942,0.96,0.958,1.0,0.973,0.941,0.956,0.968],[0.868,0.897,0.909,0.92,0.84,0.878,0.826,0.942,0.968,0.82,0.962,0.969,0.971,0.973,1.0,0.943,0.949,0.963],[0.876,0.891,0.901,0.907,0.871,0.888,0.84,0.923,0.937,0.825,0.938,0.944,0.931,0.941,0.943,1.0,0.939,0.949],[0.901,0.902,0.925,0.909,0.878,0.92,0.805,0.924,0.939,0.84,0.97,0.977,0.929,0.956,0.949,0.939,1.0,0.986],[0.891,0.888,0.906,0.909,0.871,0.908,0.806,0.92,0.96,0.831,0.97,0.982,0.937,0.968,0.963,0.949,0.986,1.0]],"stress_note":"18개 브랜드 중심점 간 코사인 거리의 고전 MDS(2차원). 점 사이 거리가 가까울수록 평균적으로 닮은 브랜드.","mean_sim_same_origin":0.9041824340820312,"mean_sim_diff_origin":0.897262454032898},"before_after":{"left":{"n":1000,"sil":0.15176153674675152,"desc":"한국 3개 브랜드 평면컷 vs 글로벌 2개 브랜드 모델컷"},"right":{"n":2970,"sil":0.017021075986670162,"desc":"18개 브랜드 평면컷, 브랜드당 165장 균형"}},"styles":[{"style":"펑크","n":382,"nn1":0.966,"lo":0.948,"hi":0.984},{"style":"힙합","n":382,"nn1":0.783,"lo":0.743,"hi":0.819},{"style":"프레피","n":382,"nn1":0.78,"lo":0.736,"hi":0.822},{"style":"밀리터리","n":382,"nn1":0.73,"lo":0.686,"hi":0.772},{"style":"웨스턴","n":382,"nn1":0.725,"lo":0.681,"hi":0.77},{"style":"히피","n":382,"nn1":0.61,"lo":0.563,"hi":0.66},{"style":"키치","n":382,"nn1":0.589,"lo":0.542,"hi":0.636},{"style":"오리엔탈","n":382,"nn1":0.589,"lo":0.537,"hi":0.641},{"style":"아방가르드","n":382,"nn1":0.568,"lo":0.518,"hi":0.618},{"style":"섹시","n":382,"nn1":0.563,"lo":0.513,"hi":0.61},{"style":"레트로","n":382,"nn1":0.453,"lo":0.401,"hi":0.505},{"style":"스포티","n":382,"nn1":0.45,"lo":0.403,"hi":0.503},{"style":"톰보이","n":382,"nn1":0.401,"lo":0.348,"hi":0.45},{"style":"매니시","n":382,"nn1":0.401,"lo":0.348,"hi":0.45},{"style":"젠더리스","n":382,"nn1":0.288,"lo":0.243,"hi":0.332},{"style":"로맨틱","n":382,"nn1":0.27,"lo":0.225,"hi":0.312},{"style":"소피스트케이티드","n":382,"nn1":0.257,"lo":0.215,"hi":0.301},{"style":"컨트리","n":382,"nn1":0.254,"lo":0.212,"hi":0.298},{"style":"클래식","n":382,"nn1":0.238,"lo":0.199,"hi":0.28},{"style":"리조트","n":382,"nn1":0.215,"lo":0.173,"hi":0.254},{"style":"스트리트","n":382,"nn1":0.191,"lo":0.154,"hi":0.23},{"style":"모던","n":382,"nn1":0.16,"lo":0.126,"hi":0.196},{"style":"페미닌","n":382,"nn1":0.113,"lo":0.081,"hi":0.147}],"style_summary":{"random_nn1":0.0435,"silhouette":-0.0332,"sil_ci_lo":-0.0346,"sil_ci_hi":-0.0319,"nn1":0.4605,"nn1_ci_lo":0.4504,"nn1_ci_hi":0.4707,"p_nn1_perm":0.0004997501249375,"p_sil_perm":0.9203980099502488,"N":8786,"K":23}};
+const $ = s => document.querySelector(s);
+const fmtP = v => (v >= 0 ? "+" : "−") + Math.abs(Math.round(v * 100)) + "%";
+const fmtPct = v => Math.round(v * 100) + "%";
+const fmtN = v => v.toLocaleString("ko-KR");
+const T = (tag, attrs, parent) => { const e = document.createElementNS("http://www.w3.org/2000/svg", tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; };
+const txt = (parent, x, y, s, cls, anchor) => { const t = T("text", { x, y, class: cls || "", "text-anchor": anchor || "start" }, parent); t.textContent = s; return t; };
+
+/* ---------- 툴팁 ---------- */
+const tip = $("#tip");
+function showTip(ev, rows) { tip.replaceChildren(); rows.forEach(r => { const d = document.createElement("div"); if (r.k) { const k = document.createElement("span"); k.className = "k"; k.style.borderColor = r.k; d.appendChild(k); } if (r.b) { const b = document.createElement("b"); b.textContent = r.b; d.appendChild(b); d.appendChild(document.createTextNode(" ")); } const s = document.createElement("span"); s.className = r.b ? "dim" : ""; s.textContent = r.t || ""; d.appendChild(s); tip.appendChild(d); }); tip.classList.add("on"); moveTip(ev); }
+function moveTip(ev) { const w = tip.offsetWidth, h = tip.offsetHeight; let x = ev.clientX + 14, y = ev.clientY + 14; if (x + w > innerWidth - 8) x = ev.clientX - w - 14; if (y + h > innerHeight - 8) y = ev.clientY - h - 14; tip.style.left = x + "px"; tip.style.top = y + "px"; }
+function hideTip() { tip.classList.remove("on"); }
+
+/* ---------- 공통 스케일 ---------- */
+const lin = (d0, d1, r0, r1) => v => r0 + (v - d0) / (d1 - d0) * (r1 - r0);
+function svgIn(el, w, h) { el.replaceChildren(); return T("svg", { viewBox: `0 0 ${w} ${h}`, width: w, height: h, role: "img" }, el); }
+function widthOf(el) { return Math.max(280, el.clientWidth || 600); }
+const f3 = v => v.toFixed(3);
+
+/* ---------- KPI ---------- */
+(function kpis() {
+  const H = D.headline, N = D.nn; $("#m-n").textContent = fmtN(H.n_images);
+  const k = $("#kpis");
+  const tile = (lab, val, sub, cls, hero) => { const d = document.createElement("div"); d.className = "tile" + (hero ? " hero" : ""); d.innerHTML = `<div class="lab"></div><div class="val ${cls || ""}"></div><div class="sub"></div>`; d.children[0].textContent = lab; d.children[1].innerHTML = val; d.children[2].textContent = sub; k.appendChild(d); };
+  tile("한국 vs 글로벌 분리도 (0 = 완전 혼합, 1 = 완전 분리)", `${H.sil_all.toFixed(2)}<small>브랜드 단위 순열검정 p = ${H.p_all.toFixed(2)} · 통계적으로 유의하지 않음</small>`, `18개 브랜드 ${fmtN(H.n_images)}장 · 평면컷만 봐도 ${H.sil_flat.toFixed(2)}`, "pos", true);
+  tile("가장 닮은 옷이 같은 브랜드", fmtPct(N.same_brand), `우연이면 ${fmtPct(N.chance_brand)}`, "pos");
+  tile("다른 브랜드일 때 같은 국적", fmtPct(N.same_origin_given_diff_brand), `우연이면 ${fmtPct(N.chance_origin_diff_brand)}`, "");
+  tile("평면컷 비율 한국 : 글로벌", `${Math.round(H.flat_kr * 100)}&thinsp;:&thinsp;${Math.round(H.flat_gl * 100)}%`, "초기 4개 브랜드에서는 82 : 48%", "sm");
+  tile("스타일 23종 전역 분리도", D.style_summary.silhouette.toFixed(2), `순열검정 p = ${D.style_summary.p_sil_perm.toFixed(2)} · 8,786장`, "");
+})();
+
+/* ---------- 가로 막대 (공통) ---------- */
+function hbars(sel, rows, { val, label, diverging, dmax, fmt, tipRows, ticks: tk, color, chance, labelW = 118 }) {
+  const el = $(sel), W = widthOf(el), rowH = 26, m = { l: labelW, r: 54, t: 8, b: 26 }, H = m.t + rows.length * rowH + m.b;
+  const s = svgIn(el, W, H);
+  const lo = diverging ? -dmax : 0, hi = dmax;
+  const x = lin(lo, hi, m.l, W - m.r);
+  const ticks = tk || (diverging ? [-dmax, -dmax / 2, 0, dmax / 2, dmax] : [0, .25, .5, .75, 1]);
+  ticks.forEach(v => { T("line", { x1: x(v), x2: x(v), y1: m.t, y2: H - m.b, class: v === 0 ? "base" : "grid" }, s); txt(s, x(v), H - m.b + 15, fmt(v, true), "tick", "middle"); });
+  if (chance != null) { T("line", { x1: x(chance), x2: x(chance), y1: m.t, y2: H - m.b, class: "axis" }, s); txt(s, x(chance) + 4, m.t + 9, "우연 " + fmt(chance, true), "tick"); }
+  rows.forEach((r, i) => {
+    const v = val(r), cy = m.t + i * rowH + rowH / 2, bh = 16;
+    const x0 = Math.min(x(0), x(v)), bw = Math.abs(x(v) - x(0));
+    const cls = color ? color(r) : (diverging ? (v >= 0 ? "pos" : "negf") : "negf");
+    const rect = T("rect", { x: x0, y: cy - bh / 2, width: Math.max(bw, 0), height: bh, rx: 3, class: "bar " + cls }, s);
+    txt(s, m.l - 10, cy + 4, label(r), "", "end");
+    txt(s, v >= 0 ? x(v) + 6 : x(v) - 6, cy + 4, fmt(v), "lbl", v >= 0 ? "start" : "end");
+    const hit = T("rect", { x: m.l, y: cy - rowH / 2, width: W - m.l - m.r, height: rowH, class: "hit" }, s);
+    hit.addEventListener("pointermove", ev => { rect.classList.add("hover"); showTip(ev, tipRows(r)); });
+    hit.addEventListener("pointerleave", () => { rect.classList.remove("hover"); hideTip(); });
+  });
+  return { s, x, m, rowH };
+}
+function legend(sel, items) { const l = $(sel); l.replaceChildren(); items.forEach(it => { const sp = document.createElement("span"); const i = document.createElement("i"); i.style.borderColor = it.c; if (it.rect) { i.className = "rect"; i.style.background = it.c; } sp.appendChild(i); sp.appendChild(document.createTextNode(it.t)); l.appendChild(sp); }); }
+function table(sel, head, rows) { const box = $(sel); box.replaceChildren(); const t = document.createElement("table"); const tr = document.createElement("tr"); head.forEach(h => { const th = document.createElement("th"); th.textContent = h; tr.appendChild(th); }); t.appendChild(tr); rows.forEach(r => { const tr = document.createElement("tr"); r.forEach(c => { const td = document.createElement("td"); td.textContent = c; tr.appendChild(td); }); t.appendChild(tr); }); box.appendChild(t); }
+
+/* ---------- 1a 통제 단계 ---------- */
+function drawStage() {
+  hbars("#c-stage", D.stages, { val: r => r.sil, label: r => r.stage, diverging: false, dmax: .12, ticks: [0, .04, .08, .12], fmt: (v, t) => t ? v.toFixed(2) : f3(v),
+    color: r => r.stage === "최종" ? "pos" : "grayf", labelW: 60,
+    tipRows: r => [{ b: f3(r.sil), t: "분리도" }, { t: r.sub }] });
+}
+/* ---------- 1b 유의성: 점 + CI + 귀무평균 ---------- */
+function drawSig() {
+  const rows = D.sig.filter(r => r.format === "전체");
+  const el = $("#c-sig"), W = widthOf(el), rowH = 26, m = { l: 100, r: 54, t: 8, b: 26 }, H = m.t + rows.length * rowH + m.b;
+  const s = svgIn(el, W, H); const x = lin(0, .06, m.l, W - m.r);
+  [0, .02, .04, .06].forEach(v => { T("line", { x1: x(v), x2: x(v), y1: m.t, y2: H - m.b, class: v === 0 ? "base" : "grid" }, s); txt(s, x(v), H - m.b + 15, v.toFixed(2), "tick", "middle"); });
+  rows.forEach((r, i) => {
+    const cy = m.t + i * rowH + rowH / 2;
+    txt(s, m.l - 10, cy + 4, r.scope.replace("(tier미통제)", ""), "", "end");
+    T("line", { x1: x(r.null_mean), x2: x(r.null_mean), y1: cy - 9, y2: cy + 9, class: "axis", "stroke-width": 2 }, s);
+    T("line", { x1: x(r.lo), x2: x(r.hi), y1: cy, y2: cy, class: "ci" }, s);
+    T("circle", { cx: x(r.sil), cy, r: 5, class: "dot pos" }, s);
+    txt(s, x(Math.max(r.hi, r.null_mean)) + 8, cy + 4, `p = ${r.p.toFixed(2)}`, "lbl");
+    const hit = T("rect", { x: m.l, y: cy - rowH / 2, width: W - m.l - m.r, height: rowH, class: "hit" }, s);
+    hit.addEventListener("pointermove", ev => showTip(ev, [{ b: f3(r.sil), t: `관측 분리도 (95% CI ${f3(r.lo)}–${f3(r.hi)})` }, { t: `무작위 브랜드 분할 평균 ${f3(r.null_mean)} · 순열검정 p = ${r.p.toFixed(3)}` }, { t: `${r.scope} · n = ${fmtN(r.n)}` }]));
+    hit.addEventListener("pointerleave", hideTip);
+  });
+  table("#t-sig", ["형식", "범위", "n", "관측 분리도", "95% CI", "무작위 분할 평균", "p"], D.sig.map(r => [r.format, r.scope, fmtN(r.n), f3(r.sil), `${f3(r.lo)} – ${f3(r.hi)}`, f3(r.null_mean), r.p.toFixed(3)]));
+}
+
+/* ---------- 2 최근접 이웃: 브랜드별 ---------- */
+function drawNN() {
+  const rows = D.brands;
+  hbars("#c-nn", rows, { val: r => r.nn_same_brand, label: r => r.brand, diverging: false, dmax: 1, fmt: (v, t) => Math.round(v * 100) + "%", chance: D.nn.chance_brand, labelW: 110,
+    color: r => r.origin === "KR" ? "s1f" : "s2f",
+    tipRows: r => [{ b: fmtPct(r.nn_same_brand), t: "가장 닮은 옷이 같은 브랜드" }, { t: `${r.brand} · ${r.origin === "KR" ? "한국" : "글로벌"} · ${r.tier} · ${fmtN(r.n)}장` }, { t: `같은 국적 ${fmtPct(r.nn_same_origin)} · 평면컷 ${fmtPct(r.flat)}` }] });
+  legend("#lg-nn", [{ c: "var(--s1)", t: "한국 브랜드", rect: true }, { c: "var(--s2)", t: "글로벌 브랜드", rect: true }, { c: "var(--axis)", t: `우연 수준 1/18 = ${fmtPct(D.nn.chance_brand)}` }]);
+  table("#t-nn", ["브랜드", "국적", "가격대", "이미지", "같은 브랜드", "같은 국적", "평면컷"], rows.map(r => [r.brand, r.origin === "KR" ? "한국" : "글로벌", r.tier, fmtN(r.n), fmtPct(r.nn_same_brand), fmtPct(r.nn_same_origin), fmtPct(r.flat)]));
+}
+
+/* ---------- 3 브랜드 지도 (MDS) ---------- */
+function drawMap() {
+  const C = D.centroid, el = $("#c-map"), W = widthOf(el), H = Math.min(440, Math.max(300, W * .55)), m = { l: 24, r: 24, t: 24, b: 24 };
+  const s = svgIn(el, W, H);
+  const xs = C.xy.map(p => p[0]), ys = C.xy.map(p => p[1]);
+  const x = lin(Math.min(...xs) - .1, Math.max(...xs) + .1, m.l, W - m.r), y = lin(Math.min(...ys) - .1, Math.max(...ys) + .1, H - m.b, m.t);
+  T("rect", { x: m.l - 8, y: m.t - 8, width: W - m.l - m.r + 16, height: H - m.t - m.b + 16, rx: 6, fill: "none", class: "grid", stroke: "var(--grid)" }, s);
+  // 라벨 배치: 오른쪽·왼쪽·아래·위 네 후보 중 다른 점·라벨과 가장 덜 겹치는 자리를 고른다(탐욕)
+  const pts = C.brands.map((b, i) => ({ b, i, px: x(xs[i]), py: y(ys[i]), o: C.origin[i], t: C.tier[i] }));
+  const cw = 11, placed = [];
+  const cand = p => { const w = p.b.length * cw; return [
+    { x: p.px + 9, y: p.py + 4, a: "start", box: [p.px + 9, p.py - 8, p.px + 9 + w, p.py + 6] },
+    { x: p.px - 9, y: p.py + 4, a: "end", box: [p.px - 9 - w, p.py - 8, p.px - 9, p.py + 6] },
+    { x: p.px, y: p.py + 17, a: "middle", box: [p.px - w / 2, p.py + 6, p.px + w / 2, p.py + 20] },
+    { x: p.px, y: p.py - 10, a: "middle", box: [p.px - w / 2, p.py - 21, p.px + w / 2, p.py - 7] }]; };
+  const overlap = (a, b) => !(a[2] < b[0] || b[2] < a[0] || a[3] < b[1] || b[3] < a[1]);
+  const cost = c => { let k = 0; placed.forEach(b => { if (overlap(c.box, b)) k += 10; }); pts.forEach(q => { if (q.px > c.box[0] - 6 && q.px < c.box[2] + 6 && q.py > c.box[1] - 6 && q.py < c.box[3] + 6) k += 3; }); if (c.box[0] < 0 || c.box[2] > W) k += 20; return k; };
+  pts.forEach(p => T("circle", { cx: p.px, cy: p.py, r: 6, class: "dot " + (p.o === "KR" ? "s1f" : "s2f") }, s));
+  pts.forEach(p => { const cs = cand(p); let best = cs[0], bc = 1e9; cs.forEach(c => { const k = cost(c); if (k < bc) { bc = k; best = c; } }); placed.push(best.box); txt(s, best.x, best.y, p.b, "lbl", best.a); });
+  // 최근접 호버
+  const hit = T("rect", { x: 0, y: 0, width: W, height: H, class: "hit" }, s);
+  let ring = T("circle", { r: 10, fill: "none", stroke: "var(--ink)", "stroke-width": 1.5, visibility: "hidden", "pointer-events": "none" }, s);
+  hit.addEventListener("pointermove", ev => { const rc = s.getBoundingClientRect(); const px = (ev.clientX - rc.left) * W / rc.width, py = (ev.clientY - rc.top) * H / rc.height; let best = null, bd = 1e9; pts.forEach(p => { const d = Math.hypot(p.px - px, p.py - py); if (d < bd) { bd = d; best = p; } }); if (!best || bd > 60) { ring.setAttribute("visibility", "hidden"); hideTip(); return; } ring.setAttribute("cx", best.px); ring.setAttribute("cy", best.py); ring.setAttribute("visibility", "visible"); const sims = C.brands.map((b, j) => [b, C.sim[best.i][j]]).filter(([b]) => b !== best.b).sort((a, b) => b[1] - a[1]).slice(0, 3); showTip(ev, [{ b: best.b, t: `${best.o === "KR" ? "한국" : "글로벌"} · ${best.t}` }, { t: "가장 닮은 브랜드: " + sims.map(([b, v]) => `${b} (${v.toFixed(2)})`).join(", ") }]); });
+  hit.addEventListener("pointerleave", () => { ring.setAttribute("visibility", "hidden"); hideTip(); });
+  legend("#lg-map", [{ c: "var(--s1)", t: "한국 브랜드", rect: true }, { c: "var(--s2)", t: "글로벌 브랜드", rect: true }, { c: "transparent", t: `같은 국적 간 평균 유사도 ${C.mean_sim_same_origin.toFixed(3)} · 다른 국적 간 ${C.mean_sim_diff_origin.toFixed(3)}` }]);
+  table("#t-map", ["브랜드", "국적", "가격대", "가장 닮은 브랜드 (유사도)"], C.brands.map((b, i) => { const best = C.brands.map((q, j) => [q, C.sim[i][j]]).filter(([q]) => q !== b).sort((a, c) => c[1] - a[1])[0]; return [b, C.origin[i] === "KR" ? "한국" : "글로벌", C.tier[i], `${best[0]} (${best[1].toFixed(3)})`]; }));
+}
+
+/* ---------- 4 형식 착시 ---------- */
+function drawFmt() {
+  const mk = (sel, obj) => hbars(sel, [{ k: "한국", v: obj.KR }, { k: "글로벌", v: obj.GLOBAL }], { val: r => r.v, label: r => r.k, diverging: false, dmax: 1, ticks: [0, .5, 1], fmt: (v, t) => Math.round(v * 100) + "%", labelW: 56, color: r => r.k === "한국" ? "s1f" : "s2f", tipRows: r => [{ b: fmtPct(r.v), t: "평면컷 비율" }, { t: r.k }] });
+  mk("#c-fmt4", D.fmt.four); mk("#c-fmt18", D.fmt.eighteen);
+}
+
+/* ---------- 5 성급 vs 제대로 ---------- */
+(function cmp() {
+  const B = D.before_after, box = $("#cmp");
+  [["성급하게 일부만 보면", B.left, true], ["제대로 통제해서 보면", B.right, false]].forEach(([lab, d, bad]) => {
+    const e = document.createElement("div"); e.className = "box";
+    e.innerHTML = `<div class="lab"></div><div class="val ${bad ? "neg" : "pos"}"></div><div class="sub"></div><div class="meter"><i class="${bad ? "n" : ""}"></i></div>`;
+    e.children[0].textContent = lab; e.children[1].textContent = d.sil.toFixed(2); e.children[2].textContent = `${d.desc} · ${fmtN(d.n)}장`; e.children[3].firstChild.style.width = Math.min(100, d.sil / .2 * 100) + "%";
+    box.appendChild(e);
+  });
+})();
+
+/* ---------- 6 스타일 23종 ---------- */
+function drawStyle() {
+  const rows = D.styles, S = D.style_summary;
+  const { s, x, m, rowH } = hbars("#c-style", rows, { val: r => r.nn1, label: r => r.style, diverging: false, dmax: 1, fmt: (v, t) => Math.round(v * 100) + "%", chance: S.random_nn1, labelW: 110,
+    color: r => r.style === "스트리트" ? "s2f" : "pos",
+    tipRows: r => [{ b: fmtPct(r.nn1), t: "같은 스타일인 비율 (95% CI " + fmtPct(r.lo) + "–" + fmtPct(r.hi) + ")" }, { t: `${r.style} · ${r.n}장` }] });
+  rows.forEach((r, i) => { const cy = m.t + i * rowH + rowH / 2; T("line", { x1: x(r.lo), x2: x(r.hi), y1: cy, y2: cy, class: "ci" }, s); });
+  const si = rows.findIndex(r => r.style === "스트리트"); const W = widthOf($("#c-style"));
+  if (si >= 0 && W - x(rows[si].hi) > 330) txt(s, x(rows[si].hi) + 44, m.t + si * rowH + rowH / 2 + 4, "← 데이터셋에서 가장 흔한 라벨인데 가장 비특이적", "note");
+  table("#t-style", ["스타일", "n", "NN-1 순도", "95% CI"], rows.map(r => [r.style, fmtN(r.n), fmtPct(r.nn1), `${fmtPct(r.lo)} – ${fmtPct(r.hi)}`]));
+}
+
+/* ---------- 렌더 & 리사이즈 ---------- */
+function drawAll() { drawStage(); drawSig(); drawNN(); drawMap(); drawFmt(); drawStyle(); }
+drawAll();
+let rt; addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(drawAll, 120); });
+</script>
+</body>
+</html>

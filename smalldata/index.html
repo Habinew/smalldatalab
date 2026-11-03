@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>김하빈의 스몰데이터 아카이브</title>
+<meta name="description" content="시사저널 연재 「김하빈의 스몰데이터」의 칼럼·인터랙티브 대시보드·집계 데이터 아카이브">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>html{color-scheme:light}img{max-width:100%}[hidden]{display:none!important}body{margin:0;font:14px system-ui,sans-serif}</style>
+</head>
+<body>
+<style>
+/* 레이아웃: 아카이브 목록. 좌측 정렬 제목 + 연재 설명 → 숫자 띠 → 칼럼 카드 2열(최신순). 카드마다 월·제목·한 줄·데이터 출처·링크. */
+:root{
+  --bg:#f6f7f8; --surface:#fcfcfb; --ink:#0b0b0b; --ink-2:#52514e; --muted:#898781;
+  --grid:#e1e0d9; --ring:rgba(11,11,11,.10); --pos:#2a78d6; --neg:#e34948; --wash:rgba(42,120,214,.08); --chip:#eef0f2;
+  --f-body:"IBM Plex Sans KR",system-ui,-apple-system,"Segoe UI","Malgun Gothic",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Consolas,monospace; color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0d0d0d;--surface:#1a1a19;--ink:#f0efec;--ink-2:#c3c2b7;--muted:#898781;--grid:#2c2c2a;--ring:rgba(255,255,255,.10);--pos:#3987e5;--neg:#e66767;--wash:rgba(57,135,229,.12);--chip:#242423;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0d0d0d;--surface:#1a1a19;--ink:#f0efec;--ink-2:#c3c2b7;--muted:#898781;--grid:#2c2c2a;--ring:rgba(255,255,255,.10);--pos:#3987e5;--neg:#e66767;--wash:rgba(57,135,229,.12);--chip:#242423;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased}
+.wrap{max-width:960px;margin:0 auto;padding-block:40px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+a{color:inherit}
+h1,h2,h3{margin:0;text-wrap:balance;line-height:1.25}
+.eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2);display:flex;gap:14px;flex-wrap:wrap}
+.eyebrow b{color:var(--pos);font-weight:500}
+h1{font-size:clamp(28px,4.6vw,44px);font-weight:700;margin-top:14px;letter-spacing:-.01em}
+.dek{margin:18px 0 0;max-width:62ch;color:var(--ink-2);font-size:16px}
+.stats{display:flex;gap:28px;flex-wrap:wrap;margin-top:28px;font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.stats b{display:block;font-family:var(--f-body);font-size:28px;font-weight:600;color:var(--ink);letter-spacing:-.02em;line-height:1.1;margin-bottom:4px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:36px}
+@media (max-width:720px){.grid{grid-template-columns:1fr}}
+.card{background:var(--surface);border:1px solid var(--ring);border-radius:12px;padding:20px 22px 16px;display:flex;flex-direction:column;gap:10px;min-width:0;position:relative}
+.card.live{border-color:var(--pos)}
+.card .mo{font-family:var(--f-mono);font-size:12px;color:var(--muted);display:flex;justify-content:space-between;gap:10px;align-items:center}
+.card .mo .st{font-size:11px;padding:2px 8px;border-radius:999px;background:var(--chip);color:var(--ink-2)}
+.card .mo .st.live{background:var(--wash);color:var(--pos)}
+.card h2{font-size:18px;font-weight:600}
+.card h2 a{text-decoration:none}
+.card h2 a:hover{text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px}
+.card p{margin:0;color:var(--ink-2);font-size:13.5px}
+.card .num{font-size:13px;color:var(--ink)}
+.card .num b{font-size:20px;font-weight:600;letter-spacing:-.01em;margin-right:4px}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chips span{font-family:var(--f-mono);font-size:11px;padding:2px 8px;border-radius:4px;background:var(--chip);color:var(--ink-2)}
+.links{display:flex;gap:14px;flex-wrap:wrap;margin-top:auto;padding-top:8px;border-top:1px solid var(--grid);font-size:13px}
+.links a{text-decoration:none;color:var(--pos);font-weight:500}
+.links a:hover{text-decoration:underline;text-underline-offset:3px}
+.links span{color:var(--muted)}
+.note{margin-top:30px;padding-top:18px;border-top:1px solid var(--grid);font-size:13px;color:var(--ink-2);max-width:70ch}
+footer{margin-top:36px;font-family:var(--f-mono);font-size:11.5px;color:var(--muted);display:flex;gap:16px;flex-wrap:wrap;justify-content:space-between}
+:focus-visible{outline:2px solid var(--pos);outline-offset:2px}
+</style>
+
+<div class="wrap">
+<header>
+  <div class="eyebrow"><b>스몰데이터랩</b><span>Small Data Lab · 국립순천대학교</span></div>
+  <h1>김하빈의 스몰데이터</h1>
+  <p class="dek">매월 시사저널에 연재하는 데이터 칼럼입니다. 공개 데이터, 검색량, 거래 시세를 직접 수집해 패션과 소비 시장의 흔한 통념과 트렌드를 검증합니다. 매 칼럼은 텍스트 원문뿐 아니라 인터랙티브 도표, 집계 데이터, 분석 코드까지 세트로 엮어 공개합니다.</p>
+  <div class="stats">
+    <div><b>8</b>칼럼 (2026.3~)</div>
+    <div><b>5</b>인터랙티브 대시보드</div>
+    <div><b>2</b>공개 데이터셋 (Hugging Face · 집계 CSV)</div>
+    <div><b>5</b>데이터 출처</div>
+  </div>
+</header>
+
+<div class="grid">
+
+<article class="card live">
+  <div class="mo"><span>2026년 10월 27일 · 팬덤 희소성</span><span class="st live">대시보드</span></div>
+  <h2><a href="./hive.html">최애는 한 명인데, 앨범은 왜 여러 장을 살까</a></h2>
+  <p>하이브 랜덤 포토카드의 리셀 시세와 앨범 판매량·스트리밍의 괴리로, 브랜드가 설계한 희소성이 어디까지 작동하는지 쟀다.</p>
+  <div class="chips"><span>번개장터 시세</span><span>써클차트</span><span>확률 구조</span></div>
+  <div class="links"><a href="./hive.html">대시보드 →</a><a href="https://www.sisajournal.com/news/articleView.html?idxno=391797" target="_blank" rel="noopener">기사 원문</a></div>
+</article>
+
+<article class="card live">
+  <div class="mo"><span>2026년 9월 30일 · 투자 실패</span><span class="st live">대시보드</span></div>
+  <h2><a href="./resell.html">한정판을 사두면 정말 오를까</a></h2>
+  <p>크림 인기 상품 1,342개의 발매가 대비 시세를 추적했다. 승자는 얇고 패자는 넓다. 리셀은 재테크가 아니라 복권이었다.</p>
+  <div class="num"><b>64%</b>정가 아래 · 중앙값 −13% · +50% 이상 9%</div>
+  <div class="chips"><span>크림 5,616개 상세</span><span>네이버 데이터랩</span><span>이벤트 타임</span></div>
+  <div class="links"><a href="./resell.html">대시보드 →</a><a href="https://www.sisajournal.com/news/articleView.html?idxno=388722" target="_blank" rel="noopener">기사 원문</a><a href="./data/resell_by_category.csv">집계 CSV: 카테고리</a><a href="./data/resell_eventtime.csv">이벤트 타임</a><a href="./data/resell_datalab_monthly.csv">데이터랩</a></div>
+</article>
+
+<article class="card live">
+  <div class="mo"><span>2026년 8월 25일 · 외생 충격</span><span class="st live">대시보드</span></div>
+  <h2><a href="./heat.html">가을옷 성패는 '9월 첫째 주'가 아닌 '밤 기온 22도'에 달렸다</a></h2>
+  <p>서울 118년 기온과 검색 10년을 겹쳐 가을옷이 켜지는 '밤 기온'을 찾았다. 여름은 길어졌지만 점화 온도는 움직이지 않았고, 폭염 잡화만 일기예보에 먼저 반응했다.</p>
+  <div class="num"><b>22.1℃</b>가디건 점화 밤기온 · 니트 점화일 5년 새 +11일</div>
+  <div class="chips"><span>기상청 ASOS 서울</span><span>네이버 데이터랩</span><span>Open-Meteo 예보 아카이브</span></div>
+  <div class="links"><a href="./heat.html">대시보드 →</a><a href="https://www.sisajournal.com/news/articleView.html?idxno=384704" target="_blank" rel="noopener">기사 원문</a></div>
+</article>
+
+<article class="card live">
+  <div class="mo"><span>2026년 7월 30일 · 후광의 값</span><span class="st live">대시보드</span></div>
+  <h2><a href="./ambassador.html">럭셔리 브랜드는 왜 K팝 아이돌 스타를 고용할까</a></h2>
+  <p>25개 출처, 122개 주장을 적대적으로 검증했다. 효과를 증명하는 근거는 거의 남지 않았고, 리스크만 잘 입증되어 있었다.</p>
+  <div class="chips"><span>이벤트 스터디</span><span>네이버 데이터랩</span><span>구글 트렌드</span><span>문헌 검증</span></div>
+  <div class="links"><a href="./ambassador.html">대시보드 →</a><a href="https://www.sisajournal.com/news/articleView.html?idxno=381811" target="_blank" rel="noopener">기사 원문</a></div>
+</article>
+
+<article class="card live">
+  <div class="mo"><span>2026년 6월 30일 · 이야기</span><span class="st live">대시보드 · 데이터셋</span></div>
+  <h2><a href="./kfashion.html">K패션에는 'K'가 없다…대중문화의 후광이 꺼진다면 무엇이 남는가</a></h2>
+  <p>패션 특화 AI(Fashion-CLIP)로 18개 브랜드 1만 장을 분석했다. 한국과 글로벌 브랜드의 옷은 시각적으로 구별되지 않았다. 옷이 뭉치는 건 국적이 아니라 개별 브랜드다.</p>
+  <div class="num"><b>0.02</b>한국 vs 글로벌 분리도 · 모든 조건 p&gt;0.05</div>
+  <div class="chips"><span>Fashion-CLIP 임베딩</span><span>네이버 쇼핑 이미지 1만 장</span><span>UMAP</span></div>
+  <div class="links"><a href="./kfashion.html">대시보드 →</a><a href="https://n.news.naver.com/mnews/article/586/0000132686?sid=101" target="_blank" rel="noopener">기사 원문</a><a href="https://huggingface.co/datasets/HabinKim/kfashion-visual-distinctiveness" target="_blank" rel="noopener">데이터셋 (HF)</a></div>
+</article>
+
+<article class="card">
+  <div class="mo"><span>2026년 5월 20일</span></div>
+  <h2>저무는 '검색의 시대', AI가 대신 사주는 세상</h2>
+  <p>검색 기반 소비에서 AI 에이전트가 대신 구매하는 '위임 소비'로의 전환. AI 에이전틱 커머스가 바꾸는 소비 패러다임.</p>
+  <div class="links"><a href="https://n.news.naver.com/mnews/article/586/0000129578?sid=101" target="_blank" rel="noopener">기사 원문</a></div>
+</article>
+
+<article class="card">
+  <div class="mo"><span>2026년 4월 20일</span></div>
+  <h2>AI 시대의 진짜 경쟁력…무엇이 본질적 희소성인가</h2>
+  <p>AI가 지적 결과물을 표준화하는 시대, 인간의 물리적 실행력과 책임감이 새 경제 가치로 떠오른다.</p>
+  <div class="links"><a href="https://www.sisajournal.com/news/articleView.html?idxno=370109" target="_blank" rel="noopener">기사 원문</a></div>
+</article>
+
+<article class="card">
+  <div class="mo"><span>2026년 3월 23일</span></div>
+  <h2>옷을 살 때 '징벌적 가산금'을 낸다고? "패션의 퇴로를 설계하자"</h2>
+  <p>한국 의류 폐기물 수출 문제와 유럽 에코 모듈레이션 제도. 생산자 책임 재활용과 생애주기 설계 제안.</p>
+  <div class="links"><a href="https://www.sisajournal.com/news/articleView.html?idxno=366774" target="_blank" rel="noopener">기사 원문</a></div>
+</article>
+
+</div>
+
+<p class="note">연재는 '패션과 소비의 가치는 어디서 오는가'를 한 겹씩 벗기는 연작입니다. 6월 이야기 → 7월 후광의 값 → 8월 날씨라는 외생 충격 → 9월 투자 실패 → 10월 팬덤 희소성 → 11월 듀프(대체) → 12월 스포츠 스타 효과 → 2027년 1월 구전의 밑바닥(다이소 품번)으로 이어집니다. 거래 플랫폼에서 모은 개별 매물 원본은 약관에 따라 공개하지 않고, 집계 데이터와 도표, 코드만 공개합니다.</p>
+
+<footer>
+  <span>© 2026 김하빈 · 스몰데이터랩 · 국립순천대학교</span>
+  <span>smalldata@scnu.ac.kr</span>
+</footer>
+</div>
+</body>
+</html>
