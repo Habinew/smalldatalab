@@ -1,0 +1,2844 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>논문 대시보드 · 스몰데이터랩</title>
+<meta name="description" content="스몰데이터랩 게재 논문을 결과·쉬운 설명·연구 모델·방법론으로 읽는 대시보드. 논문마다 핵심 수치와 개념 모델 도식을 함께 제공합니다.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>html{color-scheme:light}img{max-width:100%}[hidden]{display:none!important}body{margin:0;font:14px system-ui,sans-serif}</style>
+</head>
+<body>
+<style>
+/* 논문 대시보드: 논문 한 편 = 카드 한 장. 왼쪽은 결과·쉬운 설명·발견, 오른쪽은 수치 타일·모델 도식·도표. 스타일 토큰은 resell 대시보드와 동일. */
+:root{
+  --bg:#f6f7f8; --surface:#fcfcfb; --ink:#0b0b0b; --ink-2:#52514e; --muted:#898781;
+  --grid:#e1e0d9; --axis:#c3c2b7; --ring:rgba(11,11,11,.10); --wash:rgba(42,120,214,.08); --wash2:rgba(42,120,214,.05);
+  --pos:#2a78d6; --neg:#e34948; --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100; --gray:#b9b8b2;
+  --f-body:"IBM Plex Sans KR",system-ui,-apple-system,"Segoe UI","Malgun Gothic",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0d0d0d; --surface:#1a1a19; --ink:#f0efec; --ink-2:#c3c2b7; --muted:#898781;
+  --grid:#2c2c2a; --axis:#383835; --ring:rgba(255,255,255,.10); --wash:rgba(57,135,229,.14); --wash2:rgba(57,135,229,.08);
+  --pos:#3987e5; --neg:#e66767; --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --gray:#6b6a66; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0d0d0d; --surface:#1a1a19; --ink:#f0efec; --ink-2:#c3c2b7; --muted:#898781;
+  --grid:#2c2c2a; --axis:#383835; --ring:rgba(255,255,255,.10); --wash:rgba(57,135,229,.14); --wash2:rgba(57,135,229,.08);
+  --pos:#3987e5; --neg:#e66767; --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --gray:#6b6a66; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1040px;margin:0 auto;padding-block:40px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+a{color:inherit}
+h1,h2,h3{margin:0;text-wrap:balance;line-height:1.25}
+.eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2);display:flex;gap:14px;flex-wrap:wrap}
+.eyebrow a{text-decoration:none}
+.eyebrow b{color:var(--pos);font-weight:500}
+h1{font-size:clamp(28px,4.6vw,44px);font-weight:700;margin-top:14px;letter-spacing:-.01em}
+h1 small{display:block;font-size:.42em;font-weight:500;color:var(--ink-2);margin-top:8px;letter-spacing:0}
+.dek{margin:18px 0 0;max-width:66ch;color:var(--ink-2);font-size:16px}
+.meta{margin-top:22px;display:flex;gap:10px 22px;flex-wrap:wrap;font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.meta span b{color:var(--ink-2);font-weight:500}
+
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:32px}
+@media (max-width:760px){.kpis{grid-template-columns:1fr 1fr}}
+.tile{background:var(--surface);border:1px solid var(--ring);border-radius:10px;padding:14px 16px;min-width:0}
+.tile .lab{font-size:12.5px;color:var(--ink-2)}
+.tile .val{font-size:28px;font-weight:600;letter-spacing:-.02em;margin-top:2px;line-height:1.1}
+.tile .sub{font-size:12px;color:var(--muted);margin-top:6px}
+
+.filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:28px;position:sticky;top:0;z-index:5;background:var(--bg);padding-block:10px}
+.filters .lab{font-family:var(--f-mono);font-size:11.5px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-right:4px}
+.chip{border:1px solid var(--ring);background:var(--surface);color:var(--ink-2);border-radius:999px;padding:5px 12px;font:inherit;font-size:13px;cursor:pointer;transition:background .15s,color .15s,transform .12s}
+.chip:hover{transform:translateY(-1px)}
+.chip:active{transform:scale(.97)}
+.chip.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.chip i{font-style:normal;color:var(--muted);margin-left:5px;font-family:var(--f-mono);font-size:11px}
+.chip.on i{color:inherit;opacity:.7}
+.count{font-family:var(--f-mono);font-size:12px;color:var(--muted);margin-left:auto}
+
+section.card{background:var(--surface);border:1px solid var(--ring);border-radius:12px;padding:24px 24px 20px;margin-top:20px;min-width:0;scroll-margin-top:70px}
+section.card[hidden]{display:none}
+.tags{display:flex;gap:6px;flex-wrap:wrap;font-family:var(--f-mono);font-size:11px;letter-spacing:.03em;color:var(--ink-2)}
+.tag{border:1px solid var(--grid);border-radius:4px;padding:2px 7px;line-height:1.4}
+.tag.hi{background:var(--pos);color:#fff;border-color:var(--pos)}
+.tag.axis{background:var(--wash);border-color:transparent;color:var(--pos)}
+.tag.yr{font-weight:500;color:var(--ink)}
+.card h2{font-size:21px;font-weight:600;margin-top:12px;line-height:1.35}
+.card h2 button{all:unset;cursor:pointer}
+.card .ttl{margin:6px 0 0;color:var(--ink-2);font-size:13.5px;line-height:1.5}
+.card .ttl small{display:block;color:var(--muted);font-size:12px;font-style:italic}
+.pgrid{display:grid;grid-template-columns:1.05fr .95fr;gap:26px;margin-top:18px}
+@media (max-width:820px){.pgrid{grid-template-columns:1fr}}
+.pgrid>div{min-width:0}
+.rf{margin:0;font-size:15px;line-height:1.7}
+.rf .m{color:var(--ink-2)}
+.plain{margin-top:14px;background:var(--wash2);border-left:3px solid var(--pos);border-radius:0 8px 8px 0;padding:10px 14px;font-size:14px;color:var(--ink-2)}
+.plain b{display:block;font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;font-family:var(--f-mono);color:var(--pos);margin-bottom:3px;font-weight:500}
+.plain p{margin:0}
+.fdw{margin-top:16px}
+.fd{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.fd li{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:start;border-top:1px solid var(--grid);padding-top:8px;font-size:13.5px;line-height:1.55}
+.fd li b{font-family:var(--f-mono);font-weight:500;font-size:11.5px;color:var(--pos);background:var(--wash);border-radius:4px;padding:2px 7px;white-space:nowrap;margin-top:2px;max-width:200px;overflow:hidden;text-overflow:ellipsis}
+.fd li b.na{display:none}
+.fdw h3,.method h3,.pviz h3{font-family:var(--f-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:500;margin:0 0 6px}
+.method{margin-top:18px;font-size:13px;color:var(--ink-2)}
+.method .mn{font-weight:600;color:var(--ink);font-size:13.5px}
+.steps{display:flex;flex-wrap:wrap;gap:4px 0;margin:6px 0 0;padding:0;list-style:none;font-size:12.5px}
+.steps li{display:flex;align-items:center}
+.steps li span{border:1px solid var(--grid);border-radius:6px;padding:3px 8px;background:var(--bg)}
+.steps li:not(:last-child)::after{content:"→";color:var(--muted);margin:0 6px;font-size:12px}
+.tools{margin-top:6px;font-family:var(--f-mono);font-size:11.5px;color:var(--muted)}
+.dataline{margin-top:10px;font-size:12.5px;color:var(--ink-2)}
+.dataline b{font-weight:500;color:var(--ink)}
+
+.pviz .metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px}
+.pviz .metrics .tile{padding:10px 12px}
+.pviz .metrics .val{font-size:20px}
+.pviz .metrics .sub{margin-top:2px;font-size:11.5px}
+.model,.chart{margin-top:16px}
+.model svg,.chart svg{display:block;width:100%;height:auto;overflow:visible}
+.topics{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.topics span{border:1px solid var(--grid);border-radius:6px;padding:4px 9px;font-size:12.5px;background:var(--bg)}
+.topics span i{font-style:normal;font-family:var(--f-mono);font-size:10.5px;color:var(--muted);margin-right:5px}
+.flow{display:grid;gap:6px;margin-top:4px}
+.frow{display:grid;grid-template-columns:34px 1fr;gap:8px;align-items:start;position:relative}
+.frow+.frow::before{content:"↓";position:absolute;left:11px;top:-13px;font-size:11px;color:var(--muted)}
+.frow .fk{font-family:var(--f-mono);font-size:10px;letter-spacing:.06em;color:var(--muted);padding-top:6px}
+.fitems{display:flex;flex-wrap:wrap;gap:5px;min-width:0}
+.fitems span{border:1px solid var(--grid);border-radius:6px;padding:4px 9px;font-size:12.5px;background:var(--bg);max-width:100%}
+.frow.in .fitems span{border-color:var(--ink-2)}
+.frow.out .fitems span{background:var(--wash);border-color:var(--pos)}
+.fitems small{display:block;font-family:var(--f-mono);font-size:10.5px;color:var(--muted);margin-top:1px}
+.legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:8px;font-size:12px;color:var(--ink-2)}
+.legend i{display:inline-block;width:12px;height:10px;border-radius:2px;vertical-align:middle;margin-right:5px}
+.source{font-family:var(--f-mono);font-size:11px;color:var(--muted);margin-top:8px;line-height:1.5}
+.imp{margin:16px 0 0;font-size:13.5px;color:var(--ink-2);border-top:1px solid var(--grid);padding-top:10px}
+.imp b{color:var(--ink);font-weight:600;margin-right:6px}
+.links{margin-top:12px;display:flex;gap:14px;flex-wrap:wrap;font-size:13px}
+.links a{color:var(--pos);text-decoration:none;font-weight:500}
+.links a:hover{text-decoration:underline}
+.kw{margin-top:8px;font-family:var(--f-mono);font-size:11px;color:var(--muted)}
+
+svg text{font-family:var(--f-body);font-size:11.5px;fill:var(--ink-2)}
+svg .tick{font-family:var(--f-mono);font-size:10.5px;fill:var(--muted);font-variant-numeric:tabular-nums}
+svg .grid{stroke:var(--grid);stroke-width:1}
+svg .base{stroke:var(--ink);stroke-width:1}
+svg .lbl{fill:var(--ink);font-weight:500;font-size:12px}
+svg .cat{fill:var(--ink-2);font-size:11.5px}
+svg .node rect{fill:var(--bg);stroke:var(--axis);stroke-width:1;rx:6}
+svg .node.iv rect,svg .node.input rect{stroke:var(--ink-2)}
+svg .node.dv rect,svg .node.output rect{fill:var(--wash);stroke:var(--pos)}
+svg .node.moderator rect{stroke-dasharray:3 3}
+svg .node text{fill:var(--ink);font-size:11.5px;font-weight:500}
+svg .node .kind{fill:var(--muted);font-size:9px;font-family:var(--f-mono);font-weight:400;letter-spacing:.06em}
+svg .edge{fill:none;stroke:var(--ink-2);stroke-width:1.6}
+svg .edge.pos{stroke:var(--pos)} svg .edge.neg{stroke:var(--neg)}
+svg .edge.ns{stroke:var(--gray);stroke-dasharray:4 4}
+svg .edge.mod{stroke-dasharray:4 3}
+svg .ahp{fill:var(--ink-2)} svg .ahp.pos{fill:var(--pos)} svg .ahp.neg{fill:var(--neg)} svg .ahp.ns{fill:var(--gray)}
+svg .elbl{font-family:var(--f-mono);font-size:10.5px;fill:var(--ink-2)}
+svg .elbl.pos{fill:var(--pos)} svg .elbl.neg{fill:var(--neg)} svg .elbl.ns{fill:var(--muted)}
+svg .ebg{fill:var(--surface)}
+svg .bar{shape-rendering:crispEdges}
+svg .s1{fill:var(--s1)} svg .s2{fill:var(--s2)} svg .s3{fill:var(--s3)} svg .s4{fill:var(--s4)} svg .negf{fill:var(--neg)}
+svg .bar:hover{filter:brightness(1.12)}
+
+.tip{position:fixed;z-index:20;pointer-events:none;background:var(--ink);color:var(--bg);padding:8px 10px;border-radius:6px;font-size:12px;line-height:1.45;max-width:260px;box-shadow:0 4px 18px rgba(0,0,0,.18);opacity:0;transition:opacity .08s}
+.tip.on{opacity:1}
+.tip b{font-size:14px;font-weight:600}
+footer{margin-top:36px;font-family:var(--f-mono);font-size:11.5px;color:var(--muted);display:flex;gap:16px;flex-wrap:wrap;justify-content:space-between}
+:focus-visible{outline:2px solid var(--pos);outline-offset:2px}
+
+/* 모션: 카드 등장, 모델 화살표가 그려지고, 막대가 자라고, 노드가 떠오름. 카드가 30% 보이면 시작하고 제목을 누르면 다시 재생. 움직임 줄이기면 전부 완성 상태. */
+@media (prefers-reduced-motion:no-preference){
+  .tile,.card{animation:rise .55s cubic-bezier(.2,.7,.2,1) both}
+  .tile:nth-child(2){animation-delay:.07s}.tile:nth-child(3){animation-delay:.14s}.tile:nth-child(4){animation-delay:.21s}
+  .card{transition:transform .18s ease,box-shadow .18s ease}
+  .card:hover{transform:translateY(-2px);box-shadow:0 8px 22px var(--ring)}
+  .card .anim .node{opacity:0;transform:translateY(6px);transition:opacity .45s ease,transform .45s ease}
+  .card .anim .edge{stroke-dasharray:var(--len,600);stroke-dashoffset:var(--len,600);transition:stroke-dashoffset .9s cubic-bezier(.2,.7,.2,1)}
+  .card .anim .elbl,.card .anim .ebg{opacity:0;transition:opacity .4s ease}
+  .card .anim .bar{transform:scaleX(0);transform-box:fill-box;transform-origin:left center;transition:transform .75s cubic-bezier(.2,.7,.2,1)}
+  .card .anim .bar.negb{transform-origin:right center}
+  .card .anim .vlbl{opacity:0;transition:opacity .35s ease}
+  .card .anim.in .node{opacity:1;transform:none}
+  .card .anim.in .edge{stroke-dashoffset:0}
+  .card .anim.in .elbl,.card .anim.in .ebg{opacity:1;transition-delay:.7s}
+  .card .anim.in .bar{transform:scaleX(1)}
+  .card .anim.in .vlbl{opacity:1;transition-delay:.7s}
+  .chip,.fd li b{transition:transform .12s ease}
+  .fd li:hover b{transform:scale(1.04)}
+}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div class="wrap">
+<header>
+  <div class="eyebrow"><a href="./">스몰데이터랩</a><a href="./research.html"><b>Research</b></a><span>논문 대시보드</span></div>
+  <h1>게재 논문을 결과부터 읽습니다<small>Paper dashboard · 논문마다 결과 한 줄, 쉬운 설명, 연구 모델 도식, 방법론</small></h1>
+  <p class="dek">원자료를 공개할 수 없는 논문도 무엇을 발견했는지는 열어 둘 수 있습니다. 논문마다 결과를 먼저 적고, 비전공자용 설명과 개념 모델 도식, 핵심 수치, 방법론 한 줄을 붙였습니다. 화살표 색은 가설 방향(파랑 +, 빨강 −)이고 점선은 지지되지 않은 경로입니다.</p>
+  <div class="meta">
+    <span>게재 <b id="m-n"></b></span>
+    <span>SSCI·SCIE <b id="m-top"></b></span>
+    <span>1저자·교신·단독 <b id="m-lead"></b></span>
+    <span>갱신 <b id="m-asof"></b></span>
+  </div>
+</header>
+
+<div class="kpis" id="kpis"></div>
+
+<div class="filters" id="filters" role="group" aria-label="논문 필터"></div>
+<div id="papers"></div>
+
+<footer>
+  <span>스몰데이터랩 · 국립순천대학교 패션디자인학전공</span>
+  <span>전체 목록 <a href="https://scholar.google.com/citations?user=xRjwgz4AAAAJ&hl=ko" target="_blank" rel="noopener">Google Scholar</a> · <a href="https://orcid.org/0000-0003-1480-6323" target="_blank" rel="noopener">ORCID</a></span>
+</footer>
+</div>
+<div class="tip" id="tip"></div>
+
+<script>
+const D = {
+ "asof": "2026-11-03",
+ "papers": [
+  {
+   "key": "packaging",
+   "title_en": "Optimizing sustainable packaging: How shared responsibility, consumer effectiveness, and message framing drive consumer engagement",
+   "title_ko": "지속가능 패키징 최적화: 공유 책임, 소비자 효능감, 메시지 프레이밍이 소비자 인게이지먼트를 이끄는 방식",
+   "journal": "Journal of Retailing and Consumer Services, 93, 104884",
+   "year": 2026,
+   "index": "SSCI",
+   "role": "공저",
+   "doi_or_url": "https://doi.org/10.1016/j.jretconser.2026.104884",
+   "authors": "Celie Ahn, Ho Jung Choo, Habin Kim",
+   "axis": "RETAIL",
+   "one_line": "'함께 책임진다'는 메시지는 내 행동의 효과가 안 보이는 재활용에서만 지갑을 열었습니다",
+   "result_first": "브랜드와 소비자가 환경 책임을 나눈다는 인식(공유 책임)은 소비자 인게이지먼트를 높여 지불의사를 끌어올렸지만, 그 효과는 개인 행동의 효과가 잘 안 보이는 재활용 맥락에서만 유의했고, 리필처럼 효능감이 이미 높은 맥락에서는 사라졌습니다. 다만 메시지 프레이밍으로 이를 보완할 수 있었는데, 재활용에는 구체적 행동 메시지가, 공유 책임을 내세운 리필에는 가치 중심의 추상적 메시지가 인게이지먼트와 브랜드 태도를 끌어올렸습니다. 포장 형태가 소비자의 심리적 출발점을 정하고 메시지는 거기에 맞춰 조정해야 한다는 점을, 미국 성인 617명(263·156·198명)을 대상으로 한 실험 3개와 아마존 뷰티 리필 제품 리뷰 434,624건 텍스트 분석으로 보여줬습니다.",
+   "plain": "화장품 회사가 '환경은 우리와 당신이 함께 지키는 것'이라고 말하면 소비자가 더 참여하고 돈도 더 낼까요? 답은 '상황에 따라'입니다. 내가 분리배출한 병이 정말 재활용되는지 알 수 없는 재활용 프로그램에서는 이 말이 힘이 됐지만, 내 손으로 통을 다시 채우는 리필처럼 효과가 눈에 보이는 경우에는 이미 확신이 있어서 별 효과가 없었습니다. 대신 재활용에는 '이 병 하나가 플라스틱 1개를 줄입니다' 같은 구체적 설명이, 리필에는 '지구를 위한 우리의 약속' 같은 큰 그림의 메시지가 먹혔습니다.",
+   "question": "공유 책임 인식이 지속가능 뷰티 패키징 참여와 지불의사를 높이는 효과는 소비자 효능감 수준에 따라 어떻게 달라지고, 메시지 프레이밍은 이를 어떻게 보완합니까?",
+   "data": {
+    "type": "설문 실험 + 리뷰 텍스트",
+    "n": 617,
+    "n_label": "미국 성인 617명(실험 3개: 263명, 156명, 198명) + 아마존 리필 제품 리뷰 434,624건",
+    "source": "CloudResearch; Amazon Reviews'23 Beauty & Personal Care(Hou et al., 2024)",
+    "period": "원문 미기재(리뷰 코퍼스는 2023년판)"
+   },
+   "method": {
+    "name": "실험 3개 + 조절된 (연속)매개분석 + 리뷰 텍스트마이닝",
+    "steps": [
+     "연구1: 실제 시장의 4가지 포장 프로그램(매장 리필·회수 프로그램·가정 리필·재활용 포장)을 공유/개인 책임 × 고/저 효능감 2×2로 배치하고, 인게이지먼트를 매개로 지불의사($0~50 슬라이더)에 미치는 조절된 매개효과를 PROCESS Model 7로 검증",
+     "연구2a: 재활용 맥락에서 구체 vs 추상 메시지가 효능감(PCE)→인게이지먼트(CE)→지불의사(WTP)로 이어지는 연속매개를 PROCESS Model 6으로 검증, 역순 모형과 비교",
+     "연구2b: 리필 맥락에서 메시지 프레이밍 × 책임 유형 2×2 실험, 브랜드 태도와 인게이지먼트에 대한 상호작용을 ANOVA와 PROCESS Model 83(조절된 연속매개)으로 검증",
+     "보조 분석: 아마존 리필 제품 14,239개의 리뷰 434,624건에서 환경 가치 키워드와 기능 키워드 비율을 비교(NLTK), 성향점수매칭·브랜드 고정효과 로지스틱으로 브랜드·가격 효과를 통제해 재검증"
+    ],
+    "tools": [
+     "PROCESS Model 7",
+     "PROCESS Model 6",
+     "PROCESS Model 83",
+     "G*Power 3.1.9.7",
+     "Python NLTK"
+    ]
+   },
+   "model": {
+    "type": "moderated_mediation",
+    "nodes": [
+     {
+      "id": "psr",
+      "label": "공유 책임 인식(PSR)",
+      "kind": "iv"
+     },
+     {
+      "id": "frame",
+      "label": "메시지 프레이밍(구체 vs 추상)",
+      "kind": "iv"
+     },
+     {
+      "id": "pce",
+      "label": "소비자 효능감(PCE)",
+      "kind": "moderator"
+     },
+     {
+      "id": "ce",
+      "label": "소비자 인게이지먼트(CE)",
+      "kind": "mediator"
+     },
+     {
+      "id": "wtp",
+      "label": "지불의사·브랜드 태도",
+      "kind": "dv"
+     }
+    ],
+    "edges": [
+     {
+      "from": "psr",
+      "to": "ce",
+      "label": "+",
+      "supported": true,
+      "stat": "b = 0.759, p < .001 (연구1)"
+     },
+     {
+      "from": "ce",
+      "to": "wtp",
+      "label": "+",
+      "supported": true,
+      "stat": "b = 5.75, p = .004 (연구2a); 저PCE 간접효과 1.89 [0.72, 3.32] (연구1)"
+     },
+     {
+      "from": "pce",
+      "to": "ce",
+      "label": "조절(PCE 높으면 PSR 효과 약화)",
+      "supported": true,
+      "stat": "PSR × PCE b = −0.52, p < .05; 조절된 매개 지수 −1.31 [−3.03, −0.05]"
+     },
+     {
+      "from": "frame",
+      "to": "pce",
+      "label": "구체 메시지 +(재활용)",
+      "supported": true,
+      "stat": "p = .018 (연구2a); PCE→CE b = 0.77, p < .001"
+     },
+     {
+      "from": "frame",
+      "to": "pce",
+      "label": "공유 책임 조건에서는 추상 메시지 +(리필)",
+      "supported": true,
+      "stat": "프레이밍 × PSR b = 1.02, p = .004; 조절된 매개 지수 0.53 [0.17, 0.94] (연구2b)"
+     }
+    ]
+   },
+   "findings": [
+    {
+     "text": "공유 책임 인식은 인게이지먼트를 높였고, 인게이지먼트를 거쳐 지불의사를 올렸습니다. 단, 효능감이 낮은 재활용 조건에서만 그랬습니다.",
+     "stat": "PSR→CE b = 0.759, p < .001; 저PCE 간접효과 1.89, 95% CI [0.72, 3.32]"
+    },
+    {
+     "text": "효능감이 높은 리필 조건에서는 공유 책임의 효과가 약해졌습니다. 이미 '내 행동이 효과 있다'고 믿어 추가 동기가 필요 없는 천장 효과입니다.",
+     "stat": "PSR × PCE b = −0.52, p < .05; 조절된 매개 지수 −1.31, 95% CI [−3.03, −0.05]"
+    },
+    {
+     "text": "재활용 맥락에서 구체적 메시지는 효능감을 높이고, 그 효능감이 인게이지먼트를 거쳐 지불의사로 이어졌습니다. 경로 순서를 뒤집은 모형은 유의하지 않았습니다.",
+     "stat": "프레이밍→PCE p = .018; PCE→CE b = 0.77, p < .001; CE→WTP b = 5.75, p = .004; 연속 간접효과 95% CI가 0을 포함하지 않음"
+    },
+    {
+     "text": "리필 맥락에서 공유 책임을 내세운 경우에는 추상적 메시지가 브랜드 태도와 인게이지먼트를 더 높였고, 개인 책임 조건에서는 프레이밍 차이가 없었습니다.",
+     "stat": "브랜드 태도 M 5.77 vs 5.10, F(1, 194) = 6.95, p < .01; 상호작용 F(1, 195) = 8.22, p < .01"
+    },
+    {
+     "text": "리필 제품 리뷰 43만 건 가운데 13.04%가 '지구·쓰레기·매립지' 같은 환경 가치를 자발적으로 언급했고, 브랜드·가격을 통제해도 리필 제품 리뷰에 환경 언어가 더 자주 나왔습니다.",
+     "stat": "56,681 / 434,624건(13.04%); 브랜드 고정효과 로지스틱 OR = 1.62, p < .001"
+    }
+   ],
+   "metrics": [
+    {
+     "label": "실험 표본",
+     "value": "617명",
+     "note": "미국 성인, 실험 3개 합산(263 + 156 + 198)"
+    },
+    {
+     "label": "리뷰 분석",
+     "value": "434,624건",
+     "note": "아마존 리필 제품 14,239개의 리뷰"
+    },
+    {
+     "label": "추상 메시지 효과",
+     "value": "5.77 vs 5.10",
+     "note": "공유 책임 리필 조건의 브랜드 태도(추상 vs 구체)"
+    },
+    {
+     "label": "환경 가치 언급 비율",
+     "value": "13.04%",
+     "note": "리필 제품 리뷰 중 환경 키워드 포함"
+    }
+   ],
+   "chart": {
+    "type": "grouped_bar",
+    "title": "리필 맥락에서 메시지 프레이밍 × 책임 유형별 브랜드 태도 (연구2b)",
+    "unit": "7점 척도 평균",
+    "series": [
+     {
+      "name": "추상 메시지",
+      "values": [
+       5.77,
+       4.99
+      ]
+     },
+     {
+      "name": "구체 메시지",
+      "values": [
+       5.1,
+       5.33
+      ]
+     }
+    ],
+    "categories": [
+     "공유 책임",
+     "개인 책임"
+    ],
+    "source_note": "Fig. 4 / 본문 3.3.3절"
+   },
+   "implication": "재활용 캠페인에는 '이 병 하나가 플라스틱 1개를 줄입니다'처럼 행동과 효과를 구체적으로 적은 메시지를, 리필처럼 효능감이 이미 높은 프로그램에는 공동의 가치와 장기 목표를 말하는 메시지를 써야 합니다. 포장 형태 자체가 소비자의 효능감을 결정하므로, 패키징 설계와 커뮤니케이션 기획을 따로 두지 말고 함께 짜야 합니다.",
+   "keywords": [
+    "지속가능 패키징",
+    "리필",
+    "공유 책임",
+    "소비자 효능감",
+    "메시지 프레이밍",
+    "해석수준이론",
+    "소비자 인게이지먼트",
+    "지불의사"
+   ],
+   "confidence_notes": "김하빈은 3저자(공저)이며 CRediT상 데이터 큐레이션·조사·방법론·검증·리뷰 편집을 맡았습니다. 추출 텍스트에서 음수 부호가 탈락되어(PSR × PCE b, 조절된 매개 지수, 연구2a 프레이밍 계수와 간접효과) 본문 서술 방향에 따라 복원했습니다. 연구2a의 프레이밍 계수(b = 0.53 또는 −0.53)는 더미 코딩 방향이 명시되지 않아 수치 대신 '구체 메시지가 PCE를 높임, p = .018'로만 적었습니다. Fig. 2, 3, 5의 경로계수는 텍스트에 없습니다.",
+   "status": "published"
+  },
+  {
+   "key": "quiet_luxury",
+   "title_en": "When death looms, quiet shines: The quiet turn of luxury consumption under mortality salience",
+   "title_ko": "죽음이 다가올 때 빛나는 조용함: 죽음 현저성 아래 럭셔리 소비의 조용한 전환",
+   "journal": "Journal of Retailing and Consumer Services, 93, 104912",
+   "year": 2026,
+   "index": "SSCI",
+   "role": "1저자",
+   "doi_or_url": "https://doi.org/10.1016/j.jretconser.2026.104912",
+   "authors": "Habin Kim, Eunsoo Baek, Ho Jung Choo",
+   "axis": "MACRO",
+   "one_line": "죽음을 떠올린 미니멀리스트는 로고 없는 조용한 럭셔리를 골랐습니다",
+   "result_first": "죽음을 떠올리면 럭셔리에 대한 관심이 커지는데, 그 방향은 과시가 아니라 조용한 럭셔리 쪽으로 더 강하게 기울었고, 이 전환은 미니멀리즘 성향이 높은 소비자에게서만 나타났습니다(조용한 럭셔리 선택 48.0% vs 30.9%). 팬데믹 시기 럭셔리 호황이 경기 회복만으로 설명되지 않는 심리적 방어 반응이라는 점, 그리고 위기가 모든 소비자를 과시 소비로 몰고 가지는 않는다는 점을 보여줍니다. 미국 51개 지역의 구글 트렌드 검색량을 코로나 치명률로 회귀한 생태학적 분석과, 미국 성인 374명·215명을 대상으로 한 온라인 실험 2개로 검증했습니다.",
+   "plain": "코로나처럼 죽음을 자꾸 떠올리게 되는 시기에 사람들은 불안을 달래려 비싼 것을 사고 싶어집니다. 그런데 '덜 가지되 좋은 것만 갖자'는 미니멀리스트들은 큼직한 로고가 박힌 가방이 아니라, 로고가 거의 안 보이는 조용한 럭셔리(소재와 장인정신으로 승부하는 절제된 명품)를 더 골랐습니다. 남에게 보여주려는 게 아니라 '나답게 잘 살고 있다'는 느낌을 되찾는 데 쓰는 셈입니다.",
+   "question": "죽음을 의식하게 된 소비자는 과시형 럭셔리와 조용한 럭셔리 중 어느 쪽으로 기울고, 그 차이는 어떤 심리 과정과 가치관에서 비롯됩니까?",
+   "data": {
+    "type": "소셜 데이터 + 설문 실험",
+    "n": 589,
+    "n_label": "미국 51개 지역 검색 데이터 + 미국 성인 589명(실험 2개: 374명, 215명)",
+    "source": "Google Trends(SerpAPI, Fashion & Style), Prolific, CloudResearch",
+    "period": "검색 데이터 2019(기준) vs 2020(팬데믹); 실험 수집 시기는 원문 미기재"
+   },
+   "method": {
+    "name": "생태학적 회귀 1개 + 실험 2개(조절된 매개분석, GEE)",
+    "steps": [
+     "연구1: 럭셔리 브랜드 15개의 2019→2020 검색량 변화를 미국 51개 지역별로 집계하고, 코로나 치명률(log CFR)이 고용·소득불평등·물가·소득 통제 후에도 럭셔리 관심 증가를 예측하는지 위계적 회귀로 검증",
+     "연구2: 죽음 현저성(죽음 vs 치통 글쓰기) × 럭셔리 유형(로고 없는 vs 모노그램 루이비통 가방) 2×2 실험, 성공 집단 동일시를 자존감 추구의 대리 지표로 두고 PROCESS Model 15로 조절된 매개 검증",
+     "연구3: 죽음 현저성 조작 후 조용/과시 럭셔리 2회 선택 과제(루이비통 가방, 펜디 파우치), 미니멀리즘 척도(8문항)를 연속 조절변수로 두고 반복 선택을 GEE(이항)로 분석"
+    ],
+    "tools": [
+     "PROCESS Model 15",
+     "G*Power",
+     "SerpAPI",
+     "GEE",
+     "Moran's I",
+     "DFBETAS"
+    ]
+   },
+   "model": {
+    "type": "moderated_mediation",
+    "nodes": [
+     {
+      "id": "ms",
+      "label": "죽음 현저성",
+      "kind": "iv"
+     },
+     {
+      "id": "ses",
+      "label": "자존감 추구",
+      "kind": "mediator"
+     },
+     {
+      "id": "type",
+      "label": "럭셔리 유형(조용 vs 과시)",
+      "kind": "moderator"
+     },
+     {
+      "id": "min",
+      "label": "미니멀리즘 성향",
+      "kind": "moderator"
+     },
+     {
+      "id": "att",
+      "label": "럭셔리 태도·선택",
+      "kind": "dv"
+     }
+    ],
+    "edges": [
+     {
+      "from": "ms",
+      "to": "ses",
+      "label": "+",
+      "supported": true,
+      "stat": "M = 5.13 vs 4.82, t(372) = 1.98, p < .05"
+     },
+     {
+      "from": "ses",
+      "to": "att",
+      "label": "+",
+      "supported": true,
+      "stat": "간접효과 조용 0.196 [0.015, 0.395], 과시 0.109 [0.007, 0.242]"
+     },
+     {
+      "from": "type",
+      "to": "att",
+      "label": "조절(조용 럭셔리에서 간접효과 더 강함)",
+      "supported": true,
+      "stat": "조절된 매개 지수 −0.087, 95% CI [−0.204, −0.002]"
+     },
+     {
+      "from": "ms",
+      "to": "att",
+      "label": "직접효과(과시 조건에서 약한 −)",
+      "supported": false,
+      "stat": "과시 B = −0.333, p = .067; 조용 B = −0.023, p = .901"
+     },
+     {
+      "from": "min",
+      "to": "att",
+      "label": "조절(미니멀리즘 높을 때만 조용 럭셔리 선택 증가)",
+      "supported": true,
+      "stat": "MS × 미니멀리즘 B = 0.399, z = 2.44, p = .015"
+     }
+    ]
+   },
+   "findings": [
+    {
+     "text": "코로나 치명률이 높았던 지역일수록 럭셔리 브랜드 검색이 더 늘었고, 고용 회복을 통제해도 이 관계는 남았습니다.",
+     "stat": "β = 0.31, p < .05; ΔR² = 0.074, ΔF(1, 45) = 4.08"
+    },
+    {
+     "text": "죽음을 떠올린 참가자는 성공한 집단에 자신을 더 동일시하며 자존감을 세우려 했습니다.",
+     "stat": "M = 5.13 vs 4.82, t(372) = 1.98, p < .05"
+    },
+    {
+     "text": "자존감 추구를 거쳐 럭셔리 태도로 이어지는 간접효과는 과시형보다 조용한 럭셔리에서 더 컸습니다.",
+     "stat": "간접효과 0.196 [0.015, 0.395] vs 0.109 [0.007, 0.242]; 조절된 매개 지수 −0.087 [−0.204, −0.002]"
+    },
+    {
+     "text": "미니멀리즘이 높은 소비자는 죽음을 떠올렸을 때 조용한 럭셔리를 고르는 확률이 17.1%p 올랐습니다.",
+     "stat": "48.0% vs 30.9%, 단순기울기 z = 2.33, p = .020"
+    },
+    {
+     "text": "미니멀리즘이 낮은 소비자에게는 죽음 현저성이 선택을 바꾸지 못했고, 과시형으로 쏠리는 역방향 효과도 없었습니다.",
+     "stat": "29.3% vs 31.8%, z = −0.94, p = .346"
+    }
+   ],
+   "metrics": [
+    {
+     "label": "실험 표본",
+     "value": "589명",
+     "note": "연구2 374명 + 연구3 215명(미국 성인)"
+    },
+    {
+     "label": "지역 데이터",
+     "value": "51개 지역",
+     "note": "미국 50개 주 + DC, 2019→2020 검색량 변화"
+    },
+    {
+     "label": "조용한 럭셔리 선택 증가",
+     "value": "+17.1%p",
+     "note": "고미니멀리즘 소비자, 죽음 현저성 vs 통제"
+    },
+    {
+     "label": "연구 수",
+     "value": "3개",
+     "note": "생태학적 분석 1 + 실험 2"
+    }
+   ],
+   "chart": {
+    "type": "grouped_bar",
+    "title": "죽음 현저성 조건별 조용한 럭셔리 선택 확률 (연구3)",
+    "unit": "%",
+    "series": [
+     {
+      "name": "통제(치통)",
+      "values": [
+       30.9,
+       31.8
+      ]
+     },
+     {
+      "name": "죽음 현저성",
+      "values": [
+       48.0,
+       29.3
+      ]
+     }
+    ],
+    "categories": [
+     "미니멀리즘 높음",
+     "미니멀리즘 낮음"
+    ],
+    "source_note": "연구3 GEE 예측확률, 본문 5.2절"
+   },
+   "implication": "위기 국면에서 미니멀리즘 성향의 고객에게는 로고 과시보다 절제된 디자인, 헤리티지, 장인정신, 소재의 진정성을 앞세운 메시지가 더 잘 닿습니다. 다만 조용한 럭셔리가 모든 소비자에게 통하는 영구적 흐름이라고 일반화하면 안 되고, 불안을 자극하는 '지금 아니면 안 된다'식 마케팅은 소비자 복지 측면에서 경계해야 합니다.",
+   "keywords": [
+    "죽음 현저성",
+    "조용한 럭셔리",
+    "미니멀리즘",
+    "자존감 추구",
+    "공포관리이론",
+    "구글 트렌드",
+    "코로나19"
+   ],
+   "confidence_notes": "추출 텍스트에서 음수 부호가 탈락된 곳이 있습니다(연구2 조절된 매개 지수와 CI, 과시 조건 직접효과 B, 저미니멀리즘 Δ와 z). 본문 서술('marginally negative', 'not significant', 'Δ = 2.5 pp' 뒤 감소 맥락)에 근거해 부호를 복원했습니다. Fig. 2의 개별 경로계수는 그림 안에만 있어 텍스트에 없고, 실험 수집 시기도 원문에 없습니다.",
+   "status": "published"
+  },
+  {
+   "key": "sellers",
+   "title_en": "Why do sellers flock to vertical fashion platforms? Examining sellers' perceptions of platform capabilities",
+   "title_ko": "판매자는 왜 버티컬 패션 플랫폼으로 몰려드는가? 플랫폼 역량에 대한 판매자 인식 연구",
+   "journal": "Asia Pacific Journal of Marketing and Logistics",
+   "year": 2026,
+   "index": "SSCI",
+   "role": "1저자",
+   "doi_or_url": "https://doi.org/10.1108/APJML-06-2025-1241",
+   "authors": "Habin Kim, Ho Jung Choo, Woo Bin Kim",
+   "axis": "RETAIL",
+   "one_line": "플랫폼 평판을 키운 것은 물류·정산 역량이 아니라 패션 리더십이었습니다",
+   "result_first": "입점 브랜드가 느끼는 플랫폼의 일반 역량(정보 통합·재구성)은 단기 브랜드 성과만 올렸고(β = .301), 패션 리더십 역량(미학·독점성·개인화)은 브랜드 성과·브랜드 자산·플랫폼 평판 세 가지에 모두 직접 효과를 냈습니다(평판 β = .650). 총효과로 보면 플랫폼 평판에 미치는 영향이 패션 리더십 .719 대 일반 역량 .099로 7배 넘게 차이 나고, 하위요인 중에는 개인화가 가장 강력했습니다. 버티컬 플랫폼이 운영 인프라만으로는 차별화할 수 없고 도메인 리더십이 장기 자산을 만든다는 점을, 2024년 7월 국내 1위 패션 플랫폼 입점 브랜드 480곳 설문을 구조방정식(SEM)으로 분석해 보여줬습니다.",
+   "plain": "무신사 같은 패션 전문 쇼핑몰에 옷 브랜드들이 몰리는 이유를 브랜드 480곳에 직접 물었습니다. 결제·배송·데이터 같은 기본기는 당장 매출을 올려주지만, 거기서 끝입니다. 반면 '이 플랫폼은 멋있고, 여기서만 살 수 있는 게 있고, 고객에게 딱 맞게 추천해 준다'는 패션 감각(패션 리더십)은 브랜드의 장기 자산을 키우고 플랫폼 평판까지 끌어올렸습니다. 특히 개인화 추천이 가장 큰 힘을 냈습니다.",
+   "question": "판매자가 인식하는 플랫폼의 일반 역량과 패션 리더십 역량은 판매자의 단기 성과, 장기 브랜드 자산, 그리고 플랫폼 평판에 각각 어떻게 다르게 작용합니까?",
+   "data": {
+    "type": "패널 설문(B2B, 입점 판매자)",
+    "n": 480,
+    "n_label": "국내 시장점유율 1위 패션 플랫폼 입점 브랜드 480곳(초기 501건 중 불성실·결측 제외)",
+    "source": "플랫폼 입점 브랜드 전용 웹사이트를 통한 설문(KODIA·무신사 연구 지원)",
+    "period": "2024.07.22~07.28"
+   },
+   "method": {
+    "name": "CFA + 구조방정식(SEM) + 다집단 분석",
+    "steps": [
+     "기존 척도를 가져와 일반 플랫폼 역량(GPC: 통합·재구성), 패션 리더십 역량(FLC: 미학·독점성·개인화), 브랜드 성과, 브랜드 자산, 플랫폼 평판을 5점 척도로 측정",
+     "요인부하 .5 미만 12문항 제거 후 26문항 2차 요인 CFA로 측정모형 확인(CFI = .942, TLI = .932, RMSEA = .054)",
+     "브랜드 규모·업력·입점 기간을 통제한 SEM으로 9개 가설 경로 검증, 부트스트랩으로 평판에 대한 간접효과 추정",
+     "업력·매출·입점 기간별 다집단 불변성 검정, 경쟁모형 4개 비교(AIC/BIC), 하위요인별 위계적 회귀로 개인화·독점성·미학의 기여 분리"
+    ],
+    "tools": [
+     "SPSS 29.0",
+     "AMOS 29.0"
+    ]
+   },
+   "model": {
+    "type": "sem",
+    "nodes": [
+     {
+      "id": "gpc",
+      "label": "일반 플랫폼 역량(GPC)",
+      "kind": "iv"
+     },
+     {
+      "id": "flc",
+      "label": "패션 리더십 역량(FLC)",
+      "kind": "iv"
+     },
+     {
+      "id": "bp",
+      "label": "브랜드 성과",
+      "kind": "mediator"
+     },
+     {
+      "id": "ba",
+      "label": "브랜드 자산",
+      "kind": "mediator"
+     },
+     {
+      "id": "pr",
+      "label": "플랫폼 평판",
+      "kind": "dv"
+     }
+    ],
+    "edges": [
+     {
+      "from": "gpc",
+      "to": "bp",
+      "label": "+",
+      "supported": true,
+      "stat": "β = .301, p < .05"
+     },
+     {
+      "from": "gpc",
+      "to": "ba",
+      "label": "+",
+      "supported": false,
+      "stat": "β = .088, n.s."
+     },
+     {
+      "from": "gpc",
+      "to": "pr",
+      "label": "+",
+      "supported": false,
+      "stat": "β = .033, n.s."
+     },
+     {
+      "from": "flc",
+      "to": "bp",
+      "label": "+",
+      "supported": true,
+      "stat": "β = .222, p < .05"
+     },
+     {
+      "from": "flc",
+      "to": "ba",
+      "label": "+",
+      "supported": true,
+      "stat": "β = .196, p < .05"
+     },
+     {
+      "from": "flc",
+      "to": "pr",
+      "label": "+",
+      "supported": true,
+      "stat": "β = .650, p < .001"
+     },
+     {
+      "from": "bp",
+      "to": "ba",
+      "label": "+",
+      "supported": true,
+      "stat": "β = .584, p < .001"
+     },
+     {
+      "from": "bp",
+      "to": "pr",
+      "label": "+",
+      "supported": false,
+      "stat": "β = .089, n.s."
+     },
+     {
+      "from": "ba",
+      "to": "pr",
+      "label": "+",
+      "supported": true,
+      "stat": "β = .151, p < .05"
+     }
+    ]
+   },
+   "findings": [
+    {
+     "text": "패션 리더십 역량은 플랫폼 평판에 가장 강한 직접 효과를 냈고, 브랜드 성과와 브랜드 자산에도 모두 유의했습니다.",
+     "stat": "평판 β = .650, p < .001; 성과 β = .222; 자산 β = .196 (p < .05)"
+    },
+    {
+     "text": "일반 플랫폼 역량은 단기 브랜드 성과만 올렸고, 브랜드 자산이나 플랫폼 평판에는 직접 효과가 없었습니다.",
+     "stat": "성과 β = .301, p < .05; 자산 β = .088, 평판 β = .033 (n.s.)"
+    },
+    {
+     "text": "브랜드 성과는 브랜드 자산을 거쳐야만 플랫폼 평판으로 이어졌습니다. 성과→평판 직접 경로는 유의하지 않았습니다.",
+     "stat": "성과→자산 β = .584, p < .001; 자산→평판 β = .151, p < .05; 성과→평판 β = .089, n.s."
+    },
+    {
+     "text": "총효과로 비교하면 패션 리더십이 일반 역량보다 브랜드 자산과 플랫폼 평판 모두에서 더 컸습니다.",
+     "stat": "자산 .326 vs .264; 평판 .719 vs .099; 간접효과 GPC .1754 [.1134, .2466], FLC .1229 [.0748, .1763]"
+    },
+    {
+     "text": "하위요인 가운데 개인화가 성과·자산·평판 전부를 끌어올린 단일 최대 요인이었고, 독점성과 미학은 평판을 따로 높였습니다.",
+     "stat": "개인화 β = .251(성과), .251(자산), .346(평판); 독점성 β = .205, 미학 β = .144 (평판); 재구성 β = .130(성과), .134(자산)"
+    }
+   ],
+   "metrics": [
+    {
+     "label": "표본",
+     "value": "480곳",
+     "note": "입점 브랜드, 2024.07.22~28 수집"
+    },
+    {
+     "label": "평판 총효과",
+     "value": ".719 vs .099",
+     "note": "패션 리더십 vs 일반 역량"
+    },
+    {
+     "label": "모형 적합도",
+     "value": "CFI .942 / RMSEA .054",
+     "note": "26문항 2차 요인 SEM"
+    },
+    {
+     "label": "표본 브랜드 프로필",
+     "value": "업력 5.94년 · 매출 17.7억 원",
+     "note": "평균(2023년 매출 기준), 49.1%는 3억 원 미만"
+    }
+   ],
+   "chart": {
+    "type": "grouped_bar",
+    "title": "역량 유형별 장기 성과에 대한 총효과",
+    "unit": "표준화 총효과(β)",
+    "series": [
+     {
+      "name": "일반 플랫폼 역량(GPC)",
+      "values": [
+       0.264,
+       0.099
+      ]
+     },
+     {
+      "name": "패션 리더십 역량(FLC)",
+      "values": [
+       0.326,
+       0.719
+      ]
+     }
+    ],
+    "categories": [
+     "브랜드 자산",
+     "플랫폼 평판"
+    ],
+    "source_note": "본문 4.2절 경로분석 총효과(Table 4, Figure 2 기반)"
+   },
+   "implication": "물류·정산·데이터 같은 운영 역량은 이제 업계 표준이 되어 차별화 효과가 줄어드니, 플랫폼은 개인화 추천, 플랫폼 단독 컬렉션 공동 기획, 에디토리얼 큐레이션 같은 패션 리더십 투자를 늘려야 합니다(원문은 최소 10% 증액을 제안). 판매자를 거래 상대가 아니라 플랫폼 정체성을 함께 만드는 파트너로 대우하고 시장 인사이트와 피드백을 돌려줄 때 자산→평판→우수 브랜드 유입의 선순환이 돌아갑니다.",
+   "keywords": [
+    "버티컬 패션 플랫폼",
+    "플랫폼 역량",
+    "패션 리더십",
+    "개인화",
+    "브랜드 자산",
+    "플랫폼 평판",
+    "공진화",
+    "판매자 관점",
+    "무신사"
+   ],
+   "confidence_notes": "추출 텍스트에서 등호가 '5'로 치환되어 있어(예: 'β 5 0.301') 문맥으로 수치를 복원했습니다. Table 1의 '20년~45년 15 (0.3)'은 원문 오기로 보이며(15/480 = 3.1%) 그대로 쓰지 않았습니다. 원문은 플랫폼 이름을 '2024년 기준 국내 패션 1위 플랫폼'으로만 표기하고 연구비 출처에 무신사를 밝혔으므로, 본문 설명에서 무신사는 그 근거로만 언급했습니다. 2025년 11월 채택, 2026년 1월 온라인 게재 확인; 권·호·페이지는 미확정입니다.",
+   "status": "published"
+  },
+  {
+   "key": "agentic",
+   "title_en": "Why Do Consumers Delegate Purchases in AI Agentic Commerce? The Role of Algorithm Trust, Price Fairness, and Fashion Involvement",
+   "title_ko": "AI 에이전틱 커머스에서 소비자는 왜 구매를 위임하는가? 알고리즘 신뢰, 가격 공정성, 패션 관여도의 역할",
+   "journal": "한국의류학회지 50(3), 691-706",
+   "year": 2026,
+   "index": "Scopus · KCI",
+   "role": "단독",
+   "doi_or_url": null,
+   "authors": "김하빈(Habin Kim)",
+   "axis": "AI",
+   "one_line": "AI 구매 위임의 열쇠는 가격 투명성, 공정성 효과는 고관여층에서만 나타났습니다",
+   "result_first": "플랫폼이 가격 산정 근거를 투명하게 보여줄수록 알고리즘 신뢰(β=.434)와 가격 공정성 지각(β=.630)이 함께 올라가고, 이 두 심리 상태가 AI 에이전트에 구매를 맡기려는 의도를 끌어올리는 다섯 개 경로가 모두 지지됐으며, 공정한 가격이 위임을 이끄는 효과는 패션 고관여 소비자에게서만 유의했습니다(고관여 β=.310, 저관여 β=.120 n.s.). 추천 실력은 믿어도(신뢰 M=4.70) 결정권을 넘기는 데는 망설이는(위임 의도 M=3.06) '신뢰-행동 간극'이 확인된 만큼, 가격 투명성은 한국 패션 플랫폼이 에이전틱 커머스로 넘어갈 때 가장 먼저 갖춰야 할 조건입니다. AI 쇼핑 에이전트 사용 경험이 있는 미국 소비자 292명의 설문을 PLS-SEM과 PROCESS 조절회귀분석으로 분석했습니다.",
+   "plain": "AI가 대신 옷을 골라 결제까지 해주는 서비스를 사람들이 언제 받아들이는지 물어본 연구입니다. 결론은 '쓰기 편하다'보다 '이 가격이 왜 나왔는지 보여준다'가 훨씬 중요했고, 패션에 관심이 많은 사람일수록 공정한 가격을 'AI가 내 취향을 제대로 이해했다'는 증거로 받아들여 결정권을 넘겼습니다. 다만 AI 실력은 믿어도 결제까지 맡기는 데는 아직 망설임이 커서, 한 번에 맡기게 하기보다 조건부 자동 구매처럼 권한을 조금씩 넘기는 설계가 필요합니다.",
+   "question": "플랫폼의 시스템 편의성과 가격 투명성은 알고리즘 신뢰와 가격 공정성 지각을 거쳐 구매 위임 의도로 이어지는가, 그리고 이 경로는 패션 관여도에 따라 달라지는가?",
+   "data": {
+    "type": "설문",
+    "n": 292,
+    "n_label": "미국 소비자 292명(AI 쇼핑 에이전트 사용 경험자)",
+    "source": "CloudResearch 온라인 소비자 패널",
+    "period": "2026년 4월"
+   },
+   "method": {
+    "name": "PLS-SEM + 조절회귀분석",
+    "steps": [
+     "7점 리커트 척도로 6개 구성개념 측정, 구매 위임 의도 4문항 척도를 신규 개발·검증",
+     "NIPALS 기반 PLS-SEM으로 측정모델·구조모델 검증(부트스트랩 5,000회 BCa), 간접효과로 매개 검증",
+     "PLS 잠재변수 점수를 평균 중심화해 조절회귀분석과 단순 기울기 분석(저·평균·고 관여)"
+    ],
+    "tools": [
+     "Python 3.11 plspm",
+     "IBM SPSS Statistics 28",
+     "PROCESS macro v4.2 (Model 1)"
+    ]
+   },
+   "model": {
+    "type": "moderated_mediation",
+    "nodes": [
+     {
+      "id": "conv",
+      "label": "시스템 편의성",
+      "kind": "iv"
+     },
+     {
+      "id": "transp",
+      "label": "가격 투명성",
+      "kind": "iv"
+     },
+     {
+      "id": "trust",
+      "label": "알고리즘 신뢰",
+      "kind": "mediator"
+     },
+     {
+      "id": "fair",
+      "label": "지각된 가격 공정성",
+      "kind": "mediator"
+     },
+     {
+      "id": "deleg",
+      "label": "구매 위임 의도",
+      "kind": "dv"
+     },
+     {
+      "id": "involv",
+      "label": "패션 관여도",
+      "kind": "moderator"
+     }
+    ],
+    "edges": [
+     {
+      "from": "conv",
+      "to": "trust",
+      "label": "+",
+      "supported": true,
+      "stat": "β=.518, p<.001"
+     },
+     {
+      "from": "transp",
+      "to": "trust",
+      "label": "+",
+      "supported": true,
+      "stat": "β=.434, p<.001"
+     },
+     {
+      "from": "transp",
+      "to": "fair",
+      "label": "+",
+      "supported": true,
+      "stat": "β=.630, p<.001"
+     },
+     {
+      "from": "trust",
+      "to": "deleg",
+      "label": "+",
+      "supported": true,
+      "stat": "β=.329, p<.001"
+     },
+     {
+      "from": "fair",
+      "to": "deleg",
+      "label": "+",
+      "supported": true,
+      "stat": "β=.242, p<.001"
+     },
+     {
+      "from": "involv",
+      "to": "deleg",
+      "label": "공정성→위임 경로 강화(+)",
+      "supported": true,
+      "stat": "상호작용 β=.095, p<.05; 고 β=.310 / 평균 β=.215 / 저 β=.120 n.s."
+     }
+    ]
+   },
+   "findings": [
+    {
+     "text": "가격 투명성은 알고리즘 신뢰와 가격 공정성 지각을 동시에 높이는 가장 강한 자극이었습니다.",
+     "stat": "β=.434(→신뢰), β=.630(→공정성), 모두 p<.001"
+    },
+    {
+     "text": "시스템 편의성과 가격 투명성 두 변수가 알고리즘 신뢰 분산의 66.3%를 설명했습니다.",
+     "stat": "R²=.663"
+    },
+    {
+     "text": "알고리즘 신뢰와 가격 공정성은 모두 구매 위임 의도를 높였고, 세 간접 경로의 매개 효과도 유의했습니다.",
+     "stat": "β=.329, β=.242; R²=.279; 간접효과 β=.342/.284/.233"
+    },
+    {
+     "text": "가격 공정성이 위임을 끌어내는 효과는 패션 고관여 집단에서 가장 강했고 저관여 집단에서는 사라졌습니다.",
+     "stat": "고 β=.310 p<.001 / 평균 β=.215 p<.01 / 저 β=.120 p=.135"
+    },
+    {
+     "text": "알고리즘 신뢰 평균보다 위임 의도 평균이 약 1.6점 낮아 '신뢰-행동 간극'이 확인됐습니다.",
+     "stat": "신뢰 M=4.70 vs 위임 의도 M=3.06 (7점 척도)"
+    }
+   ],
+   "metrics": [
+    {
+     "label": "표본",
+     "value": "292명",
+     "note": "미국, AI 쇼핑 에이전트 사용 경험자"
+    },
+    {
+     "label": "지지된 가설",
+     "value": "6/6",
+     "note": "주효과 5개 + 조절효과 1개"
+    },
+    {
+     "label": "위임 의도 설명력",
+     "value": "R²=.279",
+     "note": "신뢰 R²=.663, 공정성 R²=.397"
+    },
+    {
+     "label": "신규 척도 신뢰도",
+     "value": "α=.952",
+     "note": "구매 위임 의도 4문항, AVE=.876"
+    }
+   ],
+   "chart": {
+    "type": "bar",
+    "title": "구조모델 경로계수",
+    "unit": "표준화 β",
+    "series": [
+     {
+      "name": "경로계수",
+      "values": [
+       0.518,
+       0.434,
+       0.63,
+       0.329,
+       0.242
+      ]
+     }
+    ],
+    "categories": [
+     "편의성→신뢰",
+     "투명성→신뢰",
+     "투명성→공정성",
+     "신뢰→위임",
+     "공정성→위임"
+    ],
+    "source_note": "Table 2 (N=292, 모두 p<.001)"
+   },
+   "implication": "AI 쇼핑 에이전트를 운영하는 패션 플랫폼은 제안 가격의 산출 논리와 비교 근거를 보여주는 '투명성 대시보드'를 가장 먼저 갖추고, 가격 상한·브랜드 조건 안에서만 작동하는 조건부 자율 구매와 결제 전 승인 대기 시간으로 권한을 단계적으로 넘겨받아야 합니다. 행동 로그로 추정한 관여도 점수에 따라 고관여층에는 취향 이해 역량을, 저관여층에는 시간 절약과 간편함을 소구하는 차별화가 효과적입니다.",
+   "keywords": [
+    "AI 쇼핑 에이전트",
+    "구매 위임 의도",
+    "알고리즘 신뢰",
+    "가격 공정성",
+    "패션 관여도",
+    "S-O-R 프레임워크",
+    "에이전틱 커머스"
+   ],
+   "confidence_notes": "원문에 DOI·권호 표기가 없어 doi_or_url은 비워 두었습니다. 저자가 김하빈 단독이라 role을 '단독'으로 적었습니다(브리프의 '1저자'와 다르니 필요하면 바꿔 주세요). Table 1~5와 Appendix 수치는 깨짐 없이 추출되어 그대로 사용했습니다.",
+   "status": "published"
+  },
+  {
+   "key": "distilbert",
+   "title_en": "Mitigating Information Asymmetry in Fashion E-Commerce via Trust-Weighted DistilBERT and Non-Linear Review Analysis",
+   "title_ko": "신뢰 가중 DistilBERT와 비선형 리뷰 분석으로 패션 이커머스의 정보 비대칭 줄이기",
+   "journal": "2026 ICCT (한국의류학회 국제학술대회) 포스터",
+   "year": 2026,
+   "index": "학회 · Best Poster",
+   "role": "1저자",
+   "doi_or_url": "",
+   "authors": "Habin Kim, Eunsoo Baek",
+   "axis": "AI",
+   "one_line": "패션 리뷰에서는 근거가 붙은 5점이 가장 믿을 만한 신호였습니다",
+   "result_first": "아마존 패션 리뷰 76만 건에서 '도움이 됐다' 투표를 가장 잘 예측한 별점은 5★(β = 0.201)로, 통념상 더 진실해 보인다는 4★(0.135)와 경고 역할의 1★(0.114)를 앞섰고, 애매한 2★는 오히려 음(−0.039)이었습니다. 이 J자 곡선을 손실함수 가중치로 집어넣은 신뢰 가중 DistilBERT는 베이스라인보다 R²를 13.6% 올리고 MSE를 25.0% 줄여, 추천 시스템이 소비자의 신뢰 논리를 학습할 수 있음을 보였습니다. 2-core 필터링한 764,233건 상호작용에 리뷰 길이·이미지·인증 구매·경과일·감성을 통제한 다중회귀를 돌리고, 그 β를 가중치로 쓰는 MSE 손실로 DistilBERT 회귀기를 학습했습니다.",
+   "plain": "옷은 입어보기 전까지 핏과 소재를 알 수 없어서 리뷰에 유독 많이 의존합니다. 흔히 '별 다섯 개는 광고 같고 네 개가 더 진짜 같다'고 하는데, 패션에서는 반대였습니다. 사람들은 '사이즈 딱 맞고 소재 좋아요'처럼 근거를 붙인 5점을 가장 유용하다고 봤고, 2점처럼 애매한 평가는 오히려 덜 쳐줬습니다. 연구팀은 이 패턴을 AI 추천 모델(DistilBERT, 문장을 이해하는 경량 언어모델)에 가중치로 심어 '내용 없는 5점'은 낮추고 '근거 있는 5점'은 높이도록 만들었습니다.",
+   "question": "패션 리뷰에서 소비자는 극단 별점과 중간 별점 중 무엇을 더 신뢰하고, 그 신뢰 패턴을 가중치로 반영하면 추천 모델의 정확도가 올라갑니까?",
+   "data": {
+    "type": "리뷰 텍스트",
+    "n": 764233,
+    "n_label": "아마존 패션 리뷰 상호작용 764,233건(2-core 필터링 후)",
+    "source": "Amazon Fashion, Amazon Reviews'23 (Hou et al., 2024)",
+    "period": null
+   },
+   "method": {
+    "name": "다중회귀 + 신뢰 가중 MSE 손실 DistilBERT 회귀",
+    "steps": [
+     "2-core 필터링으로 롱테일 데이터 95% 이상을 보존한 뒤 리뷰 도움됨을 종속변수로 설정",
+     "3★을 기준으로 별점 더미를 넣고, 리뷰 길이·이미지·인증 구매·경과일·감성을 통제한 다중회귀로 별점별 표준화 β 추정",
+     "연구1의 β를 가중치로 쓰는 맥락 인식 신뢰 가중 MSE 손실을 설계해 '내용 없는 긍정'은 낮추고 '근거 있는 긍정'은 보존",
+     "리뷰 텍스트 + 메타데이터를 입력으로 DistilBERT 회귀기를 학습하고, 베이스라인과 R²·MSE 및 순위 결과를 비교"
+    ],
+    "tools": [
+     "DistilBERT",
+     "fair-rec-sys"
+    ]
+   },
+   "model": {
+    "type": "pipeline",
+    "nodes": [
+     {
+      "id": "raw",
+      "label": "원시 리뷰(764,233건)",
+      "kind": "input"
+     },
+     {
+      "id": "filter",
+      "label": "2-core 필터",
+      "kind": "process"
+     },
+     {
+      "id": "beta",
+      "label": "별점별 β 추정(회귀)",
+      "kind": "process"
+     },
+     {
+      "id": "model",
+      "label": "신뢰 가중 DistilBERT",
+      "kind": "process"
+     },
+     {
+      "id": "out",
+      "label": "도움됨 점수",
+      "kind": "output"
+     }
+    ],
+    "edges": [
+     {
+      "from": "raw",
+      "to": "filter",
+      "label": "",
+      "supported": true,
+      "stat": null
+     },
+     {
+      "from": "filter",
+      "to": "beta",
+      "label": "",
+      "supported": true,
+      "stat": "5★ β = 0.201, 4★ 0.135, 1★ 0.114, 2★ −0.039 (p < .001)"
+     },
+     {
+      "from": "beta",
+      "to": "model",
+      "label": "β → 손실 가중치",
+      "supported": true,
+      "stat": null
+     },
+     {
+      "from": "model",
+      "to": "out",
+      "label": "",
+      "supported": true,
+      "stat": "R² = 0.375 (+13.6%), MSE = 0.009 (−25.0%)"
+     }
+    ]
+   },
+   "findings": [
+    {
+     "text": "5★이 리뷰 도움됨을 가장 강하게 예측해 '안전한' 4★을 앞섰습니다. 완벽한 점수가 의심이 아니라 확신을 줬습니다.",
+     "stat": "β = 0.201 vs 0.135, p < .001"
+    },
+    {
+     "text": "명확한 1★ 경고는 애매한 2★보다 훨씬 유용하게 받아들여졌습니다.",
+     "stat": "β = 0.114 vs −0.039, p < .001"
+    },
+    {
+     "text": "긍정 극단이 부정 극단보다 컸습니다. 불확실성이 큰 패션에서는 '핏이 맞는다'는 확인이 실패 회피 신호보다 더 중요했습니다.",
+     "stat": "5★ β = 0.201 vs 1★ β = 0.114"
+    },
+    {
+     "text": "신뢰 가중 DistilBERT는 베이스라인보다 설명력이 높고 오차가 작았습니다.",
+     "stat": "R² = 0.375 (+13.6%), MSE = 0.009 (−25.0%)"
+    },
+    {
+     "text": "모델이 매긴 순위는 소비자의 신뢰 논리를 그대로 재현했습니다. 상세한 5★ > 명확한 1★ > 내용 없는 5★.",
+     "stat": "점수 0.37 > 0.33 > 0.31"
+    }
+   ],
+   "metrics": [
+    {
+     "label": "리뷰 데이터",
+     "value": "764,233건",
+     "note": "Amazon Fashion, 2-core 필터링"
+    },
+    {
+     "label": "R²(도움됨 예측)",
+     "value": "0.375",
+     "note": "베이스라인 대비 +13.6%"
+    },
+    {
+     "label": "MSE",
+     "value": "0.009",
+     "note": "베이스라인 대비 −25.0%"
+    },
+    {
+     "label": "수상",
+     "value": "Best Poster",
+     "note": "2026 ICCT Session 1, 2026.05.23"
+    }
+   ],
+   "chart": {
+    "type": "bar",
+    "title": "별점별 리뷰 도움됨 예측력 (3★ 기준, 표준화 β)",
+    "unit": "β",
+    "series": [
+     {
+      "name": "표준화 β",
+      "values": [
+       0.114,
+       -0.039,
+       0.135,
+       0.201
+      ]
+     }
+    ],
+    "categories": [
+     "1★",
+     "2★",
+     "4★",
+     "5★"
+    ],
+    "source_note": "Fig. 1 'J-Curve of Trust', N = 764,233, 모두 p < .001"
+   },
+   "implication": "패션 플랫폼은 '4점이 더 진실하다'는 통념 대신, 근거가 붙은 5점과 명확한 1점을 위로 올리고 내용 없는 5점은 가중치를 낮추는 방식으로 리뷰 정렬과 추천을 설계할 수 있습니다. 오픈소스 fair-rec-sys 라이브러리로 바로 적용 가능하고, 리뷰가 없는 신규 상품은 LLM 메타데이터 분석으로 초기 노출을 보완해 소규모 고품질 브랜드의 콜드스타트 문제를 줄일 수 있습니다.",
+   "keywords": [
+    "리뷰 도움됨",
+    "극단 편향",
+    "진실성 효과",
+    "DistilBERT",
+    "신뢰 가중 손실",
+    "추천 시스템",
+    "정보 비대칭",
+    "패션 이커머스",
+    "Amazon Reviews"
+   ],
+   "confidence_notes": "포스터 2쪽 분량이라 베이스라인 모델의 절대 수치, 학습·평가 분할, 데이터 기간, 통제변수 계수는 원문에 없습니다. 수상 명칭은 'Best Poster Presentation Award'(Session 1: Economics of Clothing and Textiles/Fashion Business)입니다. DOI나 URL이 원문에 없어 doi_or_url은 비워 두었습니다.",
+   "status": "conference"
+  },
+  {
+   "key": "kbeauty_youtube",
+   "title_en": "Impact of Linguistic Styles in K-Beauty YouTube Content on Global Consumers' Emotional Responses: Focusing on Vietnamese Influencers",
+   "title_ko": "K-뷰티 유튜브 콘텐츠의 언어적 특성이 글로벌 소비자의 감정 반응에 미치는 영향: 베트남 인플루언서를 중심으로",
+   "journal": "한국지역사회생활과학회지(Korean Journal of Community Living Science) 36(2), 127-137",
+   "year": 2025,
+   "index": "KCI",
+   "role": "교신",
+   "doi_or_url": "http://doi.org/10.7856/kjcls.2025.36.2.127",
+   "authors": "이하경, 김하빈(교신)",
+   "axis": "MACRO",
+   "one_line": "친근하고 긍정적인 말투는 호감 댓글을, 길고 복잡한 문장은 부정 댓글을 불렀습니다",
+   "result_first": "베트남 유튜버의 K-뷰티 영상에서 '우리·함께' 같은 관계 지향 어휘(β=.321)와 긍정 어조(β=.227), 통찰 어휘(β=.170)가 많을수록 댓글이 긍정적이었고, 전치사가 많은 복잡한 문장(β=-.362)은 긍정 반응을 깎았습니다. 부정 댓글은 영상의 부정 어조(β=.696)가 가장 크게 끌어올렸고 전치사(β=.210)와 7글자 이상 긴 단어(β=.203)도 부정 반응을 키워, 정보를 많이 담는 것 자체가 글로벌 시청자를 지치게 할 수 있다는 점이 K-뷰티 콘텐츠 전략의 핵심 과제로 드러났습니다. 구독자 10만 명 이상 베트남 뷰티 유튜버 29명의 조회수 상위 영상 가운데 K-뷰티 관련 영상 150편의 스크립트와 댓글을 LIWC로 수치화해 다중회귀분석했습니다.",
+   "plain": "베트남 뷰티 유튜버가 한국 화장품을 소개할 때 어떤 말투를 쓰면 전 세계 시청자의 댓글이 따뜻해지는지 본 연구입니다. '우리 같이 써봐요'처럼 친근하고 밝게 말하면 좋은 댓글이 늘었지만, 설명서처럼 길고 복잡한 문장을 쏟아내면 오히려 불만 섞인 댓글이 늘었습니다. 단어를 '관계', '긍정', '부정' 같은 심리 범주로 분류해 비율을 계산하는 프로그램(LIWC)으로 영상 대본과 댓글을 숫자로 바꿔 비교했습니다.",
+   "question": "베트남 인플루언서 K-뷰티 영상의 관계성·논리성·정보성·정서적 언어 특성은 글로벌 시청자 댓글의 긍정·부정 반응에 어떤 영향을 미치는가?",
+   "data": {
+    "type": "유튜브 영상 스크립트·댓글",
+    "n": 150,
+    "n_label": "K-뷰티 영상 150편(베트남 뷰티 유튜버 29명)과 해당 영상의 댓글",
+    "source": "YouTube(Noxinfluencer로 유튜버 선정, YouTube API로 댓글 수집)",
+    "period": null
+   },
+   "method": {
+    "name": "LIWC 텍스트 분석 + 다중회귀분석",
+    "steps": [
+     "Noxinfluencer에서 구독자 10만 이상 뷰티 유튜버 29명 선정, 조회수 상위 10편씩 290편 수집 후 한국 제품·한국 언급 기준으로 K-뷰티 영상 필터링",
+     "자동 자막·설명란 스크립트를 베트남어에서 영어로 번역(이중 검토), YouTube API로 댓글 수집, 토크나이징·정제·정규화",
+     "LIWC로 Affiliation·Causation·Insight·Preposition·BigWords·Positive/Negative tone 비율 산출 후 댓글의 긍정·부정 어조를 종속변수로 다중회귀분석"
+    ],
+    "tools": [
+     "Python 3.8.3",
+     "Jupyter Notebook 6.0.3",
+     "YouTube API",
+     "LIWC"
+    ]
+   },
+   "model": {
+    "type": "regression",
+    "nodes": [
+     {
+      "id": "affil",
+      "label": "관계성(Affiliation)",
+      "kind": "iv"
+     },
+     {
+      "id": "insight",
+      "label": "통찰(Insight)",
+      "kind": "iv"
+     },
+     {
+      "id": "prep",
+      "label": "전치사(Preposition)",
+      "kind": "iv"
+     },
+     {
+      "id": "big",
+      "label": "긴 단어(BigWords)",
+      "kind": "iv"
+     },
+     {
+      "id": "pos",
+      "label": "영상 긍정 어조",
+      "kind": "iv"
+     },
+     {
+      "id": "neg",
+      "label": "영상 부정 어조",
+      "kind": "iv"
+     },
+     {
+      "id": "pos_c",
+      "label": "댓글 긍정 어조",
+      "kind": "dv"
+     },
+     {
+      "id": "neg_c",
+      "label": "댓글 부정 어조",
+      "kind": "dv"
+     }
+    ],
+    "edges": [
+     {
+      "from": "affil",
+      "to": "pos_c",
+      "label": "+",
+      "supported": true,
+      "stat": "β=.321, p<.001"
+     },
+     {
+      "from": "insight",
+      "to": "pos_c",
+      "label": "+",
+      "supported": true,
+      "stat": "β=.170, p<.05"
+     },
+     {
+      "from": "prep",
+      "to": "pos_c",
+      "label": "−",
+      "supported": true,
+      "stat": "β=-.362, p<.001"
+     },
+     {
+      "from": "pos",
+      "to": "pos_c",
+      "label": "+",
+      "supported": true,
+      "stat": "β=.227, p<.01"
+     },
+     {
+      "from": "prep",
+      "to": "neg_c",
+      "label": "+",
+      "supported": true,
+      "stat": "β=.210, p<.05"
+     },
+     {
+      "from": "big",
+      "to": "neg_c",
+      "label": "+",
+      "supported": true,
+      "stat": "β=.203, p<.05"
+     },
+     {
+      "from": "neg",
+      "to": "neg_c",
+      "label": "+",
+      "supported": true,
+      "stat": "β=.696, p<.001"
+     }
+    ]
+   },
+   "findings": [
+    {
+     "text": "관계 지향 어휘와 긍정 어조가 많은 영상일수록 댓글이 긍정적이었습니다.",
+     "stat": "Affiliation β=.321 p<.001; Positive tone β=.227 p<.01; 모형 R²=.249"
+    },
+    {
+     "text": "전치사가 많은 복잡한 문장은 긍정 댓글을 줄이고 부정 댓글을 늘렸습니다.",
+     "stat": "β=-.362 p<.001(긍정 댓글); β=.210 p<.05(부정 댓글)"
+    },
+    {
+     "text": "7글자 이상 긴 단어가 많을수록 부정 댓글이 늘어, 정보 과잉이 역효과를 냈습니다.",
+     "stat": "BigWords β=.203, p<.05"
+    },
+    {
+     "text": "영상의 부정 어조는 부정 댓글을 가장 강하게 예측했습니다.",
+     "stat": "β=.696 p<.001; 모형 R²=.490"
+    },
+    {
+     "text": "K-뷰티 영상은 정보 전달 어휘 비중이 가장 높았고, 댓글은 전반적으로 긍정이 우세했습니다.",
+     "stat": "영상: 전치사 11.00%, BigWords 14.13%, 긍정 2.64%, 부정 0.81% / 댓글: 긍정 6.24%, 부정 1.36%(최대 8.34%)"
+    }
+   ],
+   "metrics": [
+    {
+     "label": "분석 영상",
+     "value": "150편",
+     "note": "구독자 10만 이상 유튜버 29명"
+    },
+    {
+     "label": "긍정 댓글 모형",
+     "value": "R²=.249",
+     "note": "F=6.496, p<.001"
+    },
+    {
+     "label": "부정 댓글 모형",
+     "value": "R²=.490",
+     "note": "F=18.825, p<.001"
+    },
+    {
+     "label": "댓글 긍정 어조",
+     "value": "6.24%",
+     "note": "부정 어조 1.36%"
+    }
+   ],
+   "chart": {
+    "type": "grouped_bar",
+    "title": "영상 언어 특성이 댓글 어조에 미치는 영향",
+    "unit": "표준화 회귀계수 β",
+    "series": [
+     {
+      "name": "댓글 긍정 어조",
+      "values": [
+       0.321,
+       0.161,
+       0.17,
+       -0.362,
+       -0.202,
+       0.227,
+       -0.115
+      ]
+     },
+     {
+      "name": "댓글 부정 어조",
+      "values": [
+       -0.108,
+       -0.133,
+       0.06,
+       0.21,
+       0.203,
+       -0.029,
+       0.696
+      ]
+     }
+    ],
+    "categories": [
+     "관계성",
+     "인과",
+     "통찰",
+     "전치사",
+     "긴 단어",
+     "긍정 어조",
+     "부정 어조"
+    ],
+    "source_note": "Table 4 (n=150)"
+   },
+   "implication": "K-뷰티 브랜드가 현지 인플루언서와 협업할 때는 노출량보다 말투를 설계해야 합니다. '우리'를 앞세운 친근한 어휘와 밝은 톤, 짧고 간결한 문장이 글로벌 댓글 반응을 끌어올리는 반면, 전문 용어와 긴 설명을 쌓는 정보 과잉은 역효과를 내므로 콘텐츠 기획 단계에서 언어 스타일을 정량적으로 점검하는 것이 좋습니다.",
+   "keywords": [
+    "K-뷰티",
+    "유튜브 콘텐츠 분석",
+    "언어 스타일",
+    "LIWC",
+    "텍스트 마이닝",
+    "베트남 인플루언서",
+    "감정 반응"
+   ],
+   "confidence_notes": "최종 분석 영상 수가 본문에는 145편, 초록과 Table 2~4에는 150편으로 적혀 있어 표 기준 150으로 적었습니다. 댓글 총 건수와 수집 시기는 원문에 없습니다. Fig. 1 캡션은 'simple regression'이지만 본문과 Table 4는 다중회귀분석입니다. Table 4의 β·t 값은 깨짐 없이 추출되었습니다.",
+   "status": "published"
+  },
+  {
+   "key": "kbeauty_traj",
+   "title_en": "Trajectory of K-Beauty through the Vietnamese Influencers: A Text-Mining Approach",
+   "title_ko": "베트남 인플루언서를 통해 본 K-뷰티의 궤적: 텍스트마이닝 접근",
+   "journal": "패션비즈니스(Journal of Fashion Business) 28(6), 30-47",
+   "year": 2024,
+   "index": "KCI",
+   "role": "1저자",
+   "doi_or_url": "https://doi.org/10.12940/jfb.2024.28.6.30",
+   "authors": "Habin Kim, Ho Jung Choo, Nguyen Cong Minh, Ha Kyung Lee(교신)",
+   "axis": "MACRO",
+   "one_line": "베트남 유튜버의 한국 담론 80.6%가 K-뷰티, 조언의 핵심은 더운 기후·지성 피부·어두운 피부톤입니다",
+   "result_first": "베트남 인기 유튜버의 한국 관련 영상에서 LDA로 5개 주제(스킨케어 29.4%, 메이크업 27.1%, 립스틱 스와치 24.1%, 라이프스타일 11.6%, 음식 7.7%)가 나왔고, 뷰티 3개 주제가 80.6%를 차지했습니다. 연어 분석 결과 인플루언서들은 덥고 습한 기후에 맞는 매트·롱래스팅 제품, 지성·여드름 피부용 제품, 어두운 피부톤에 어울리는 레드 같은 선명한 색을 권하는 세 가지 방식으로 K-뷰티를 현지화해 전달했습니다. K-뷰티가 한류 인기에만 기대지 말고 현지 기후·피부 조건에 맞춘 제품 개발로 가야 한다는 데이터 근거입니다. 방법은 유튜버 29명의 최다 조회 영상 290편 중 한국 관련 150편의 영문 대본에 TF·TF-IDF, 의미연결망 분석(Gephi), LDA 토픽모델링, 연어(collocation) 분석을 차례로 적용한 것입니다.",
+   "plain": "베트남 뷰티 유튜버들이 한국 화장품을 소개할 때 실제로 어떤 단어를 쓰는지 영상 150편의 말을 통계적으로 분석했습니다. 가장 많이 나온 이야기는 피부, 색, 립스틱이었고, 특히 '여드름 피부', '지성 피부', '어두운 피부톤', '매트', '틴트'가 자주 붙어 다녔습니다. 한국에서는 촉촉한 광채 피부가 유행이어도 베트남에서는 '여기는 더우니 번들거리지 않는 제품', '우리 피부톤에는 레드가 어울린다'는 식으로 번역되어 전달된다는 뜻입니다.",
+   "question": "베트남 로컬 인플루언서의 인기 영상은 K-뷰티의 어떤 주제를 다루며, 이들은 어떤 방식으로 소비자를 K-뷰티에 끌어들이는가?",
+   "data": {
+    "type": "인플루언서 콘텐츠(유튜브 영상 대본, 영문 번역)",
+    "n": 150,
+    "n_label": "한국 관련 영상 150편(검토 290편 중 51.7%)",
+    "source": "YouTube — Noxinfluencer.com 'How-To/Style' 베트남 상위 채널(구독자 10만 이상)",
+    "period": null
+   },
+   "method": {
+    "name": "텍스트마이닝(TF·TF-IDF, 의미연결망, LDA, 연어 분석)",
+    "steps": [
+     "유튜버 29명의 최다 조회 영상 290편에서 한국 제품 사용·한국 언급 기준으로 150편 선별, 대본을 영어로 번역 후 2차 검수",
+     "토큰화·정제·정규화, 'lipstick color' 같은 복합어 처리와 부사 보존, 무작위 샘플 LDA로 K-뷰티 전용 사전(lexicon) 구축",
+     "TF·TF-IDF 상위 30개 추출, 상위 100개 단어로 의미연결망 분석(모듈성 군집, 군집계수)",
+     "정합점수로 토픽 수 5개 결정 후 LDA, 뷰티 관련 3개 토픽에 대해 핵심어 좌우 10단어 범위 연어 분석으로 현지화 전략 도출"
+    ],
+    "tools": [
+     "Noxinfluencer.com",
+     "Python 3.8.3",
+     "Jupyter Notebook 6.0.3",
+     "Gephi"
+    ]
+   },
+   "model": {
+    "type": "pipeline",
+    "nodes": [
+     {
+      "id": "scripts",
+      "label": "한국 관련 영상 150편 영문 대본",
+      "kind": "input"
+     },
+     {
+      "id": "prep",
+      "label": "전처리·K-뷰티 사전 구축",
+      "kind": "process"
+     },
+     {
+      "id": "tf",
+      "label": "TF·TF-IDF(상위 30)",
+      "kind": "process"
+     },
+     {
+      "id": "network",
+      "label": "의미연결망(상위 100단어, 3군집)",
+      "kind": "process"
+     },
+     {
+      "id": "lda",
+      "label": "LDA 5토픽",
+      "kind": "process"
+     },
+     {
+      "id": "colloc",
+      "label": "연어 분석(뷰티 3토픽)",
+      "kind": "process"
+     },
+     {
+      "id": "s1",
+      "label": "전략1 더운 기후용 매트·롱래스팅·UV차단",
+      "kind": "output"
+     },
+     {
+      "id": "s2",
+      "label": "전략2 지성·여드름 피부용 제품",
+      "kind": "output"
+     },
+     {
+      "id": "s3",
+      "label": "전략3 어두운 피부톤용 선명한 색",
+      "kind": "output"
+     }
+    ],
+    "edges": [
+     {
+      "from": "scripts",
+      "to": "prep",
+      "label": "",
+      "supported": true,
+      "stat": null
+     },
+     {
+      "from": "prep",
+      "to": "tf",
+      "label": "",
+      "supported": true,
+      "stat": null
+     },
+     {
+      "from": "tf",
+      "to": "network",
+      "label": "",
+      "supported": true,
+      "stat": null
+     },
+     {
+      "from": "network",
+      "to": "lda",
+      "label": "",
+      "supported": true,
+      "stat": null
+     },
+     {
+      "from": "lda",
+      "to": "colloc",
+      "label": "스킨케어·메이크업·립스틱 스와치 = 80.6%",
+      "supported": true,
+      "stat": "80.6%"
+     },
+     {
+      "from": "colloc",
+      "to": "s1",
+      "label": "lipstick-matte/tint 각 52회",
+      "supported": true,
+      "stat": "n=52, 52"
+     },
+     {
+      "from": "colloc",
+      "to": "s2",
+      "label": "acne-skin 81회, oily-skin 67회",
+      "supported": true,
+      "stat": "n=81, 67"
+     },
+     {
+      "from": "colloc",
+      "to": "s3",
+      "label": "dark-skin 33회, red-color 73회",
+      "supported": true,
+      "stat": "n=33, 73"
+     }
+    ]
+   },
+   "findings": [
+    {
+     "text": "한국 관련 영상의 주제는 스킨케어, 메이크업, 립스틱 스와치, 라이프스타일, 음식 5개로 나뉘었고, 뷰티 3개 주제가 전체의 80.6%를 차지했습니다.",
+     "stat": "29.4% + 27.1% + 24.1% = 80.6%(Table 2)"
+    },
+    {
+     "text": "가장 자주 쓰인 단어는 skin, color, lipstick이었고, TF-IDF 기준으로는 lipstick이 1위, 집계 빈도는 낮지만 특정 영상에서 두드러진 acne·eyebrow가 상위에 올랐습니다.",
+     "stat": "TF: skin 2,036·color 1,982·lipstick 1,885 / TF-IDF: lipstick 37.12(Table 1)"
+    },
+    {
+     "text": "스킨케어 토픽에서 'acne'와 'skin', 'oily'와 'skin'이 가장 자주 붙어 나와, 베트남 소비자가 지성·여드름 피부 문제의 해법으로 한국 화장품을 찾는다는 점이 드러났습니다.",
+     "stat": "acne-skin n=81, oily-skin n=67(Figure 4)"
+    },
+    {
+     "text": "립스틱 토픽에서는 습한 기후 탓에 색이 빨리 지워지는 문제로 매트·틴트(3CE 벨벳 립 틴트 등)가 선호되고, 레드가 어두운 피부톤에 어울리는 색으로 가장 많이 언급되었습니다.",
+     "stat": "lipstick-color n=165, matte/tint 각 n=52, red-color n=73(Figure 6)"
+    },
+    {
+     "text": "메이크업 토픽에서는 '라이트한 한국식 메이크업 스타일'과 함께 '어두운 피부' 언급이 반복되며, 한국인의 밝은 피부가 대비 기준으로 쓰였습니다.",
+     "stat": "dark-skin n=33, makeup-remover n=31, makeup-style n=12(Figure 5)"
+    }
+   ],
+   "metrics": [
+    {
+     "label": "분석 영상",
+     "value": "150편",
+     "note": "검토 290편 중 51.7%"
+    },
+    {
+     "label": "분석 유튜버",
+     "value": "29명",
+     "note": "구독자 10만 이상"
+    },
+    {
+     "label": "LDA 토픽",
+     "value": "5개",
+     "note": "정합점수 기준"
+    },
+    {
+     "label": "K-뷰티 관련 토픽 비중",
+     "value": "80.6%",
+     "note": "스킨케어·메이크업·립스틱 스와치"
+    }
+   ],
+   "chart": {
+    "type": "bar",
+    "title": "LDA 토픽별 비중",
+    "unit": "%",
+    "series": [
+     {
+      "name": "비중",
+      "values": [
+       29.4,
+       27.1,
+       24.1,
+       11.6,
+       7.7
+      ]
+     }
+    ],
+    "categories": [
+     "스킨케어",
+     "메이크업",
+     "립스틱 스와치",
+     "라이프스타일",
+     "음식"
+    ],
+    "source_note": "Table 2. Extracted Themes and Associated Key Words (Ratio %)"
+   },
+   "implication": "K-뷰티 브랜드가 베트남에서 점유율을 넓히려면 열대 기후를 견디는 매트·롱웨어·UV 차단 제형, 지성·여드름 피부 전용 라인, 어두운 피부톤에 맞는 선명한 컬러 확장이 우선이고, 이를 현지 인플루언서와 함께 알려야 합니다. 한국 셀럽이나 K-콘텐츠의 인기에 의존하는 대신 현지 환경과 인종적 특성에 맞춘 제품 개발이 성공의 조건입니다.",
+   "keywords": [
+    "하이브리드화",
+    "로컬 인플루언서",
+    "텍스트마이닝",
+    "K-뷰티",
+    "한류",
+    "LDA 토픽모델링",
+    "연어 분석"
+   ],
+   "confidence_notes": "Figure 2~6(의미연결망·연어 그래프)은 그림이라 수치를 추출하지 못했고, 본문에 적힌 공출현 횟수만 사용했습니다. 이 논문은 한국 관련 영상을 150편(51.7%)으로 적는데, 같은 표본을 쓴 2023년 Fashion and Textiles 논문은 비공개 전환된 1편을 제외해 149편(51.4%)으로 적어 두 논문 수치가 다릅니다(각 원문 그대로 인용). 영상 수집 시점은 본문에 명시되어 있지 않습니다.",
+   "status": "published"
+  },
+  {
+   "key": "laundry",
+   "title_en": "A Decade of Shifting Consumer Laundry Needs Through Text Mining Analysis",
+   "title_ko": "텍스트마이닝을 통한 10년간 소비자 세탁행동 요구의 변화",
+   "journal": "패션비즈니스(Journal of Fashion Business) 28(2), 139-151",
+   "year": 2024,
+   "index": "KCI",
+   "role": "단독",
+   "doi_or_url": "https://doi.org/10.12940/jfb.2024.28.2.139",
+   "authors": "김하빈",
+   "axis": "MACRO",
+   "one_line": "10년 새 세탁은 집 밖으로 나왔고, 세탁하는 이유도 '공유하고 팔기 위해'로 넓어졌습니다",
+   "result_first": "2014~2023년 세탁 관련 소셜 담론에서 9개 토픽이 나왔고, 이는 세탁의 주체(who&where)·대상(what)·방법(how)·이유(why) 네 맥락으로 묶였습니다. 손세탁 관심은 줄고 전문 세탁 서비스 관심은 늘었으며, 명품 세탁이 별도 토픽으로 떨어져 나왔고, 중고 판매·나눔을 위한 세탁 언급은 10년간 꾸준히 올라갔습니다. 세탁을 개인 습관이 아니라 1인가구 증가·팬데믹·공유경제 같은 거시 변화와 연결해 읽어 낸 첫 시도라는 점에서 의미가 있습니다. 방법은 썸트렌드로 약 7,000개 온라인 커뮤니티와 X에서 수집한 문서 6,498건을 Mecab으로 정제한 뒤 LDA 토픽모델링(9토픽, 정합점수 40.96)과 토픽별 키워드의 연도별 빈도 분석을 수행한 것입니다.",
+   "plain": "지난 10년 동안 사람들이 온라인에서 '세탁'에 대해 무슨 이야기를 했는지 6,500건 가까운 글을 컴퓨터로 묶어 봤습니다. 손빨래 고민은 조금 줄고 세탁 대행 업체 이야기가 늘었으며, 명품 옷을 어디에 맡기느냐는 글이 따로 뭉칠 만큼 많아졌습니다. 특히 입던 옷을 중고로 팔거나 나누기 전에 세탁하는 이야기가 계속 늘어, 세탁이 '나를 위한 집안일'에서 '다른 사람에게 건네기 위한 준비'로도 확장되고 있음을 보여 줍니다.",
+   "question": "최근 10년간 국내 소비자의 세탁 관련 관심 주제는 무엇이고, 어떤 거시 변화 속에서 어떻게 달라졌는가?",
+   "data": {
+    "type": "소셜 미디어 게시물(온라인 커뮤니티·X)",
+    "n": 6498,
+    "n_label": "문서 6,498건(커뮤니티 4,216건·X 2,282건)",
+    "source": "썸트렌드(바이브컴퍼니) — 뽐뿌·네이트판·중고나라 등 약 7,000개 커뮤니티 게시판, X(리트윗 제외)",
+    "period": "2014.1.1~2023.12.31"
+   },
+   "method": {
+    "name": "LDA 토픽모델링 + 토픽별 키워드 연도 빈도 분석",
+    "steps": [
+     "'세탁'과 동의어(빨래·세탁물·빨랫감·드라이클리닝)로 10년치 커뮤니티·X 문서 수집, 판매글 위주인 블로그·인스타그램과 '신분 세탁' 같은 동음이의 표현은 제외",
+     "Mecab 형태소 분석으로 2음절 이상 명사·고유명사만 추출해 정제",
+     "정합도 분석으로 토픽 수 9개 결정(coherence 40.96) 후 LDA 토픽모델링, 토픽을 주체·대상·방법·이유 네 맥락으로 그룹화",
+     "토픽별 주요 키워드 출현량을 연도별 비율로 환산해 변화 추이 분석(Figure 1), 원문 게시글로 맥락 확인"
+    ],
+    "tools": [
+     "썸트렌드(SomeTrend)",
+     "Python 3.8.3",
+     "Jupyter Notebook 6.0.3",
+     "Mecab"
+    ]
+   },
+   "model": {
+    "type": "topic_model",
+    "nodes": [
+     {
+      "id": "t1",
+      "label": "1 손세탁",
+      "kind": "topic"
+     },
+     {
+      "id": "t2",
+      "label": "2 세탁 권장사항",
+      "kind": "topic"
+     },
+     {
+      "id": "t3",
+      "label": "3 의류 세탁",
+      "kind": "topic"
+     },
+     {
+      "id": "t4",
+      "label": "4 럭셔리 제품 세탁",
+      "kind": "topic"
+     },
+     {
+      "id": "t5",
+      "label": "5 보관을 위한 세탁",
+      "kind": "topic"
+     },
+     {
+      "id": "t6",
+      "label": "6 세탁 서비스",
+      "kind": "topic"
+     },
+     {
+      "id": "t7",
+      "label": "7 계절 세탁",
+      "kind": "topic"
+     },
+     {
+      "id": "t8",
+      "label": "8 공유를 위한 세탁",
+      "kind": "topic"
+     },
+     {
+      "id": "t9",
+      "label": "9 세탁 시 주의할 점",
+      "kind": "topic"
+     },
+     {
+      "id": "who",
+      "label": "주체·장소(who & where)",
+      "kind": "output"
+     },
+     {
+      "id": "what",
+      "label": "대상(what)",
+      "kind": "output"
+     },
+     {
+      "id": "how",
+      "label": "방법(how)",
+      "kind": "output"
+     },
+     {
+      "id": "why",
+      "label": "이유(why)",
+      "kind": "output"
+     }
+    ],
+    "edges": [
+     {
+      "from": "t1",
+      "to": "who",
+      "label": "관심 감소",
+      "supported": true,
+      "stat": null
+     },
+     {
+      "from": "t6",
+      "to": "who",
+      "label": "관심 증가",
+      "supported": true,
+      "stat": null
+     },
+     {
+      "from": "t3",
+      "to": "what",
+      "label": "소재별 세탁법 관심 증가",
+      "supported": true,
+      "stat": null
+     },
+     {
+      "from": "t4",
+      "to": "what",
+      "label": "꾸준히 상승",
+      "supported": true,
+      "stat": null
+     },
+     {
+      "from": "t2",
+      "to": "how",
+      "label": "소폭 상승",
+      "supported": true,
+      "stat": null
+     },
+     {
+      "from": "t9",
+      "to": "how",
+      "label": "팬데믹 후 급락",
+      "supported": true,
+      "stat": null
+     },
+     {
+      "from": "t5",
+      "to": "why",
+      "label": "팬데믹기 소폭 상승 후 하락",
+      "supported": true,
+      "stat": null
+     },
+     {
+      "from": "t7",
+      "to": "why",
+      "label": "코로나 이후 하락",
+      "supported": true,
+      "stat": null
+     },
+     {
+      "from": "t8",
+      "to": "why",
+      "label": "10년간 우상향",
+      "supported": true,
+      "stat": null
+     }
+    ]
+   },
+   "findings": [
+    {
+     "text": "세탁 담론은 손세탁, 세탁 권장사항, 의류 세탁, 럭셔리 제품 세탁, 보관을 위한 세탁, 세탁 서비스, 계절 세탁, 공유를 위한 세탁, 세탁 시 주의할 점의 9개 토픽으로 나뉘었습니다.",
+     "stat": "토픽 9개, coherence score 40.96(Table 2)"
+    },
+    {
+     "text": "손세탁·물세탁 관심은 줄고 전문 세탁 서비스 관심은 늘었지만, 세탁기로 돌리면 망가지는 옷 때문에 손세탁을 벗어나지 못하는 니즈는 절대량으로 크게 줄지 않았습니다.",
+     "stat": null
+    },
+    {
+     "text": "명품 세탁이 일반 의류 세탁과 분리된 토픽으로 나타났고, 명품 전문 세탁에 대한 높은 기대와 불만, 그리고 '명품은 아니지만 신경 쓰이는 옷'을 위한 중간급 서비스 수요가 함께 나타났습니다.",
+     "stat": null
+    },
+    {
+     "text": "소재와 관계없이 무조건 '드라이클리닝'으로 표기하는 세탁 라벨에 대한 불만이 10년간 이어졌고, 세탁 시 주의사항 언급은 세탁을 대행에 맡기기 시작한 팬데믹 이후 급감했습니다.",
+     "stat": null
+    },
+    {
+     "text": "빈티지·중고·판매·인증 같은 '공유를 위한 세탁' 언급은 2017년과 팬데믹 기간에 급등하며 10년간 우상향했고, 계절 세탁은 코로나 이후 하락했습니다.",
+     "stat": null
+    }
+   ],
+   "metrics": [
+    {
+     "label": "분석 문서",
+     "value": "6,498건",
+     "note": "커뮤니티 4,216건 + X 2,282건"
+    },
+    {
+     "label": "수집 기간",
+     "value": "10년",
+     "note": "2014~2023"
+    },
+    {
+     "label": "토픽 수",
+     "value": "9개",
+     "note": "정합점수 40.96에서 최대"
+    },
+    {
+     "label": "수집 커뮤니티",
+     "value": "약 7,000개",
+     "note": "썸트렌드 수집 채널"
+    }
+   ],
+   "chart": {
+    "type": "grouped_bar",
+    "title": "연도별 세탁 관련 수집 문서 수",
+    "unit": "건",
+    "series": [
+     {
+      "name": "온라인 커뮤니티",
+      "values": [
+       276,
+       337,
+       319,
+       392,
+       424,
+       509,
+       553,
+       487,
+       476,
+       443
+      ]
+     },
+     {
+      "name": "X",
+      "values": [
+       259,
+       241,
+       177,
+       264,
+       226,
+       217,
+       196,
+       204,
+       234,
+       264
+      ]
+     }
+    ],
+    "categories": [
+     "2014",
+     "2015",
+     "2016",
+     "2017",
+     "2018",
+     "2019",
+     "2020",
+     "2021",
+     "2022",
+     "2023"
+    ],
+    "source_note": "Table 1. Numbers of Collected Documents by Year"
+   },
+   "implication": "세탁·패션 기업은 구매 단계뿐 아니라 구매 후 관리 단계의 니즈를 봐야 하며, 단순 대행을 넘어 고객 라이프스타일과 취향에 맞춘 관리 서비스로 브랜딩할 필요가 있습니다. 무책임한 '드라이클리닝 일괄 표기'는 소비자 신뢰를 깎고 있으므로 정확한 세탁 정보 제공이 곧 만족도 전략이고, 공유·중고 판매를 위한 세탁 수요는 공유경제와 맞물린 새 사업 기회입니다.",
+   "keywords": [
+    "세탁행동",
+    "사회변화",
+    "텍스트마이닝",
+    "소비자요구",
+    "LDA 토픽모델링",
+    "공유경제",
+    "세탁 서비스"
+   ],
+   "confidence_notes": "토픽별 10년 변화 추이는 Figure 1(그림)에만 있어 수치가 추출되지 않았고, 증감 방향은 본문 서술에 근거했습니다. Table 2의 토픽별 키워드 표는 추출 과정에서 열이 뒤섞여 토픽명과 본문에 언급된 키워드만 사용했습니다. 본문에 Moon & Kim 인용 연도가 2022/2023으로 혼재합니다(요약에는 미반영).",
+   "status": "published"
+  },
+  {
+   "key": "kstyle",
+   "title_en": "How \"K-Style\" has influenced the younger generation through local Vietnamese influencers",
+   "title_ko": "베트남 로컬 인플루언서를 통해 K-스타일이 젊은 세대에 미친 영향",
+   "journal": "Fashion and Textiles 10(1), Article 40",
+   "year": 2023,
+   "index": "SCIE",
+   "role": "1저자",
+   "doi_or_url": "https://doi.org/10.1186/s40691-023-00359-3",
+   "authors": "Habin Kim, Ho Jung Choo(교신)",
+   "axis": "MACRO",
+   "one_line": "베트남 유튜버는 K-스타일을 그대로 옮기지 않고 현지 기후·피부톤에 맞게 고쳐 퍼뜨립니다",
+   "result_first": "베트남 인기 뷰티·패션 유튜버들은 한국 제품(그루밍 재료), 메이크업·관리 기술(스타일링 역량), 한국이라는 이미지(의미)라는 세 요소를 둘 이상 묶어 전달하고, 덥고 습한 기후·어두운 피부톤·오토바이 통근 같은 현지 조건에 맞춰 K-스타일을 고쳐 씁니다. 모르는 브랜드는 '한국 브랜드'라는 국가 이미지로 품질을 보증하고, 미샤처럼 이미 알려진 브랜드는 원산지를 말하지 않고 평가합니다. 한류 확산이 한국 셀럽이 아니라 현지 '비보유자(non-carrier)' 중개자의 모방과 재해석으로 일어난다는 점을 보여 준 연구입니다. 방법은 베트남 구독자 상위 뷰티·패션 유튜버 29명의 최다 조회 영상 290편 중 한국 관련 149편의 대본을 실천이론 틀로 담화 분석하고 과정 이론화한 것입니다.",
+   "plain": "베트남 젊은 층은 한국 화장품과 스타일을 한국 연예인이 아니라 자기 나라 유튜버를 보고 배웁니다. 이 유튜버들은 한국 제품을 소개하되 '베트남은 덥고 습하니 쿠션 위에 파우더를 덧바르라', '한국 여성은 피부가 하얘서 쿠션은 가장 어두운 색을 고르라'처럼 현지 사정에 맞게 사용법을 바꿔 알려 줍니다. 결국 베트남에서 통하는 'K-스타일'은 한국에서 건너온 그대로가 아니라 현지인이 손봐서 다시 만든 혼합물입니다.",
+   "question": "베트남 유튜버는 K-스타일을 어떻게 현지 소비자에게 전파하는가?",
+   "data": {
+    "type": "인플루언서 콘텐츠(유튜브 영상 대본)",
+    "n": 149,
+    "n_label": "한국 관련 영상 149편(검토 290편 중 51.4%)",
+    "source": "YouTube — Noxinfluencer.com 'know-how/style' 베트남 상위 250채널에서 선별",
+    "period": "채널 선별 2022년 4월, 영상 게재 2014~2020년(최종 확인 2023년 4월)"
+   },
+   "method": {
+    "name": "실천이론 기반 담화 분석·과정 이론화(위상학적 접근)",
+    "steps": [
+     "구독자 10만 명 이상, 지속 업로드, 상위 10개 영상 중 뷰티·패션 70% 이상, 개인 채널 기준으로 유튜버 29명 선정(Changmakeup 추가)",
+     "각 유튜버 최다 조회 영상 10편(290편)을 이중언어 연구자 2인이 '한국 언급'·'한국 제품 사용' 여부로 코딩, 20% 교차 확인(일치 85%) 후 149편 확정",
+     "베트남어 대본을 전사하고 Google 번역·Papago로 영역, 15% 교차 검증(일치 87.9%) 후 원영상과 재대조",
+     "반복 시청으로 7개 요소와 하위 주제를 추출한 뒤 3개 실천 요소·3개 연결·2개 맥락 요소로 정리하고 확산 과정을 도식화(Fig. 1)"
+    ],
+    "tools": [
+     "Noxinfluencer.com",
+     "Google Translate",
+     "Naver Papago"
+    ]
+   },
+   "model": {
+    "type": "pipeline",
+    "nodes": [
+     {
+      "id": "videos",
+      "label": "베트남 유튜버 한국 관련 영상 149편",
+      "kind": "input"
+     },
+     {
+      "id": "material",
+      "label": "그루밍 재료(한국 제품·브랜드)",
+      "kind": "process"
+     },
+     {
+      "id": "competence",
+      "label": "스타일링 역량(메이크업·관리 기술)",
+      "kind": "process"
+     },
+     {
+      "id": "meaning",
+      "label": "이미지 의미(한국 이미지·K-콘텐츠)",
+      "kind": "process"
+     },
+     {
+      "id": "context",
+      "label": "현지 맥락(기후·라이프스타일·피부톤)",
+      "kind": "process"
+     },
+     {
+      "id": "hybrid",
+      "label": "현지화된 K-스타일(하이브리드)",
+      "kind": "output"
+     }
+    ],
+    "edges": [
+     {
+      "from": "videos",
+      "to": "material",
+      "label": "",
+      "supported": true,
+      "stat": null
+     },
+     {
+      "from": "videos",
+      "to": "competence",
+      "label": "",
+      "supported": true,
+      "stat": null
+     },
+     {
+      "from": "videos",
+      "to": "meaning",
+      "label": "",
+      "supported": true,
+      "stat": null
+     },
+     {
+      "from": "material",
+      "to": "competence",
+      "label": "K-스타일 실행(제품+기술)",
+      "supported": true,
+      "stat": null
+     },
+     {
+      "from": "material",
+      "to": "meaning",
+      "label": "K-스타일 브랜딩(브랜드 효과 vs 국가 효과)",
+      "supported": true,
+      "stat": null
+     },
+     {
+      "from": "competence",
+      "to": "meaning",
+      "label": "K-스타일 코드화(자연스러움·가벼움·절제)",
+      "supported": true,
+      "stat": null
+     },
+     {
+      "from": "material",
+      "to": "context",
+      "label": "상호작용적 적응",
+      "supported": true,
+      "stat": null
+     },
+     {
+      "from": "competence",
+      "to": "context",
+      "label": "상호작용적 적응",
+      "supported": true,
+      "stat": null
+     },
+     {
+      "from": "meaning",
+      "to": "context",
+      "label": "상호작용적 적응",
+      "supported": true,
+      "stat": null
+     },
+     {
+      "from": "context",
+      "to": "hybrid",
+      "label": "",
+      "supported": true,
+      "stat": null
+     }
+    ]
+   },
+   "findings": [
+    {
+     "text": "베트남 상위 유튜버의 최다 조회 영상 290편 중 절반이 넘는 149편이 한국을 언급하거나 한국 제품을 사용했습니다.",
+     "stat": "149/290편(51.4%)"
+    },
+    {
+     "text": "한국 관련 영상의 평균 조회수는 전체 상위 영상 평균을 웃돌았고, 2019년에는 138%까지 올랐습니다.",
+     "stat": "평균 1,505,813회, 전체 대비 104%(Table 2)"
+    },
+    {
+     "text": "세 실천 요소는 단독으로 전달되지 않고 둘 이상 결합되어 나타났으며, 선행연구와 달리 '의미'가 항상 다른 요소를 이어 주는 다리 역할을 하지는 않았습니다.",
+     "stat": null
+    },
+    {
+     "text": "인지도가 낮은 브랜드(셀퓨전씨, 롬앤, 메디힐)는 '한국 브랜드'라는 국가 이미지로 품질을 보증했고, 이미 알려진 브랜드(미샤, 투쿨포스쿨)는 원산지 언급 없이 브랜드 자체로 평가했습니다.",
+     "stat": null
+    },
+    {
+     "text": "습한 기후에는 쿠션 위 파우더 덧바르기, 어두운 피부톤에는 가장 어두운 쿠션 톤, 웜톤이 없으면 로레알 같은 대안 추천 등 현지 조건에 맞춘 변형이 반복적으로 나타났습니다.",
+     "stat": null
+    }
+   ],
+   "metrics": [
+    {
+     "label": "분석 유튜버",
+     "value": "29명",
+     "note": "구독자 10만 이상 뷰티·패션 채널"
+    },
+    {
+     "label": "검토 영상",
+     "value": "290편",
+     "note": "유튜버당 최다 조회 10편"
+    },
+    {
+     "label": "한국 관련 영상",
+     "value": "149편",
+     "note": "전체의 51.4%"
+    },
+    {
+     "label": "코딩 일치율",
+     "value": "85%",
+     "note": "20% 무작위 교차 확인"
+    }
+   ],
+   "chart": {
+    "type": "grouped_bar",
+    "title": "한국 관련 영상 평균 조회수 ÷ 전체 상위 영상 평균(연도별)",
+    "unit": "%",
+    "series": [
+     {
+      "name": "한국 언급 영상",
+      "values": [
+       79,
+       82,
+       107,
+       74,
+       93,
+       138,
+       89
+      ]
+     },
+     {
+      "name": "한국 제품 사용 영상",
+      "values": [
+       101,
+       104,
+       89,
+       105,
+       122,
+       125,
+       70
+      ]
+     }
+    ],
+    "categories": [
+     "2014",
+     "2015",
+     "2016",
+     "2017",
+     "2018",
+     "2019",
+     "2020"
+    ],
+    "source_note": "Table 2 (Top-viewed videos average ratio, %)"
+   },
+   "implication": "베트남에 진출하는 K-뷰티·패션 브랜드는 한류 인기에 기대기보다 현지 기후와 피부톤에 맞는 제품과 브랜드 자체의 품질 이미지로 승부해야 합니다. 현지 인플루언서는 단순 광고 채널이 아니라 한국 스타일을 베트남 문법으로 번역하는 중개자이므로, 이들의 변형 방식을 제품 기획에 역으로 반영할 필요가 있습니다.",
+   "keywords": [
+    "네트워크 문화 확산",
+    "문화 적응",
+    "실천이론",
+    "한류",
+    "소셜미디어 인플루언서",
+    "베트남 시장",
+    "K-스타일"
+   ],
+   "confidence_notes": "Fig. 1(확산 과정 도식)은 그림이라 추출되지 않아 본문 서술로 구조를 재구성했습니다. 영상별 상세 목록(Additional file 1)은 원문에 없어 연도별 편수는 제시하지 않았습니다.",
+   "status": "published"
+  },
+  {
+   "key": "vietnam_mz",
+   "title_en": "A Study on the Multidimensional Consumption Value of Vietnamese MZ Generation: Focusing on the Relationship between Consumption Value Factors, Demographic Characteristics, and Global Consumption Propensity",
+   "title_ko": "베트남 MZ세대의 다차원적 소비가치에 대한 연구 -소비가치 요인과 인구통계학적 특성 및 글로벌 소비성향의 관련성을 중심으로-",
+   "journal": "한국의류학회지(Journal of the Korean Society of Clothing and Textiles) 46(5), 848-867",
+   "year": 2022,
+   "index": "Scopus · KCI",
+   "role": "공저",
+   "doi_or_url": "https://doi.org/10.5850/JKSCT.2022.46.5.848",
+   "authors": "추호정, 장주연(교신), 백은수, 이하경, 김하빈",
+   "axis": "MACRO",
+   "one_line": "베트남 MZ세대 소비가치는 6차원, 자기표현과 자율이 새 기준으로 떠올랐습니다",
+   "result_first": "베트남 MZ세대의 소비가치는 기능적·감성적·사회적·윤리적·자기표현적·자율지향적 가치의 6개 차원으로 묶였고, 기존 모형에 없던 자기표현과 자율이 독립된 축으로 확인됐으며 '새로움 추구'는 인지적 가치가 아니라 쾌락·심미와 함께 감성적 가치로 묶였습니다. M세대는 Z세대보다 감성·사회·윤리적 가치를 더 중시했고, 문화 개방성·글로벌 시민의식·한국에 대한 태도·한국 콘텐츠 소비는 여섯 가치 모두와 정(+)의 상관을 보여 특히 한국 뷰티/패션 소비는 자기표현적(r=.422)·사회적 가치(r=.414)와 가장 밀접했습니다. 2021년 1~2월 베트남 거주 18~37세 368명의 온라인 설문을 탐색적·확인적 요인분석, t검정, 분산분석, 상관분석으로 분석했습니다.",
+   "plain": "베트남의 20~30대가 물건을 살 때 무엇을 중요하게 여기는지 뼈대를 그린 연구입니다. '튼튼하고 싸다'(기능), '즐겁고 예쁘고 새롭다'(감성), '남들이 알아봐 준다'(사회), '지역과 환경에 도움이 된다'(윤리)에 더해 '나를 드러낸다'(자기표현)와 '내 뜻대로 산다'(자율)가 따로 떨어져 나왔습니다. 한국 문화에 호감이 크고 한국 콘텐츠를 많이 쓰는 사람일수록 이 가치들을 전반적으로 더 중시했고, 특히 한국 뷰티·패션 소비는 '남에게 보이기'와 '나 표현하기'와 가장 깊이 얽혀 있었습니다.",
+   "question": "베트남 MZ세대의 소비가치는 어떤 하위 차원으로 구성되며, 인구통계 특성과 글로벌·한국 소비태도 및 한국 콘텐츠 소비행동과 어떤 관계를 갖는가?",
+   "data": {
+    "type": "설문",
+    "n": 368,
+    "n_label": "베트남 거주 18~37세 MZ세대 368명(Z세대 160명, M세대 208명)",
+    "source": "Macromill Embrain 베트남 리서치 패널(온라인)",
+    "period": "2021년 1월 28일~2월 3일"
+   },
+   "method": {
+    "name": "EFA/CFA(2차 요인) + t검정·ANOVA·상관분석",
+    "steps": [
+     "선행연구 기반 9개 하위차원 32문항 소비가치 척도 구성, 한국어→베트남어 번역 후 이중 교정",
+     "주성분·베리맥스 EFA로 26문항 6요인 도출(KMO .897), 2차 요인 CFA로 23문항 최종 모형 확정",
+     "세대·성별 t검정, 학력별 일원분산분석(Duncan), 문화 개방성·글로벌 시민의식·한국 태도·한국 콘텐츠 소비와 Pearson 상관분석"
+    ],
+    "tools": [
+     "SPSS 21.0",
+     "AMOS 21.0"
+    ]
+   },
+   "model": {
+    "type": "topic_model",
+    "nodes": [
+     {
+      "id": "fv",
+      "label": "기능적 가치 (효용 · 가격)",
+      "kind": "topic"
+     },
+     {
+      "id": "ev",
+      "label": "감성적 가치 (쾌락 · 새로움 · 심미)",
+      "kind": "topic"
+     },
+     {
+      "id": "sv",
+      "label": "사회적 가치",
+      "kind": "topic"
+     },
+     {
+      "id": "etv",
+      "label": "윤리적 가치",
+      "kind": "topic"
+     },
+     {
+      "id": "sev",
+      "label": "자기표현적 가치 (신규)",
+      "kind": "topic"
+     },
+     {
+      "id": "aov",
+      "label": "자율지향적 가치 (신규)",
+      "kind": "topic"
+     }
+    ],
+    "edges": []
+   },
+   "findings": [
+    {
+     "text": "소비가치는 6요인 23문항 구조로 확정되었고, 2차 요인 모형의 적합도가 양호했습니다.",
+     "stat": "χ²=491.480, df=210; CFI=.920, TLI=.903, RMSEA=.060; AVE≥.542, CR≥.779"
+    },
+    {
+     "text": "자기표현적 가치와 자율지향적 가치가 독립 요인으로 분리됐고, 새로움 추구는 쾌락·심미와 함께 감성적 가치로 묶였습니다.",
+     "stat": "EFA 6요인, KMO=.897, 요인적재량≥.514"
+    },
+    {
+     "text": "M세대가 Z세대보다 감성적·사회적·윤리적 가치를 더 중시했습니다.",
+     "stat": "감성 4.07 vs 3.91(t=-2.582*), 사회 3.72 vs 3.40(t=-3.745**), 윤리 3.98 vs 3.71(t=-3.798**)"
+    },
+    {
+     "text": "학력이 높을수록 모든 소비가치 점수가 높았고, 성별 차이는 자기표현적 가치에서 여성이 높았습니다.",
+     "stat": "학력별 F=4.021~18.661(p<.05 또는 p<.01); 자기표현 여 3.80 vs 남 3.59(t=2.286*)"
+    },
+    {
+     "text": "문화 개방성·글로벌 시민의식·한국 태도·한국 콘텐츠 소비는 여섯 가치 모두와 정의 상관을 보였고, 뷰티/패션 소비는 자기표현·사회적 가치와 가장 밀접했습니다.",
+     "stat": "문화 개방성–감성 r=.544; 글로벌 시민의식–감성 r=.544; 한국 콘텐츠 소비 총합–사회 r=.543; 뷰티/패션–자기표현 r=.422, –사회 r=.414 (모두 p<.01)"
+    }
+   ],
+   "metrics": [
+    {
+     "label": "표본",
+     "value": "368명",
+     "note": "Z세대 160명, M세대 208명"
+    },
+    {
+     "label": "소비가치 차원",
+     "value": "6개",
+     "note": "23문항, 2차 요인 구조"
+    },
+    {
+     "label": "모형 적합도",
+     "value": "CFI=.920",
+     "note": "TLI=.903, RMSEA=.060"
+    },
+    {
+     "label": "조사 시기",
+     "value": "2021.01.28~02.03",
+     "note": "온라인 패널"
+    }
+   ],
+   "chart": {
+    "type": "grouped_bar",
+    "title": "세대별 소비가치 평균",
+    "unit": "5점 척도 평균",
+    "series": [
+     {
+      "name": "Z세대(18-27, n=160)",
+      "values": [
+       4.26,
+       3.91,
+       3.4,
+       3.71,
+       3.62,
+       4.07
+      ]
+     },
+     {
+      "name": "M세대(28-37, n=208)",
+      "values": [
+       4.31,
+       4.07,
+       3.72,
+       3.98,
+       3.75,
+       4.15
+      ]
+     }
+    ],
+    "categories": [
+     "기능적",
+     "감성적",
+     "사회적",
+     "윤리적",
+     "자기표현적",
+     "자율지향적"
+    ],
+    "source_note": "Table 5 (감성·사회·윤리 차이 유의, p<.05/p<.01)"
+   },
+   "implication": "베트남에 진출하는 글로벌·한국 브랜드는 해외 문화에 개방적인 MZ 고객에게 감성과 자율성을 지원하는 메시지를 앞세워야 합니다. 뷰티/패션은 사회적 인정과 자기표현 가치와 가장 밀접하므로 소셜 미디어에서 자신과 브랜드를 함께 드러낼 수 있는 참여형 프로모션이 효과적이며, M세대와 Z세대를 한 덩어리로 보지 말고 감성·사회·윤리 가치의 차이를 반영해 세분화해야 합니다.",
+   "keywords": [
+    "소비가치",
+    "MZ세대",
+    "베트남 소비자",
+    "문화 개방성",
+    "글로벌 시민의식",
+    "한류 소비",
+    "자기표현적 가치",
+    "자율지향적 가치"
+   ],
+   "confidence_notes": "Table 3의 신뢰도 열이 하위차원 α와 상위차원 α가 섞여 추출되어 개별 α는 사용하지 않았습니다. Table 5에서 자율지향적 가치의 성별 t값(-4.040**)이 평균(여 4.14, 남 4.09)과 본문 서술(성별 차이는 자기표현만 유의)과 맞지 않아 해당 수치는 제외했습니다. 파일 앞부분의 Scopus 페이지 덤프는 무시했습니다.",
+   "status": "published"
+  },
+  {
+   "key": "secondhand",
+   "title_en": "Changes in the Perception of Second-hand Fashion Consumption in the Post-pandemic Era",
+   "title_ko": "포스트 팬데믹 시대의 중고 패션 소비 인식 변화",
+   "journal": "한국의류산업학회지(Fashion & Textile Research Journal) 24(1), 66-80",
+   "year": 2022,
+   "index": "KCI",
+   "role": "1저자",
+   "doi_or_url": "https://doi.org/10.5805/SFTI.2022.24.1.66",
+   "authors": "김하빈, 이하경(교신)",
+   "axis": "RETAIL",
+   "one_line": "팬데믹 뒤 중고 패션은 '싸게 사기'에서 '팔아서 가치 만들기'로, 지속가능성은 일상 실천이 됐습니다",
+   "result_first": "코로나 전 7개였던 중고 패션 토픽이 코로나 후 9개로 늘었고, 지속가능성 토픽은 기업 마케팅 담론에서 집콕 정리 중 소비자가 몸으로 느끼는 실천 가치로 바뀌며 비중 1위(0.26)에 올랐습니다. 중고 명품은 '정상가보다 싸게 사는' 경제적 가치에서 '모임이 줄어 안 쓰는 명품을 파는' 경제적 가치로 중심이 옮겨 갔고, 스니커즈 리세일이 재테크 수단으로 독립 토픽이 됐으며, 동묘 같은 오프라인 중고거래 토픽은 사라지고 플랫폼 성장·생활정보 커뮤니티 토픽이 새로 나타났습니다. 중고 패션 연구를 제품 가치 중심에서 플랫폼 서비스와 판매자 관점으로 넓힌 점이 핵심 기여입니다. 방법은 텍스톰으로 네이버·다음 블로그·웹문서에서 '중고 패션' 키워드로 코로나 전후 같은 계절 구간(2019·2020년 1월 20일~11월 15일) 각 1,200건, 총 2,400건을 수집해 Mecab으로 정제하고 TF·TF-IDF와 LDA 토픽모델링(정합점수 0.321/0.324) 및 게시글 내용 분석을 수행한 것입니다.",
+   "plain": "코로나 전과 후, 사람들이 블로그에서 '중고 패션'을 어떻게 이야기했는지 2,400건의 글을 컴퓨터로 주제별로 묶어 비교했습니다. 코로나 전에는 '브랜드가 친환경을 한다더라', '명품을 싸게 샀다'는 식이었는데, 코로나 후에는 집에 갇혀 옷장을 정리하다 '이걸 왜 샀지' 하며 안 쓰는 명품을 당근마켓·번개장터에 내놓고, 한정판 운동화를 사서 되파는 '리셀 재테크' 이야기가 따로 묶일 만큼 늘었습니다. 중고 거래가 아끼는 수단에서 돈을 만들고 동네 정보를 나누는 플랫폼 생활로 바뀐 셈입니다.",
+   "question": "코로나19 팬데믹은 국내 소비자의 중고 패션 소비 인식을 어떻게 바꾸었는가?",
+   "data": {
+    "type": "뉴스·블로그 등(네이버·다음 블로그 및 웹문서)",
+    "n": 2400,
+    "n_label": "게시물 2,400건(코로나 전·후 각 1,200건)",
+    "source": "텍스톰(더아이엠씨) — 네이버·다음 블로그·웹문서, 키워드 '중고 패션'(광고 반복 탓에 카페 제외)",
+    "period": "코로나 전 2019.1.20~2019.11.15 / 코로나 후 2020.1.20~2020.11.15"
+   },
+   "method": {
+    "name": "LDA 토픽모델링 + 내용 분석(코로나 전·후 비교)",
+    "steps": [
+     "국내 첫 확진일(2020.1.20)을 기준으로 전·후 같은 계절 구간을 잡아 텍스톰으로 각 1,200건 수집",
+     "Mecab 형태소 분석으로 2음절 이상 명사·고유명사·형용사·동사만 남기고 정제(정제 후 텍스트 5,385개/5,404개), '중고나라'·'득템' 같은 미등록어는 연구자가 사전에 추가",
+     "코로나 전·후 각각 상위 30개 TF·TF-IDF 비교",
+     "정합점수가 가장 높은 토픽 수(전 7개·후 9개)로 LDA 실행, λ≥0.5로 연관어 확인 후 키워드가 포함된 원문 게시글을 다시 읽어 토픽 명명과 내용 분석"
+    ],
+    "tools": [
+     "텍스톰(Textom)",
+     "Python 3.8.3",
+     "Jupyter Notebook 6.0.3",
+     "Mecab"
+    ]
+   },
+   "model": {
+    "type": "comparison",
+    "nodes": [
+     {
+      "id": "pre1",
+      "label": "전1 중고차 거래(분석 제외)",
+      "kind": "topic"
+     },
+     {
+      "id": "pre2",
+      "label": "전2 지속가능성",
+      "kind": "topic"
+     },
+     {
+      "id": "pre3",
+      "label": "전3 중고 패션 제품 및 거래 형태",
+      "kind": "topic"
+     },
+     {
+      "id": "pre4",
+      "label": "전4 패스트패션",
+      "kind": "topic"
+     },
+     {
+      "id": "pre5",
+      "label": "전5 중고 잡화 거래",
+      "kind": "topic"
+     },
+     {
+      "id": "pre6",
+      "label": "전6 중고 명품",
+      "kind": "topic"
+     },
+     {
+      "id": "pre7",
+      "label": "전7 오프라인 중고거래",
+      "kind": "topic"
+     },
+     {
+      "id": "post1",
+      "label": "후1 지속가능 가치의 확대",
+      "kind": "topic"
+     },
+     {
+      "id": "post2",
+      "label": "후2 중고 명품 거래 플랫폼",
+      "kind": "topic"
+     },
+     {
+      "id": "post3",
+      "label": "후3 중고 거래 플랫폼",
+      "kind": "topic"
+     },
+     {
+      "id": "post4",
+      "label": "후4 중고차 거래(분석 제외)",
+      "kind": "topic"
+     },
+     {
+      "id": "post5",
+      "label": "후5 패스트 패션",
+      "kind": "topic"
+     },
+     {
+      "id": "post6",
+      "label": "후6 플랫폼의 성장",
+      "kind": "topic"
+     },
+     {
+      "id": "post7",
+      "label": "후7 중고 잡화 명품 거래",
+      "kind": "topic"
+     },
+     {
+      "id": "post8",
+      "label": "후8 스니커즈 리세일",
+      "kind": "topic"
+     },
+     {
+      "id": "post9",
+      "label": "후9 생활 정보 커뮤니티",
+      "kind": "topic"
+     }
+    ],
+    "edges": [
+     {
+      "from": "pre1",
+      "to": "post4",
+      "label": "내용 유사",
+      "supported": true,
+      "stat": "0.261 → 0.099"
+     },
+     {
+      "from": "pre3",
+      "to": "post3",
+      "label": "내용 유사",
+      "supported": true,
+      "stat": "0.172 → 0.189"
+     },
+     {
+      "from": "pre4",
+      "to": "post5",
+      "label": "내용 유사(사회적 비판 → 개인적 죄책감)",
+      "supported": true,
+      "stat": "0.139 → 0.077"
+     },
+     {
+      "from": "pre2",
+      "to": "post1",
+      "label": "내용 확대(기업 담론 → 소비자 실천)",
+      "supported": true,
+      "stat": "0.222 → 0.26"
+     },
+     {
+      "from": "pre6",
+      "to": "post2",
+      "label": "내용 확대(구매 → 판매, 플랫폼)",
+      "supported": true,
+      "stat": "0.073 → 0.211"
+     },
+     {
+      "from": "pre5",
+      "to": "post7",
+      "label": "내용 확대",
+      "supported": true,
+      "stat": "0.093 → 0.042"
+     },
+     {
+      "from": "pre5",
+      "to": "post8",
+      "label": "내용 확대(스니커즈 분리)",
+      "supported": true,
+      "stat": "→ 0.033"
+     },
+     {
+      "from": "pre7",
+      "to": "post6",
+      "label": "내용 차별(오프라인 → 모바일 플랫폼)",
+      "supported": true,
+      "stat": "0.004 → 0.057"
+     },
+     {
+      "from": "pre7",
+      "to": "post9",
+      "label": "내용 차별(지역 생활 커뮤니티)",
+      "supported": true,
+      "stat": "→ 0.033"
+     }
+    ]
+   },
+   "findings": [
+    {
+     "text": "코로나 전 7개, 후 9개 토픽이 도출되었고, 전후 토픽은 내용 유사군(중고차·중고 거래 형태·패스트패션), 내용 확대군(지속가능성·중고 명품·중고 잡화), 내용 차별군(오프라인 중고거래 → 플랫폼 성장·생활정보 커뮤니티)으로 갈렸습니다.",
+     "stat": "정합점수 0.321(전, 7토픽) / 0.324(후, 9토픽)"
+    },
+    {
+     "text": "지속가능성은 두 시기 모두 상위 토픽이었지만, 코로나 전에는 브랜드의 윤리 마케팅 담론이었고 코로나 후에는 집콕 정리 중 자신의 과거 소비를 돌아보며 실천하는 가치로 바뀌어 비중 1위에 올랐습니다.",
+     "stat": "토픽 비중 0.222 → 0.26(Table 1)"
+    },
+    {
+     "text": "중고 명품은 코로나 전 '정상가보다 싸게 구매'하는 경제적 가치에서, 코로나 후 모임이 줄어 '안 쓰는 명품을 판매'하는 경제적 가치로 중심이 옮겨 갔고 고이비토·파스텔세상·헬로마켓 같은 플랫폼 이름이 함께 등장했습니다.",
+     "stat": "중고 명품 거래 플랫폼 토픽 0.211"
+    },
+    {
+     "text": "코로나 전에는 다른 토픽에 섞여 있던 스니커즈가 코로나 후 '스니커즈 리세일' 토픽으로 독립했고, 한정판을 모아 되파는 리셀이 MZ세대의 재테크 수단으로 언급되었습니다.",
+     "stat": "토픽 비중 0.033"
+    },
+    {
+     "text": "동묘 중심의 오프라인 중고거래 토픽은 사라지고 플랫폼 성장·생활정보 커뮤니티 토픽이 새로 나타났으며, AI 사기 탐지와 번개페이 같은 안전장치에도 거래 불안은 여전했습니다.",
+     "stat": "오프라인 0.004 → 플랫폼 성장 0.057, 생활정보 커뮤니티 0.033"
+    }
+   ],
+   "metrics": [
+    {
+     "label": "분석 게시물",
+     "value": "2,400건",
+     "note": "코로나 전·후 각 1,200건"
+    },
+    {
+     "label": "정제 후 텍스트",
+     "value": "5,385 / 5,404개",
+     "note": "전 / 후"
+    },
+    {
+     "label": "토픽 수",
+     "value": "7개 → 9개",
+     "note": "코로나 전 → 후"
+    },
+    {
+     "label": "비교 구간",
+     "value": "각 약 300일",
+     "note": "1월 20일~11월 15일, 2019 vs 2020"
+    }
+   ],
+   "chart": {
+    "type": "bar",
+    "title": "코로나 이후 중고 패션 토픽 비중(LDA weight)",
+    "unit": "weight",
+    "series": [
+     {
+      "name": "코로나 후(2020)",
+      "values": [
+       0.26,
+       0.211,
+       0.189,
+       0.099,
+       0.077,
+       0.057,
+       0.042,
+       0.033,
+       0.033
+      ]
+     }
+    ],
+    "categories": [
+     "지속가능 가치의 확대",
+     "중고 명품 거래 플랫폼",
+     "중고 거래 플랫폼",
+     "중고차 거래(제외)",
+     "패스트 패션",
+     "플랫폼의 성장",
+     "중고 잡화 명품 거래",
+     "스니커즈 리세일",
+     "생활 정보 커뮤니티"
+    ],
+    "source_note": "Table 1. Detailed topics — A.D.(After Disease) Weight"
+   },
+   "implication": "중고 거래 플랫폼은 기업의 친환경 노력을 광고하기보다 고객이 작은 실천으로 지속가능성을 체험할 수 있게 하는 브랜딩이 필요하고, 구매자만큼 판매자 경험 설계가 중요합니다. 비대면 시대의 거래 불안을 낮추는 신뢰 기술이 플랫폼의 핵심 경쟁력이 되며, 중고 거래를 넘어 지역 커뮤니티로 확장된 체류 시간을 매출로 연결하는 전략이 요구됩니다.",
+   "keywords": [
+    "중고 패션",
+    "포스트 팬데믹",
+    "빅데이터",
+    "텍스트마이닝",
+    "토픽모델링",
+    "스니커즈 리세일",
+    "중고 거래 플랫폼"
+   ],
+   "confidence_notes": "로컬 PDF가 없어 KCI 초록과 KoreaScience에 공개된 원문 PDF(DOI 10.5805/SFTI.2022.24.1.66)를 내려받아 텍스트를 추출해 전문을 바탕으로 요약했습니다. 영문 초록은 '24,000 posts'라고 적었지만 본문 3.2절은 전·후 각 1,200건, 총 2,400건으로 명시해 본문 수치를 채택했습니다. 본문의 코로나 후 채널별 건수(네이버 블로그 438·네이버 웹 116·다음 웹 225)는 합계 1,200과 맞지 않아(다음 블로그 건수 누락 추정) 채널별 분해는 싣지 않았습니다. Table 1의 토픽별 상위 키워드는 추출 시 열이 뒤섞여 토픽명과 비중(weight)만 사용했습니다.",
+   "status": "published"
+  }
+ ],
+ "n_published": 10,
+ "n_conference": 1
+};
+const P = (D && D.papers) || [];
+const AX = {MACRO:"거시환경 · 소비자", RETAIL:"지속가능 리테일 · 플랫폼", AI:"AI · 텍스트 모델"};
+const esc = s => String(s==null?"":s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const fmt = v => (typeof v==="number") ? (Math.abs(v)>=1000 ? v.toLocaleString("ko-KR") : (Number.isInteger(v)? String(v) : (Math.abs(v)<1 ? v.toFixed(2).replace(/^(-?)0\./,"$1.") : v.toFixed(1)))) : String(v);
+
+/* ---------- 상단 수치 ---------- */
+(function head(){
+  const pub = P.filter(p=>p.status!=="conference"), conf = P.length - pub.length;
+  const top = pub.filter(p=>/SSCI|SCIE/.test(p.index)).length;
+  const lead = P.filter(p=>/1저자|교신|단독/.test(p.role)).length;
+  document.getElementById("m-n").textContent = pub.length + "편" + (conf?` + 학회 수상 ${conf}편`:"");
+  document.getElementById("m-top").textContent = top + "편";
+  document.getElementById("m-lead").textContent = lead + "편";
+  document.getElementById("m-asof").textContent = D.asof || "";
+  const years = pub.map(p=>p.year); const y0 = Math.min(...years), y1 = Math.max(...years);
+  const byAx = {MACRO:0, RETAIL:0, AI:0}; P.forEach(p=>byAx[p.axis]=(byAx[p.axis]||0)+1);
+  const nSum = P.reduce((a,p)=>a+((p.data&&p.data.n)||0),0);
+  const tiles = [
+    ["게재 논문", pub.length+"편", `${y0}~${y1} · SSCI·SCIE ${top}편` + (conf?` · 학회 수상 ${conf}편`:"")],
+    ["연구 축", `${byAx.MACRO}·${byAx.RETAIL}·${byAx.AI}`, "거시환경 · 리테일 · AI"],
+    ["주저자 비중", Math.round(lead/P.length*100)+"%", `1저자·교신·단독 ${lead}편`],
+    ["분석한 자료", nSum>0 ? (nSum>=10000 ? (nSum/10000).toFixed(1)+"만" : nSum.toLocaleString("ko-KR")) : "—", "표본·게시물·리뷰 합산"],
+  ];
+  document.getElementById("kpis").innerHTML = tiles.map(t=>`<div class="tile"><div class="lab">${t[0]}</div><div class="val">${t[1]}</div><div class="sub">${t[2]}</div></div>`).join("");
+})();
+
+/* ---------- 필터 ---------- */
+const F = {axis:"ALL", idx:"ALL"};
+function renderFilters(){
+  const cnt = k => P.filter(p=>p.axis===k).length;
+  const ci = k => P.filter(p=> k==="TOP" ? /SSCI|SCIE/.test(p.index) : /KCI/.test(p.index)).length;
+  document.getElementById("filters").innerHTML =
+    `<span class="lab">연구 축</span>` +
+    [["ALL","전체",P.length],["MACRO","거시환경",cnt("MACRO")],["RETAIL","리테일",cnt("RETAIL")],["AI","AI",cnt("AI")]]
+      .map(a=>`<button class="chip ${F.axis===a[0]?"on":""}" data-axis="${a[0]}">${a[1]}<i>${a[2]}</i></button>`).join("") +
+    `<span class="lab" style="margin-left:10px">등재</span>` +
+    [["ALL","전체"],["TOP","SSCI·SCIE"],["KCI","KCI"]].map(a=>`<button class="chip ${F.idx===a[0]?"on":""}" data-idx="${a[0]}">${a[1]}${a[0]!=="ALL"?`<i>${ci(a[0])}</i>`:""}</button>`).join("") +
+    `<span class="count" id="cnt"></span>`;
+  document.querySelectorAll("#filters .chip").forEach(b=>b.addEventListener("click",()=>{
+    if(b.dataset.axis) F.axis=b.dataset.axis; if(b.dataset.idx) F.idx=b.dataset.idx; renderFilters(); applyFilter();
+  }));
+}
+function applyFilter(){
+  let n=0;
+  document.querySelectorAll("section.paper").forEach(s=>{
+    const p = P.find(x=>x.key===s.dataset.key);
+    const ok = (F.axis==="ALL"||p.axis===F.axis) && (F.idx==="ALL" || (F.idx==="TOP" ? /SSCI|SCIE/.test(p.index) : /KCI/.test(p.index)));
+    s.hidden = !ok; if(ok) n++;
+  });
+  document.getElementById("cnt").textContent = `${n} / ${P.length}편`;
+}
+
+/* ---------- 모델 도식 ---------- */
+function wrapLabel(s, max){
+  s = String(s||""); if(s.length<=max) return [s];
+  const par = s.indexOf("("); const sp = s.lastIndexOf(" ", max);
+  const cut = (par>1 && par<=max+2) ? par : (sp>2 ? sp : max);
+  const a = s.slice(0,cut).trim(), b = s.slice(cut).trim();
+  return [a, b.length>max+2 ? b.slice(0,max+1)+"…" : b];
+}
+function modelSVG(m){
+  if(!m || !m.nodes || !m.nodes.length) return "";
+  const nodes = m.nodes.map(n=>({...n}));
+  const W=124, H=42, CP=176, RP=60, PADX=6, PADY=10;
+  // 열 배치
+  let cols = [];
+  if(m.type==="pipeline" || m.type==="comparison"){
+    const ins = nodes.filter(n=>n.kind==="input"), prs = nodes.filter(n=>n.kind==="process"), outs = nodes.filter(n=>!/input|process/.test(n.kind));
+    cols = [ins]; prs.forEach(p=>cols.push([p])); cols.push(outs);
+    cols = cols.filter(c=>c.length);
+    if(cols.length>5){ // 너무 길면 process 를 2개씩 묶음
+      const prs2=[]; for(let i=0;i<prs.length;i+=2) prs2.push(prs.slice(i,i+2));
+      cols=[ins,...prs2,outs].filter(c=>c.length);
+    }
+  }else{
+    const ivs = nodes.filter(n=>/iv|input/.test(n.kind)), meds = nodes.filter(n=>/mediator|process/.test(n.kind)), dvs = nodes.filter(n=>/dv|output/.test(n.kind));
+    cols = [ivs, meds, dvs].filter(c=>c.length);
+    if(!meds.length && dvs.length) cols = [ivs, dvs].filter(c=>c.length);
+  }
+  const mods = nodes.filter(n=>n.kind==="moderator");
+  const modRow = mods.length ? 1 : 0;
+  const maxRows = Math.max(...cols.map(c=>c.length), 1);
+  const width = PADX*2 + (cols.length-1)*CP + W;
+  const height = PADY*2 + modRow*RP + (maxRows-1)*RP + H;
+  const pos = {};
+  cols.forEach((c,ci)=>{
+    const colH = (c.length-1)*RP + H;
+    const top = PADY + modRow*RP + ((maxRows-1)*RP + H - colH)/2;
+    c.forEach((n,ri)=>{ pos[n.id] = {x:PADX+ci*CP, y:top+ri*RP, n}; });
+  });
+  // 조절변수는 윗줄, 자기 화살표의 목적지 열 사이 위
+  mods.forEach((n,i)=>{
+    const e = (m.edges||[]).find(e=>e.from===n.id);
+    let x = PADX + CP*(cols.length>2?1:0);
+    if(e && pos[e.to]) x = Math.max(PADX, pos[e.to].x - CP*0.5);
+    pos[n.id] = {x: Math.min(x + i*(W+14), width - W - PADX), y: PADY, n};
+  });
+  let out = `<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="연구 모델 도식">
+<defs>${["def","pos","neg","ns"].map(k=>`<marker id="ah-${k}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="ahp ${k}"/></marker>`).join("")}</defs>`;
+  // edges
+  const edges = (m.edges||[]).filter(e=>pos[e.from]&&pos[e.to]);
+  edges.forEach((e,i)=>{
+    const a=pos[e.from], b=pos[e.to];
+    const sup = e.supported!==false;
+    const sign = (e.label||"").trim().startsWith("−")||(e.label||"").trim().startsWith("-") ? "neg" : ((e.label||"").trim().startsWith("+") ? "pos" : "");
+    const cls = ["edge", sup?sign:"ns", a.n.kind==="moderator"?"mod":""].join(" ");
+    let d, lx, ly;
+    if(a.n.kind==="moderator"){
+      const x1=a.x+W/2, y1=a.y+H, x2=b.x+W/2, y2=b.y;
+      d=`M${x1} ${y1} C${x1} ${(y1+y2)/2} ${x2} ${(y1+y2)/2} ${x2} ${y2}`; lx=(x1+x2)/2; ly=(y1+y2)/2;
+    }else if(b.x>a.x){
+      const x1=a.x+W, y1=a.y+H/2, x2=b.x, y2=b.y+H/2, c=(x2-x1)*0.45;
+      d=`M${x1} ${y1} C${x1+c} ${y1} ${x2-c} ${y2} ${x2} ${y2}`; lx=(x1+x2)/2; ly=(y1+y2)/2 - 7;
+    }else{ // 같은 열 또는 역방향: 위로 돌아가는 곡선
+      const x1=a.x+W/2, y1=a.y, x2=b.x+W/2, y2=b.y, up=Math.min(y1,y2)-28;
+      d=`M${x1} ${y1} C${x1} ${up} ${x2} ${up} ${x2} ${y2}`; lx=(x1+x2)/2; ly=up+4;
+    }
+    // 도식에는 짧은 라벨(+ / − / 조절 / n.s.)과 대표 계수 하나만. 전체 수치는 <title> 툴팁으로.
+    let lab = String(e.label||"").replace(/\(.*$/,"").trim(); if(lab.length>8) lab = lab.slice(0,8)+"…";
+    const st = String(e.stat||""); const mm = st.match(/(β|b|B|r|OR|R²)\s*=\s*[−\-]?\s*[0-9.]+/);
+    if(mm && lab.length<=4) lab = (lab?lab+" ":"") + mm[0].replace(/\s+/g,"");
+    if(!sup && !lab) lab = "n.s.";
+    const tw = Array.from(lab).reduce((a,ch)=>a+(/[가-힣]/.test(ch)?10.5:6.4),0)+10;
+    const mk = sup ? (sign||"def") : "ns";
+    out += `<path class="${cls}" d="${d}" marker-end="url(#ah-${mk})" style="--len:700;transition-delay:${(i*0.12).toFixed(2)}s"><title>${esc(a.n.label)} → ${esc(b.n.label)}${(e.label||e.stat)?" · "+esc([e.label,e.stat].filter(Boolean).join(" · ")):""}${sup?"":" · 지지되지 않음"}</title></path>`;
+    if(lab) out += `<rect class="ebg" x="${lx-tw/2}" y="${ly-8}" width="${tw}" height="15" rx="3"/><text class="elbl ${sup?sign:"ns"}" x="${lx}" y="${ly+3}" text-anchor="middle">${esc(lab)}</text>`;
+  });
+  // nodes
+  const KIND = {iv:"독립변수", mediator:"매개", moderator:"조절", dv:"종속변수", input:"입력", process:"분석", output:"결과", topic:"토픽"};
+  Object.values(pos).forEach((p,i)=>{
+    const lines = wrapLabel(p.n.label, 11);
+    const ty = lines.length>1 ? p.y+H/2-2 : p.y+H/2+4;
+    out += `<g class="node ${p.n.kind}" style="transition-delay:${(i*0.06).toFixed(2)}s"><rect x="${p.x}" y="${p.y}" width="${W}" height="${H}"/>` +
+      `<text x="${p.x+W/2}" y="${ty}" text-anchor="middle">${lines.map((l,li)=>`<tspan x="${p.x+W/2}" dy="${li?13:0}">${esc(l)}</tspan>`).join("")}</text>` +
+      (KIND[p.n.kind] && lines.length<2 ? `<text class="kind" x="${p.x+W/2}" y="${p.y+H-6}" text-anchor="middle">${KIND[p.n.kind]}</text>` : "") + `</g>`;
+  });
+  return out + `</svg>`;
+}
+function topicsHTML(m){
+  return `<div class="topics">${m.nodes.map((n,i)=>`<span><i>${String(i+1).padStart(2,"0")}</i>${esc(n.label)}</span>`).join("")}</div>`;
+}
+/* 파이프라인(입력 → 분석 → 결과)은 열이 많아 SVG 로는 글자가 작아지므로 HTML 흐름으로 */
+function flowHTML(m){
+  const ins = m.nodes.filter(n=>n.kind==="input"), prs = m.nodes.filter(n=>n.kind==="process"), outs = m.nodes.filter(n=>!/input|process/.test(n.kind));
+  const statOf = id => { const e=(m.edges||[]).find(e=>e.from===id && e.stat); return e ? `<small>${esc(e.stat)}</small>` : ""; };
+  const row = (lab, arr, cls) => arr.length ? `<div class="frow ${cls}"><span class="fk">${lab}</span><div class="fitems">${arr.map(n=>`<span>${esc(n.label)}${statOf(n.id)}</span>`).join("")}</div></div>` : "";
+  return `<div class="flow">${row("입력",ins,"in")}${row("분석",prs,"pr")}${row("결과",outs,"out")}</div>`;
+}
+
+/* ---------- 작은 막대 도표 ---------- */
+function chartSVG(c){
+  if(!c || !c.series || !c.series.length || !c.categories) return "";
+  const cats = c.categories, S = c.series, k = S.length;
+  const vals = S.flatMap(s=>s.values).filter(v=>typeof v==="number");
+  if(!vals.length) return "";
+  const min = Math.min(0,...vals), max = Math.max(0,...vals);
+  const LW = 118, VW = 60, W = 460, PADT = 6, BH = k>1 ? 12 : 16, GAP = k>1 ? 2 : 0, RG = 10;
+  const rowH = k*BH + (k-1)*GAP + RG;
+  const H = PADT + cats.length*rowH + 4;
+  const x0 = LW, x1 = W - VW; const span = (max-min)||1;
+  const X = v => x0 + (v-min)/span*(x1-x0);
+  const zero = X(0);
+  let out = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(c.title||"")}">`;
+  out += `<line class="base" x1="${zero}" x2="${zero}" y1="${PADT-2}" y2="${H-2}"/>`;
+  cats.forEach((cat,ci)=>{
+    const yTop = PADT + ci*rowH;
+    const lines = wrapLabel(cat, 12);
+    const cy = yTop + (k*BH+(k-1)*GAP)/2;
+    out += `<text class="cat" x="${LW-8}" y="${cy + (lines.length>1? -2 : 4)}" text-anchor="end">${lines.map((l,li)=>`<tspan x="${LW-8}" dy="${li?12:0}">${esc(l)}</tspan>`).join("")}</text>`;
+    S.forEach((s,si)=>{
+      const v = s.values[ci]; if(typeof v!=="number") return;
+      const y = yTop + si*(BH+GAP);
+      const xa = Math.min(zero, X(v)), w = Math.max(1, Math.abs(X(v)-zero));
+      const cls = v<0 ? "negf negb" : ("s"+(si+1));
+      out += `<rect class="bar ${cls}" x="${xa}" y="${y}" width="${w}" height="${BH}" rx="${v<0?0:3}" style="transition-delay:${(ci*0.05+si*0.03).toFixed(2)}s" data-tip="${esc(cat)}|${esc(s.name)}|${fmt(v)}${esc(c.unit||"")}"></rect>`;
+      // 음수 막대의 값 라벨은 왼쪽 범주명과 겹치지 않게 0 기준선 오른쪽에 둔다. 단위는 %·℃ 같은 한 글자 기호만 붙인다.
+      const u = ["%","℃","점","원","건","명"].includes(c.unit) ? c.unit : "";
+      out += `<text class="lbl vlbl" x="${v<0 ? zero+4 : xa+w+4}" y="${y+BH/2+4}" text-anchor="start" style="font-size:11px">${fmt(v)}${k>1?"":esc(u)}</text>`;
+    });
+  });
+  out += `</svg>`;
+  const legend = k>1 ? `<div class="legend">${S.map((s,i)=>`<span><i class="s${i+1}" style="background:var(--s${i+1})"></i>${esc(s.name)}</span>`).join("")}${c.unit?`<span style="color:var(--muted)">단위 ${esc(c.unit)}</span>`:""}</div>` : "";
+  return out + legend;
+}
+
+/* ---------- 카드 ---------- */
+function paperHTML(p){
+  const m = p.method||{}, d = p.data||{};
+  const rf = String(p.result_first||"");
+  const topIdx = /SSCI|SCIE/.test(p.index);
+  const modelBlock = p.model && p.model.nodes && p.model.nodes.length
+    ? (p.model.type==="topic_model" ? `<div class="model"><h3>도출된 요인 · 토픽</h3>${topicsHTML(p.model)}</div>`
+       : p.model.type==="pipeline" ? `<div class="model"><h3>분석 흐름</h3>${flowHTML(p.model)}</div>`
+       : `<div class="model anim"><h3>연구 모델</h3>${modelSVG(p.model)}</div>`) : "";
+  const chartBlock = p.chart && p.chart.series ? `<div class="chart anim"><h3>${esc(p.chart.title||"핵심 수치")}</h3>${chartSVG(p.chart)}${p.chart.source_note?`<p class="source">출처 ${esc(p.chart.source_note)}</p>`:""}</div>` : "";
+  const metrics = (p.metrics||[]).slice(0,4).map(t=>`<div class="tile"><div class="lab">${esc(t.label)}</div><div class="val">${esc(t.value)}</div>${t.note?`<div class="sub">${esc(t.note)}</div>`:""}</div>`).join("");
+  const findings = (p.findings||[]).map(f=>`<li><span>${esc(f.text)}</span><b class="${f.stat?"":"na"}">${esc(f.stat||"")}</b></li>`).join("");
+  const steps = (m.steps||[]).map(s=>`<li><span>${esc(s)}</span></li>`).join("");
+  const dataline = d.n_label ? `<p class="dataline"><b>데이터</b> ${esc(d.n_label)}${d.source?` · ${esc(d.source)}`:""}${d.period?` · ${esc(d.period)}`:""}</p>` : "";
+  return `<section class="card paper" id="p-${esc(p.key)}" data-key="${esc(p.key)}">
+  <div class="tags"><span class="tag yr">${p.year}</span><span class="tag">${esc(p.journal)}</span><span class="tag ${topIdx?"hi":""}">${esc(p.index)}</span><span class="tag">${esc(p.role)}</span><span class="tag axis">${esc(AX[p.axis]||p.axis)}</span></div>
+  <h2><button type="button" title="클릭하면 도식을 다시 그립니다">${esc(p.one_line)}</button></h2>
+  <p class="ttl">${esc(p.title_ko||"")}<small>${esc(p.title_en||"")}</small></p>
+  <div class="pgrid">
+    <div class="ptext">
+      <p class="rf">${esc(rf)}</p>
+      ${p.plain?`<div class="plain"><b>쉽게 말하면</b><p>${esc(p.plain)}</p></div>`:""}
+      ${findings?`<div class="fdw"><h3>주요 발견</h3><ul class="fd">${findings}</ul></div>`:""}
+      <div class="method"><h3>방법</h3><span class="mn">${esc(m.name||"")}</span>${steps?`<ol class="steps">${steps}</ol>`:""}${(m.tools||[]).length?`<div class="tools">${m.tools.map(esc).join(" · ")}</div>`:""}${dataline}</div>
+    </div>
+    <div class="pviz">
+      ${metrics?`<div class="metrics">${metrics}</div>`:""}
+      ${modelBlock}${chartBlock}
+      ${p.implication?`<p class="imp"><b>시사점</b>${esc(p.implication)}</p>`:""}
+      <div class="links">${p.doi_or_url?`<a href="${esc(p.doi_or_url)}" target="_blank" rel="noopener">논문 원문 ↗</a>`:""}<a href="#p-${esc(p.key)}">링크 복사용 #</a></div>
+      ${(p.keywords||[]).length?`<p class="kw">${p.keywords.map(esc).join(" · ")}</p>`:""}
+    </div>
+  </div>
+</section>`;
+}
+document.getElementById("papers").innerHTML = P.map(paperHTML).join("");
+renderFilters(); applyFilter();
+
+/* ---------- 등장 애니메이션 · 재생 ---------- */
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+if(reduce){ document.querySelectorAll(".anim").forEach(a=>a.classList.add("in")); }
+else{
+  const io = new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add("in"); io.unobserve(e.target);} }),{threshold:.3});
+  document.querySelectorAll(".anim").forEach(a=>io.observe(a));
+  document.querySelectorAll(".card h2 button").forEach(b=>b.addEventListener("click",()=>{
+    const card=b.closest(".card"); card.querySelectorAll(".anim").forEach(a=>{ a.classList.remove("in"); void a.offsetWidth; requestAnimationFrame(()=>a.classList.add("in")); });
+  }));
+}
+/* 툴팁 */
+const tip = document.getElementById("tip");
+document.addEventListener("mousemove", e=>{
+  const r = e.target.closest && e.target.closest("[data-tip]");
+  if(!r){ tip.classList.remove("on"); return; }
+  const [cat, s, v] = r.dataset.tip.split("|");
+  tip.innerHTML = `<b>${esc(v)}</b><br>${esc(cat)}${s?` · <span class="dim">${esc(s)}</span>`:""}`;
+  tip.style.left = Math.min(innerWidth-280, e.clientX+14)+"px"; tip.style.top = (e.clientY+16)+"px"; tip.classList.add("on");
+});
+/* 해시로 들어오면 해당 카드로 */
+if(location.hash){ const el=document.querySelector(location.hash); if(el) setTimeout(()=>el.scrollIntoView({block:"start"}),50); }
+</script>
+</body>
+</html>
