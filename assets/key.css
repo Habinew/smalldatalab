@@ -9,9 +9,9 @@
 /* 핑크 + 틸 */
 :root[data-key="pink"]{--key:#c5367a;--key-wash:rgba(236,72,153,.10);--key-hl:rgba(249,168,212,.55);--key-sel:rgba(249,168,212,.5);
   --pos:#c5367a;--neg:#0f8f8a;--wash:rgba(236,72,153,.09);--s1:#c5367a;--s2:#0f8f8a;--s3:#6a4fd0;--s4:#d9a300}
-/* 에메랄드 + 코랄 */
+/* 에메랄드 + 연보라(보조·음수) + 그레이(3번) — 2026-11-03 사용자 확정 */
 :root[data-key="emerald"]{--key:#0e7f63;--key-wash:rgba(16,185,129,.11);--key-hl:rgba(110,231,183,.5);--key-sel:rgba(110,231,183,.45);
-  --pos:#0e7f63;--neg:#e0533d;--wash:rgba(16,185,129,.10);--s1:#0e7f63;--s2:#e0533d;--s3:#6a4fd0;--s4:#d9a300}
+  --pos:#0e7f63;--neg:#9b84e4;--wash:rgba(16,185,129,.10);--s1:#0e7f63;--s2:#9b84e4;--s3:#7f7f78;--s4:#d9a300}
 
 @media (prefers-color-scheme:dark){
   :root:not([data-theme="light"])[data-key="lavender"]{--key:#b4a0ff;--key-wash:rgba(167,139,250,.16);--key-hl:rgba(139,109,250,.38);--key-sel:rgba(139,109,250,.45);
@@ -19,14 +19,14 @@
   :root:not([data-theme="light"])[data-key="pink"]{--key:#f49ac6;--key-wash:rgba(244,114,182,.16);--key-hl:rgba(236,72,153,.36);--key-sel:rgba(236,72,153,.45);
     --pos:#f27db3;--neg:#3fc1bb;--wash:rgba(244,114,182,.14);--s1:#f27db3;--s2:#3fc1bb;--s3:#a48cff;--s4:#e3b23c}
   :root:not([data-theme="light"])[data-key="emerald"]{--key:#4fd1a5;--key-wash:rgba(52,211,153,.16);--key-hl:rgba(16,185,129,.36);--key-sel:rgba(16,185,129,.45);
-    --pos:#3fcf9c;--neg:#f0735e;--wash:rgba(52,211,153,.14);--s1:#3fcf9c;--s2:#f0735e;--s3:#a48cff;--s4:#e3b23c}
+    --pos:#3fcf9c;--neg:#bcaaff;--wash:rgba(52,211,153,.14);--s1:#3fcf9c;--s2:#bcaaff;--s3:#a3a39c;--s4:#e3b23c}
 }
 :root[data-theme="dark"][data-key="lavender"]{--key:#b4a0ff;--key-wash:rgba(167,139,250,.16);--key-hl:rgba(139,109,250,.38);--key-sel:rgba(139,109,250,.45);
   --pos:#a48cff;--neg:#f08a4b;--wash:rgba(167,139,250,.14);--s1:#a48cff;--s2:#f08a4b;--s3:#34c38f;--s4:#e3b23c}
 :root[data-theme="dark"][data-key="pink"]{--key:#f49ac6;--key-wash:rgba(244,114,182,.16);--key-hl:rgba(236,72,153,.36);--key-sel:rgba(236,72,153,.45);
   --pos:#f27db3;--neg:#3fc1bb;--wash:rgba(244,114,182,.14);--s1:#f27db3;--s2:#3fc1bb;--s3:#a48cff;--s4:#e3b23c}
 :root[data-theme="dark"][data-key="emerald"]{--key:#4fd1a5;--key-wash:rgba(52,211,153,.16);--key-hl:rgba(16,185,129,.36);--key-sel:rgba(16,185,129,.45);
-  --pos:#3fcf9c;--neg:#f0735e;--wash:rgba(52,211,153,.14);--s1:#3fcf9c;--s2:#f0735e;--s3:#a48cff;--s4:#e3b23c}
+  --pos:#3fcf9c;--neg:#bcaaff;--wash:rgba(52,211,153,.14);--s1:#3fcf9c;--s2:#bcaaff;--s3:#a3a39c;--s4:#e3b23c}
 
 /* 형광펜·블록 선택 */
 mark{background:linear-gradient(transparent 52%,var(--key-hl) 52%);color:inherit;padding:0 .12em;border-radius:2px;box-decoration-break:clone;-webkit-box-decoration-break:clone}
