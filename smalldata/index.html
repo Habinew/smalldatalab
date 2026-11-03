@@ -53,6 +53,18 @@ h1{font-size:clamp(28px,4.6vw,44px);font-weight:700;margin-top:14px;letter-spaci
 .note{margin-top:30px;padding-top:18px;border-top:1px solid var(--grid);font-size:13px;color:var(--ink-2);max-width:70ch}
 footer{margin-top:36px;font-family:var(--f-mono);font-size:11.5px;color:var(--muted);display:flex;gap:16px;flex-wrap:wrap;justify-content:space-between}
 :focus-visible{outline:2px solid var(--pos);outline-offset:2px}
+/* 모션: 타일·도표·카드 등장(살짝 떠오름), 카드 호버 들림·클릭 눌림. 움직임 줄이기 설정이면 전부 끔 */
+@media (prefers-reduced-motion:no-preference){
+  .tile,.chart,.card{animation:rise .55s cubic-bezier(.2,.7,.2,1) both}
+  .tile:nth-child(2),.card:nth-child(2){animation-delay:.07s}
+  .tile:nth-child(3),.card:nth-child(3){animation-delay:.14s}
+  .tile:nth-child(4),.card:nth-child(4){animation-delay:.21s}
+  .tile:nth-child(5),.card:nth-child(5){animation-delay:.28s}
+  .card{transition:transform .18s ease,box-shadow .18s ease}
+  .card:hover{transform:translateY(-3px);box-shadow:0 8px 22px var(--ring)}
+  .card:active{transform:translateY(-1px) scale(.995)}
+}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 </style>
 
 <div class="wrap">
@@ -73,7 +85,7 @@ footer{margin-top:36px;font-family:var(--f-mono);font-size:11.5px;color:var(--mu
 <article class="card live">
   <div class="mo"><span>2026년 10월 27일 · 팬덤 희소성</span><span class="st live">대시보드</span></div>
   <h2><a href="./hive.html">최애는 한 명인데, 앨범은 왜 여러 장을 살까</a></h2>
-  <p>하이브 랜덤 포토카드의 리셀 시세와 앨범 판매량·스트리밍의 괴리로, 브랜드가 설계한 희소성이 어디까지 작동하는지 쟀다.</p>
+  <p>하이브 랜덤 포토카드의 리셀 시세와 앨범 판매량·스트리밍의 괴리로, 브랜드가 설계한 희소성이 어디까지 작동하는지 쟀습니다.</p>
   <div class="chips"><span>번개장터 시세</span><span>써클차트</span><span>확률 구조</span></div>
   <div class="links"><a href="./hive.html">대시보드 →</a><a href="https://www.sisajournal.com/news/articleView.html?idxno=391797" target="_blank" rel="noopener">기사 원문</a></div>
 </article>
@@ -81,7 +93,7 @@ footer{margin-top:36px;font-family:var(--f-mono);font-size:11.5px;color:var(--mu
 <article class="card live">
   <div class="mo"><span>2026년 9월 30일 · 투자 실패</span><span class="st live">대시보드</span></div>
   <h2><a href="./resell.html">한정판을 사두면 정말 오를까</a></h2>
-  <p>크림 인기 상품 1,342개의 발매가 대비 시세를 추적했다. 승자는 얇고 패자는 넓다. 리셀은 재테크가 아니라 복권이었다.</p>
+  <p>크림 인기 상품 1,342개의 발매가 대비 시세를 추적했습니다. 승자는 얇고 패자는 넓습니다. 리셀은 재테크가 아니라 복권이었습니다.</p>
   <div class="num"><b>64%</b>정가 아래 · 중앙값 −13% · +50% 이상 9%</div>
   <div class="chips"><span>크림 5,616개 상세</span><span>네이버 데이터랩</span><span>이벤트 타임</span></div>
   <div class="links"><a href="./resell.html">대시보드 →</a><a href="https://www.sisajournal.com/news/articleView.html?idxno=388722" target="_blank" rel="noopener">기사 원문</a><a href="../data.html">집계 CSV 3종</a></div>
@@ -90,7 +102,7 @@ footer{margin-top:36px;font-family:var(--f-mono);font-size:11.5px;color:var(--mu
 <article class="card live">
   <div class="mo"><span>2026년 8월 25일 · 외생 충격</span><span class="st live">대시보드</span></div>
   <h2><a href="./heat.html">가을옷 성패는 '9월 첫째 주'가 아닌 '밤 기온 22도'에 달렸다</a></h2>
-  <p>서울 118년 기온과 검색 10년을 겹쳐 가을옷이 켜지는 '밤 기온'을 찾았다. 여름은 길어졌지만 점화 온도는 움직이지 않았고, 폭염 잡화만 일기예보에 먼저 반응했다.</p>
+  <p>서울 118년 기온과 검색 10년을 겹쳐 가을옷이 켜지는 '밤 기온'을 찾았습니다. 여름은 길어졌지만 점화 온도는 움직이지 않았고, 폭염 잡화만 일기예보에 먼저 반응했습니다.</p>
   <div class="num"><b>22.1℃</b>가디건 점화 밤기온 · 니트 점화일 5년 새 +11일</div>
   <div class="chips"><span>기상청 ASOS 서울</span><span>네이버 데이터랩</span><span>Open-Meteo 예보 아카이브</span></div>
   <div class="links"><a href="./heat.html">대시보드 →</a><a href="https://www.sisajournal.com/news/articleView.html?idxno=384704" target="_blank" rel="noopener">기사 원문</a></div>
@@ -99,7 +111,7 @@ footer{margin-top:36px;font-family:var(--f-mono);font-size:11.5px;color:var(--mu
 <article class="card live">
   <div class="mo"><span>2026년 7월 30일 · 후광의 값</span><span class="st live">대시보드</span></div>
   <h2><a href="./ambassador.html">럭셔리 브랜드는 왜 K팝 아이돌 스타를 고용할까</a></h2>
-  <p>25개 출처, 122개 주장을 적대적으로 검증했다. 효과를 증명하는 근거는 거의 남지 않았고, 리스크만 잘 입증되어 있었다.</p>
+  <p>25개 출처, 122개 주장을 적대적으로 검증했습니다. 효과를 증명하는 근거는 거의 남지 않았고, 리스크만 잘 입증되어 있었습니다.</p>
   <div class="chips"><span>이벤트 스터디</span><span>네이버 데이터랩</span><span>구글 트렌드</span><span>문헌 검증</span></div>
   <div class="links"><a href="./ambassador.html">대시보드 →</a><a href="https://www.sisajournal.com/news/articleView.html?idxno=381811" target="_blank" rel="noopener">기사 원문</a></div>
 </article>
@@ -107,7 +119,7 @@ footer{margin-top:36px;font-family:var(--f-mono);font-size:11.5px;color:var(--mu
 <article class="card live">
   <div class="mo"><span>2026년 6월 30일 · 이야기</span><span class="st live">대시보드 · 데이터셋</span></div>
   <h2><a href="./kfashion.html">K패션에는 'K'가 없다…대중문화의 후광이 꺼진다면 무엇이 남는가</a></h2>
-  <p>패션 특화 AI(Fashion-CLIP)로 18개 브랜드 1만 장을 분석했다. 한국과 글로벌 브랜드의 옷은 시각적으로 구별되지 않았다. 옷이 뭉치는 건 국적이 아니라 개별 브랜드다.</p>
+  <p>패션 특화 AI(Fashion-CLIP)로 18개 브랜드 1만 장을 분석했습니다. 한국과 글로벌 브랜드의 옷은 시각적으로 구별되지 않았습니다. 옷이 뭉치는 건 국적이 아니라 개별 브랜드입니다.</p>
   <div class="num"><b>0.02</b>한국 vs 글로벌 분리도 · 모든 조건 p&gt;0.05</div>
   <div class="chips"><span>Fashion-CLIP 임베딩</span><span>네이버 쇼핑 이미지 1만 장</span><span>UMAP</span></div>
   <div class="links"><a href="./kfashion.html">대시보드 →</a><a href="https://n.news.naver.com/mnews/article/586/0000132686?sid=101" target="_blank" rel="noopener">기사 원문</a><a href="https://huggingface.co/datasets/HabinKim/kfashion-visual-distinctiveness" target="_blank" rel="noopener">데이터셋 (HF)</a></div>
@@ -123,7 +135,7 @@ footer{margin-top:36px;font-family:var(--f-mono);font-size:11.5px;color:var(--mu
 <article class="card">
   <div class="mo"><span>2026년 4월 20일</span></div>
   <h2>AI 시대의 진짜 경쟁력…무엇이 본질적 희소성인가</h2>
-  <p>AI가 지적 결과물을 표준화하는 시대, 인간의 물리적 실행력과 책임감이 새 경제 가치로 떠오른다.</p>
+  <p>AI가 지적 결과물을 표준화하는 시대, 인간의 물리적 실행력과 책임감이 새 경제 가치로 떠오릅니다.</p>
   <div class="links"><a href="https://www.sisajournal.com/news/articleView.html?idxno=370109" target="_blank" rel="noopener">기사 원문</a></div>
 </article>
 

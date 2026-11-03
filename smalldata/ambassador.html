@@ -121,6 +121,18 @@ svg .ref{stroke:var(--ink);stroke-width:1.2}
 footer{margin-top:36px;font-family:var(--f-mono);font-size:11.5px;color:var(--muted);display:flex;gap:16px;flex-wrap:wrap;justify-content:space-between}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 :focus-visible{outline:2px solid var(--pos);outline-offset:2px}
+/* 모션: 타일·도표·카드 등장(살짝 떠오름), 카드 호버 들림·클릭 눌림. 움직임 줄이기 설정이면 전부 끔 */
+@media (prefers-reduced-motion:no-preference){
+  .tile,.chart,.card{animation:rise .55s cubic-bezier(.2,.7,.2,1) both}
+  .tile:nth-child(2),.card:nth-child(2){animation-delay:.07s}
+  .tile:nth-child(3),.card:nth-child(3){animation-delay:.14s}
+  .tile:nth-child(4),.card:nth-child(4){animation-delay:.21s}
+  .tile:nth-child(5),.card:nth-child(5){animation-delay:.28s}
+  .card{transition:transform .18s ease,box-shadow .18s ease}
+  .card:hover{transform:translateY(-3px);box-shadow:0 8px 22px var(--ring)}
+  .card:active{transform:translateY(-1px) scale(.995)}
+}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 </style>
 
 <div class="wrap">
@@ -128,8 +140,8 @@ footer{margin-top:36px;font-family:var(--f-mono);font-size:11.5px;color:var(--mu
   <div class="eyebrow"><a href="../" style="text-decoration:none">스몰데이터랩</a><a href="./index.html" style="text-decoration:none"><b>김하빈의 스몰데이터</b></a><span>2026년 7월</span><span>럭셔리 앰버서더</span></div>
   <h1>럭셔리 브랜드는 왜 K팝 아이돌 스타를 고용할까</h1>
   <div class="dek">
-    <p>48개 럭셔리 하우스가 2016년부터 공식 발표한 앰버서더 576건의 국적을 집계하고, 한국 스타 발탁 직후 국가별 관심도가 어떻게 움직였는지 추적했다.</p>
-    <p>브랜드가 산 것은 스타의 이름값이 아니라 'K팝 팬덤이라는 입장권'이다. 주요 타깃은 젊은 아시아이고, 뜨거운 관심은 포화된 서울이 아니라 자카르타·하노이에서 일어났다.</p>
+    <p>48개 럭셔리 하우스가 2016년부터 공식 발표한 앰버서더 576건의 국적을 집계하고, 한국 스타 발탁 직후 국가별 관심도가 어떻게 움직였는지 추적했습니다.</p>
+    <p>브랜드가 산 것은 스타의 이름값이 아니라 'K팝 팬덤이라는 입장권'입니다. 주요 타깃은 젊은 아시아이고, 뜨거운 관심은 포화된 서울이 아니라 자카르타·하노이에서 일어났습니다.</p>
   </div>
   <div class="meta">
     <span>데이터 <b>앰버서더 명단 576건(자체 구축)</b> · <b>위키피디아 언어판별 조회수</b> · <b>구글 트렌드</b></span>
@@ -142,7 +154,7 @@ footer{margin-top:36px;font-family:var(--f-mono);font-size:11.5px;color:var(--mu
 
 <section class="card">
   <h2>2016년 1건에서 2023년 34건으로, 열흘에 한 번꼴</h2>
-  <p class="lede">럭셔리 하우스의 한국 셀럽 앰버서더 발탁 건수. 2016년 지드래곤이 샤넬의 한국인 최초 앰버서더가 된 해에 발탁은 단 한 건이었다. 그중 10명 중 7명이 아이돌이다.</p>
+  <p class="lede">럭셔리 하우스의 한국 셀럽 앰버서더 발탁 건수. 2016년 지드래곤이 샤넬의 한국인 최초 앰버서더가 된 해에 발탁은 단 한 건이었습니다. 그중 10명 중 7명이 아이돌입니다.</p>
   <div class="chart" id="c-inf"></div>
   <div class="legend" id="lg-inf"></div>
   <details class="tbl"><summary>표로 보기</summary><div class="tscroll" id="t-inf"></div></details>
@@ -151,7 +163,7 @@ footer{margin-top:36px;font-family:var(--f-mono);font-size:11.5px;color:var(--mu
 
 <section class="card">
   <h2>데이터가 가리키는 종착지는 아시아였다</h2>
-  <p class="lede">하우스별 앰버서더 가운데 한국·아시아 출신 비율. 셀린느는 전원 아시아인이고, 펜디 90%, 프라다 86%, 구찌 81%가 아시아인의 얼굴로 채워졌다.</p>
+  <p class="lede">하우스별 앰버서더 가운데 한국·아시아 출신 비율. 셀린느는 전원 아시아인이고, 펜디 90%, 프라다 86%, 구찌 81%가 아시아인의 얼굴로 채워졌습니다.</p>
   <div class="chart" id="c-house"></div>
   <p class="zero" id="zero"></p>
   <details class="tbl"><summary>표로 보기 (전체 하우스)</summary><div class="tscroll" id="t-house"></div></details>
@@ -160,7 +172,7 @@ footer{margin-top:36px;font-family:var(--f-mono);font-size:11.5px;color:var(--mu
 
 <section class="card">
   <h2>배우는 시계로, 아이돌은 옷과 보석으로</h2>
-  <p class="lede">한국 셀럽 발탁을 부문별로 나눴다. 배우 발탁의 19.6%가 중장년층 고소득 고객을 겨냥한 시계 부문에 몰려 아이돌(3.7%)의 5배를 넘는다. 발탁된 K팝 스타의 연령 중앙값은 <b id="age-idol"></b>세, 배우는 <b id="age-actor"></b>세다.</p>
+  <p class="lede">한국 셀럽 발탁을 부문별로 나눴습니다. 배우 발탁의 19.6%가 중장년층 고소득 고객을 겨냥한 시계 부문에 몰려 아이돌(3.7%)의 5배를 넘습니다. 발탁된 K팝 스타의 연령 중앙값은 <b id="age-idol"></b>세, 배우는 <b id="age-actor"></b>세입니다.</p>
   <div class="chart" id="c-div"></div>
   <div class="legend" id="lg-div"></div>
   <details class="tbl"><summary>표로 보기</summary><div class="tscroll" id="t-div"></div></details>
@@ -169,7 +181,7 @@ footer{margin-top:36px;font-family:var(--f-mono);font-size:11.5px;color:var(--mu
 
 <section class="card">
   <h2>포화된 서울과 뜨겁게 반응하는 자카르타</h2>
-  <p class="lede">한국 스타 발탁 직후 7일간 해당 브랜드의 위키피디아 조회수가 평소보다 '유의하게' 뛴 사건의 비율. 우연이라면 5%가 나와야 한다. 인도네시아 29%, 베트남 26%인 반면 파리는 6%, 서울은 10%에 그쳤다.</p>
+  <p class="lede">한국 스타 발탁 직후 7일간 해당 브랜드의 위키피디아 조회수가 평소보다 '유의하게' 뛴 사건의 비율. 우연이라면 5%가 나와야 합니다. 인도네시아 29%, 베트남 26%인 반면 파리는 6%, 서울은 10%에 그쳤습니다.</p>
   <div class="chart" id="c-wiki"></div>
   <details class="tbl"><summary>표로 보기</summary><div class="tscroll" id="t-wiki"></div></details>
   <h3 style="font-size:13.5px;font-weight:500;color:var(--ink-2);margin-top:18px">같은 질문을 구글 검색어 트렌드로 — 발탁 직후 일주일 검색량 상승 중앙값</h3>
@@ -179,7 +191,7 @@ footer{margin-top:36px;font-family:var(--f-mono);font-size:11.5px;color:var(--mu
 
 <section class="card">
   <h2>같은 하우스, 같은 자리. 누구를 앉히느냐에 따라 세계가 갈린다</h2>
-  <p class="lede">같은 브랜드가 서구권 스타를 앰버서더로 발탁한 사건을 대조군으로 두었다. 자카르타는 한국 스타에는 29% 반응했지만 서구 스타에는 <b id="west-id"></b>만 반응했다. 파리는 누구를 앉혀도 조용하다.</p>
+  <p class="lede">같은 브랜드가 서구권 스타를 앰버서더로 발탁한 사건을 대조군으로 두었습니다. 자카르타는 한국 스타에는 29% 반응했지만 서구 스타에는 <b id="west-id"></b>만 반응했습니다. 파리는 누구를 앉혀도 조용합니다.</p>
   <div class="chart" id="c-ctrl"></div>
   <div class="legend" id="lg-ctrl"></div>
   <details class="tbl"><summary>표로 보기</summary><div class="tscroll" id="t-ctrl"></div></details>
@@ -188,7 +200,7 @@ footer{margin-top:36px;font-family:var(--f-mono);font-size:11.5px;color:var(--mu
 
 <section class="card">
   <h2>스타의 이름값이 아니라 K팝이라는 범주</h2>
-  <p class="lede">같은 한국 연예인이라도 배우를 내세우면 반응은 잦아들었고, 강한 반응은 오직 아이돌일 때, 그리고 인도네시아·베트남 같은 시장에서만 나타났다. 발탁 직후 브랜드 관심도 변화의 중앙값.</p>
+  <p class="lede">같은 한국 연예인이라도 배우를 내세우면 반응은 잦아들었고, 강한 반응은 오직 아이돌일 때, 그리고 인도네시아·베트남 같은 시장에서만 나타났습니다. 발탁 직후 브랜드 관심도 변화의 중앙값.</p>
   <div class="chart" id="c-ia"></div>
   <div class="legend" id="lg-ia"></div>
   <details class="tbl"><summary>표로 보기</summary><div class="tscroll" id="t-ia"></div></details>
@@ -197,14 +209,14 @@ footer{margin-top:36px;font-family:var(--f-mono);font-size:11.5px;color:var(--mu
 
 <div class="method">
   <div><h3>방법</h3><ul>
-    <li>2016년부터 2026년 6월까지 48개 하우스의 공식 발표·주요 매체 보도를 개별 검증해 앰버서더 576건을 구축했다. 출처 URL이 없는 건은 전량 제외했다.</li>
-    <li>관심도는 발탁일 직후 7일 평균을 직전 8주 평균으로 나눈 값이다. 위키피디아는 언어판별로 지역을 나눌 수 있고 팬덤이 부풀리기 어렵다.</li>
-    <li>유의성은 같은 브랜드의 무작위 비발탁일 300개로 귀무분포를 만들어 비교했다. 패션위크·명절·세일 같은 계절성이 브랜드 자기 분포에 흡수된다.</li>
+    <li>2016년부터 2026년 6월까지 48개 하우스의 공식 발표·주요 매체 보도를 개별 검증해 앰버서더 576건을 구축했습니다. 출처 URL이 없는 건은 전량 제외했습니다.</li>
+    <li>관심도는 발탁일 직후 7일 평균을 직전 8주 평균으로 나눈 값입니다. 위키피디아는 언어판별로 지역을 나눌 수 있고 팬덤이 부풀리기 어렵습니다.</li>
+    <li>유의성은 같은 브랜드의 무작위 비발탁일 300개로 귀무분포를 만들어 비교했습니다. 패션위크·명절·세일 같은 계절성이 브랜드 자기 분포에 흡수됩니다.</li>
   </ul></div>
   <div><h3>한계</h3><ul>
-    <li>관심과 매출은 다르다. LVMH·케링 같은 지주사는 개별 하우스의 국가별 매출을 공시하지 않아, 관심이 매출로 이어지는지는 이 데이터로 답할 수 없다.</li>
-    <li>위키·구글은 '정보 탐색'을 잰다. 인스타그램·틱톡에서 일어나는 팬덤 내부의 열광은 측정하지 못한다.</li>
-    <li>브랜드가 이미 화제인 셀럽을 고른 것일 수 있다. 인과로 읽지 말 것.</li>
+    <li>관심과 매출은 다릅니다. LVMH·케링 같은 지주사는 개별 하우스의 국가별 매출을 공시하지 않아, 관심이 매출로 이어지는지는 이 데이터로 답할 수 없습니다.</li>
+    <li>위키·구글은 '정보 탐색'을 잽니다. 인스타그램·틱톡에서 일어나는 팬덤 내부의 열광은 측정하지 못합니다.</li>
+    <li>브랜드가 이미 화제인 셀럽을 고른 것일 수 있습니다. 인과로 읽어서는 안 됩니다.</li>
   </ul></div>
 </div>
 

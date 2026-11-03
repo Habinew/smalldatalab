@@ -116,6 +116,18 @@ ol.win .mt small{color:var(--muted);font-weight:400;font-size:11.5px;margin-left
 footer{margin-top:36px;font-family:var(--f-mono);font-size:11.5px;color:var(--muted);display:flex;gap:16px;flex-wrap:wrap;justify-content:space-between}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 :focus-visible{outline:2px solid var(--pos);outline-offset:2px}
+/* 모션: 타일·도표·카드 등장(살짝 떠오름), 카드 호버 들림·클릭 눌림. 움직임 줄이기 설정이면 전부 끔 */
+@media (prefers-reduced-motion:no-preference){
+  .tile,.chart,.card{animation:rise .55s cubic-bezier(.2,.7,.2,1) both}
+  .tile:nth-child(2),.card:nth-child(2){animation-delay:.07s}
+  .tile:nth-child(3),.card:nth-child(3){animation-delay:.14s}
+  .tile:nth-child(4),.card:nth-child(4){animation-delay:.21s}
+  .tile:nth-child(5),.card:nth-child(5){animation-delay:.28s}
+  .card{transition:transform .18s ease,box-shadow .18s ease}
+  .card:hover{transform:translateY(-3px);box-shadow:0 8px 22px var(--ring)}
+  .card:active{transform:translateY(-1px) scale(.995)}
+}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 </style>
 
 <div class="wrap">
@@ -123,8 +135,8 @@ footer{margin-top:36px;font-family:var(--f-mono);font-size:11.5px;color:var(--mu
   <div class="eyebrow"><a href="../" style="text-decoration:none">스몰데이터랩</a><a href="./index.html" style="text-decoration:none"><b>김하빈의 스몰데이터</b></a><span>2026년 8월</span><span>기상청 × 네이버 데이터랩</span></div>
   <h1>가을옷 성패는 '9월 첫째 주'가 아닌 '밤 기온 22도'에 달렸다</h1>
   <div class="dek">
-    <p>서울 기온 118년과 의류 검색 10년을 겹쳤다. 가디건 검색은 해마다 다른 날짜에 켜지지만, 그 주의 밤 기온은 늘 22℃ 부근이었다. 트렌치코트 21℃, 니트 18℃, 목도리 5℃.</p>
-    <p>기준 온도는 10년간 변하지 않았고, 그 온도가 도착하는 날짜만 최대 11일 늦어졌다. 폭염 잡화는 반대로 날씨가 아니라 일기예보에, 나흘만 반응한다.</p>
+    <p>서울 기온 118년과 의류 검색 10년을 겹쳤습니다. 가디건 검색은 해마다 다른 날짜에 켜지지만, 그 주의 밤 기온은 늘 22℃ 부근이었습니다. 트렌치코트 21℃, 니트 18℃, 목도리 5℃.</p>
+    <p>기준 온도는 10년간 변하지 않았고, 그 온도가 도착하는 날짜만 최대 11일 늦어졌습니다. 폭염 잡화는 반대로 날씨가 아니라 일기예보에, 나흘만 반응합니다.</p>
   </div>
   <div class="meta">
     <span>데이터 <b>기상청 ASOS 서울(108) 일자료</b> · <b>네이버 데이터랩</b> · Open-Meteo 예보 아카이브</span>
@@ -137,16 +149,16 @@ footer{margin-top:36px;font-family:var(--f-mono);font-size:11.5px;color:var(--mu
 
 <section class="card">
   <h2>날짜는 흔들려도 온도는 고정이다 — 옷장의 온도계</h2>
-  <p class="lede">2016~2025년 각 해에 가을·겨울 아이템 검색이 '켜진' 주(그해 가을 정점의 40%를 처음 넘긴 주)를 점으로 찍었다. 가로는 날짜, 세로는 그 주의 평균 밤 최저기온. 점들은 가로로 넓게 흩어지지만 세로로는 1℃ 안팎에 모인다. 패딩만 예외다.</p>
+  <p class="lede">2016~2025년 각 해에 가을·겨울 아이템 검색이 '켜진' 주(그해 가을 정점의 40%를 처음 넘긴 주)를 점으로 찍었습니다. 가로는 날짜, 세로는 그 주의 평균 밤 최저기온. 점들은 가로로 넓게 흩어지지만 세로로는 1℃ 안팎에 모입니다. 패딩만 예외입니다.</p>
   <div class="chart" id="c-f1"></div>
   <div class="legend" id="lg-f1"></div>
   <details class="tbl"><summary>표로 보기 (아이템별 점화 통계)</summary><div class="tscroll" id="t-f1"></div></details>
-  <p class="source">점화 = 8/1~12/31 창에서 그해 정점의 40%를 처음 넘긴 주(주별 검색, 단일 키워드). 밤기온은 기상청 서울 관측소 점화 주 7일 평균 최저기온. 판정: 온도 편차(℃) &lt; 날짜 편차(일) × 0.25℃/일 이면 '온도계'. 기준을 30%·50%로 바꿔도 가디건·트렌치·목도리는 같은 대역에 머문다.</p>
+  <p class="source">점화 = 8/1~12/31 창에서 그해 정점의 40%를 처음 넘긴 주(주별 검색, 단일 키워드). 밤기온은 기상청 서울 관측소 점화 주 7일 평균 최저기온. 판정: 온도 편차(℃) &lt; 날짜 편차(일) × 0.25℃/일 이면 '온도계'. 기준을 30%·50%로 바꿔도 가디건·트렌치·목도리는 같은 대역에 머뭅니다.</p>
 </section>
 
 <section class="card">
   <h2>온도는 적응하지 않았고, 날짜만 밀렸다</h2>
-  <p class="lede">10년을 앞뒤 5년으로 나눠 다시 계산했다. 점화 밤기온의 차이는 0.3℃ 안쪽이다. 대신 그 온도가 찾아오는 날짜가 가디건 5일, 트렌치코트 9일, 니트 11일 늦어졌다.</p>
+  <p class="lede">10년을 앞뒤 5년으로 나눠 다시 계산했습니다. 점화 밤기온의 차이는 0.3℃ 안쪽입니다. 대신 그 온도가 찾아오는 날짜가 가디건 5일, 트렌치코트 9일, 니트 11일 늦어졌습니다.</p>
   <div class="row2">
     <div class="panel"><h3>점화 주 밤기온 (℃) — 2016~20 → 2021~25</h3><div class="chart" id="c-f2a"></div></div>
     <div class="panel"><h3>평균 점화일 — 2016~20 → 2021~25</h3><div class="chart" id="c-f2b"></div></div>
@@ -158,7 +170,7 @@ footer{margin-top:36px;font-family:var(--f-mono);font-size:11.5px;color:var(--mu
 
 <section class="card">
   <h2>9월 밤이 더운 해에는 트렌치코트가 늦게 켜진다</h2>
-  <p class="lede">연도별 9월 평균 밤 최저기온(가로)과 트렌치코트 검색 점화일(세로). 더운 9월일수록 점화가 늦다. 상관계수 0.83. 가디건은 0.67.</p>
+  <p class="lede">연도별 9월 평균 밤 최저기온(가로)과 트렌치코트 검색 점화일(세로). 더운 9월일수록 점화가 늦습니다. 상관계수 0.83. 가디건은 0.67.</p>
   <div class="chart" id="c-f3"></div>
   <details class="tbl"><summary>표로 보기 (연도별)</summary><div class="tscroll" id="t-f3"></div></details>
   <p class="source">2016~2025년 10개 연도. 직선은 최소제곱 적합. 검색은 상대지수라 연도 간 크기 비교 대신 시점(점화 주)만 사용.</p>
@@ -166,7 +178,7 @@ footer{margin-top:36px;font-family:var(--f-mono);font-size:11.5px;color:var(--mu
 
 <section class="card">
   <h2>서울의 가을은 한 세기 동안 17일 늦어졌다</h2>
-  <p class="lede">기상청 계절 구분(일평균기온 9일 이동평균이 20℃ 아래로 내려가 다시 오르지 않는 첫날)으로 본 '가을 시작일'은 1910년대 9월 15일에서 2020년대 10월 2일로 밀렸다. 30℃를 넘는 날은 1980년대 연 27일에서 2020년대 55일로, 열대야는 4일에서 27일로 늘었다.</p>
+  <p class="lede">기상청 계절 구분(일평균기온 9일 이동평균이 20℃ 아래로 내려가 다시 오르지 않는 첫날)으로 본 '가을 시작일'은 1910년대 9월 15일에서 2020년대 10월 2일로 밀렸습니다. 30℃를 넘는 날은 1980년대 연 27일에서 2020년대 55일로, 열대야는 4일에서 27일로 늘었습니다.</p>
   <div class="row2">
     <div class="panel"><h3>가을 시작일 · 더위의 끝 (1908~2025)</h3><div class="chart" id="c-f4a"></div></div>
     <div class="panel"><h3>연간 30℃ 이상 일수 · 열대야(25℃ 이상) 일수 (1980~2025)</h3><div class="chart" id="c-f4b"></div></div>
@@ -178,7 +190,7 @@ footer{margin-top:36px;font-family:var(--f-mono);font-size:11.5px;color:var(--mu
 
 <section class="card">
   <h2>유난히 더운 날 켜지는 것은 옷이 아니라 잡화다</h2>
-  <p class="lede">여름(6~9월) 일별 검색을 '평년보다 몇 도 더운가'와 맞췄다. 계절 효과를 빼고 나면 휴대용선풍기·양산·쿨토시만 뚜렷하게 반응한다. 냉감 의류·침구·수면용품은 0에 가깝고, 제습기는 오히려 줄어든다. 잡화의 반응은 하루 전에 시작해 당일 정점, 이틀 뒤면 절반, 나흘이면 사라진다.</p>
+  <p class="lede">여름(6~9월) 일별 검색을 '평년보다 몇 도 더운가'와 맞췄습니다. 계절 효과를 빼고 나면 휴대용선풍기·양산·쿨토시만 뚜렷하게 반응합니다. 냉감 의류·침구·수면용품은 0에 가깝고, 제습기는 오히려 줄어듭니다. 잡화의 반응은 하루 전에 시작해 당일 정점, 이틀 뒤면 절반, 나흘이면 사라집니다.</p>
   <div class="row2">
     <div class="panel"><h3>검색 ↔ 기온 평년편차 상관 (여름 306일)</h3><div class="chart" id="c-f5a"></div></div>
     <div class="panel"><h3>시차 프로파일: 더위 전·후 며칠에 검색하나</h3><div class="chart" id="c-f5b"></div></div>
@@ -190,25 +202,25 @@ footer{margin-top:36px;font-family:var(--f-mono);font-size:11.5px;color:var(--mu
 
 <section class="card">
   <h2>선풍기를 팔아주는 것은 더위가 아니라 예보다</h2>
-  <p class="lede">하루 전 발표된 예보와 실제 최고기온으로 여름 306일을 넷으로 나눴다. 예보도 실제도 33℃를 넘긴 '예고된 폭염'에만 선풍기 검색이 뛰고, 전날 검색이 당일보다 높다. 예보만 있고 오지 않은 '헛방'과 예보 없이 닥친 '기습'은 똑같이 미지근하다. 실제로 더웠는지보다 예보됐는지가 검색을 결정한다.</p>
+  <p class="lede">하루 전 발표된 예보와 실제 최고기온으로 여름 306일을 넷으로 나눴습니다. 예보도 실제도 33℃를 넘긴 '예고된 폭염'에만 선풍기 검색이 뛰고, 전날 검색이 당일보다 높습니다. 예보만 있고 오지 않은 '헛방'과 예보 없이 닥친 '기습'은 똑같이 미지근합니다. 실제로 더웠는지보다 예보됐는지가 검색을 결정합니다.</p>
   <div class="chart" id="c-f6"></div>
   <div class="legend" id="lg-f6"></div>
   <details class="tbl"><summary>표로 보기</summary><div class="tscroll" id="t-f6"></div></details>
-  <p class="source">휴대용선풍기 일별 검색의 표준화 점수(z, 여름 평균 0). 예보 = Open-Meteo 이전 실행 아카이브의 '하루 전 발표' 서울 최고기온(1일 전 예보 RMSE 1.1℃). 헛방·기습 표본은 각 8~9일로 작다. 4분면 평균만 보이며 회귀 계수는 인과로 해석하지 않는다.</p>
+  <p class="source">휴대용선풍기 일별 검색의 표준화 점수(z, 여름 평균 0). 예보 = Open-Meteo 이전 실행 아카이브의 '하루 전 발표' 서울 최고기온(1일 전 예보 RMSE 1.1℃). 헛방·기습 표본은 각 8~9일로 작습니다. 4분면 평균만 보이며 회귀 계수는 인과로 해석하지 않습니다.</p>
 </section>
 
 <div class="method">
   <div><h3>방법</h3><ul>
-    <li>기온: 기상청 기상자료개방포털 ASOS 서울 관측소(108) 일 최고·최저·평균기온 1908~2026.8(42,472일). 도심 관측소라 열섬이 포함된 체감에 가까운 값이다.</li>
-    <li>검색: 네이버 데이터랩 검색어 트렌드. 아이템 점화는 주별·단일 키워드(2016~2025), 폭염 반응은 일별·3키워드 그룹(2024~2026). 상대지수라 요청 간 절대 비교는 하지 않는다.</li>
-    <li>점화 = 그해 시즌 정점의 40%를 처음 넘긴 주. 30%·50%로 바꾸거나 '2주 연속'으로 강화해도 간판 아이템(가디건·트렌치·목도리)의 판정은 같다.</li>
-    <li>ERA5 재분석 자료로 먼저 분석한 뒤 기상청 자료로 전면 교체했다. 두 자료에서 온도계/달력 판정 14개가 모두 일치했다.</li>
+    <li>기온: 기상청 기상자료개방포털 ASOS 서울 관측소(108) 일 최고·최저·평균기온 1908~2026.8(42,472일). 도심 관측소라 열섬이 포함된 체감에 가까운 값입니다.</li>
+    <li>검색: 네이버 데이터랩 검색어 트렌드. 아이템 점화는 주별·단일 키워드(2016~2025), 폭염 반응은 일별·3키워드 그룹(2024~2026). 상대지수라 요청 간 절대 비교는 하지 않습니다.</li>
+    <li>점화 = 그해 시즌 정점의 40%를 처음 넘긴 주. 30%·50%로 바꾸거나 '2주 연속'으로 강화해도 간판 아이템(가디건·트렌치·목도리)의 판정은 같습니다.</li>
+    <li>ERA5 재분석 자료로 먼저 분석한 뒤 기상청 자료로 전면 교체했습니다. 두 자료에서 온도계/달력 판정 14개가 모두 일치했습니다.</li>
   </ul></div>
   <div><h3>한계</h3><ul>
-    <li>전부 검색 데이터다. 판매가 아니라 "찾기 시작한다"까지만 말할 수 있다. 판매 기반 해외 연구(Bertrand &amp; Brusset 2020)와 방향이 같다는 점으로 보강했다.</li>
-    <li>온도계/달력 판정은 휴리스틱이다. 자켓·코트는 경계에 있고, 니트는 기준을 강화하면 판정이 흔들린다(온도 정밀도는 불변).</li>
-    <li>예보 4분면의 헛방·기습 표본은 10일 미만이다. 예고된 폭염이 더 뜨거웠을 가능성(강도 교란)도 배제하지 못한다.</li>
-    <li>칼럼 도입부의 2026년 8월 입추 전후 기온(8/7 38.0℃ → 밤 21.3℃)은 기준일 이후 자료라 이 페이지에는 없다.</li>
+    <li>전부 검색 데이터입니다. 판매가 아니라 "찾기 시작한다"까지만 말할 수 있습니다. 판매 기반 해외 연구(Bertrand &amp; Brusset 2020)와 방향이 같다는 점으로 보강했습니다.</li>
+    <li>온도계/달력 판정은 휴리스틱입니다. 자켓·코트는 경계에 있고, 니트는 기준을 강화하면 판정이 흔들립니다(온도 정밀도는 불변).</li>
+    <li>예보 4분면의 헛방·기습 표본은 10일 미만입니다. 예고된 폭염이 더 뜨거웠을 가능성(강도 교란)도 배제하지 못합니다.</li>
+    <li>칼럼 도입부의 2026년 8월 입추 전후 기온(8/7 38.0℃ → 밤 21.3℃)은 기준일 이후 자료라 이 페이지에는 없습니다.</li>
   </ul></div>
 </div>
 

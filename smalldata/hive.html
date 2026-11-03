@@ -115,6 +115,18 @@ svg .bar.hover,svg .seg.hover,svg .dot.hover{filter:brightness(1.12)}
 footer{margin-top:36px;font-family:var(--f-mono);font-size:11.5px;color:var(--muted);display:flex;gap:16px;flex-wrap:wrap;justify-content:space-between}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 :focus-visible{outline:2px solid var(--pos);outline-offset:2px}
+/* 모션: 타일·도표·카드 등장(살짝 떠오름), 카드 호버 들림·클릭 눌림. 움직임 줄이기 설정이면 전부 끔 */
+@media (prefers-reduced-motion:no-preference){
+  .tile,.chart,.card{animation:rise .55s cubic-bezier(.2,.7,.2,1) both}
+  .tile:nth-child(2),.card:nth-child(2){animation-delay:.07s}
+  .tile:nth-child(3),.card:nth-child(3){animation-delay:.14s}
+  .tile:nth-child(4),.card:nth-child(4){animation-delay:.21s}
+  .tile:nth-child(5),.card:nth-child(5){animation-delay:.28s}
+  .card{transition:transform .18s ease,box-shadow .18s ease}
+  .card:hover{transform:translateY(-3px);box-shadow:0 8px 22px var(--ring)}
+  .card:active{transform:translateY(-1px) scale(.995)}
+}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 </style>
 
 <div class="wrap">
@@ -122,8 +134,8 @@ footer{margin-top:36px;font-family:var(--f-mono);font-size:11.5px;color:var(--mu
   <div class="eyebrow"><a href="../" style="text-decoration:none">스몰데이터랩</a><a href="./index.html" style="text-decoration:none"><b>김하빈의 스몰데이터</b></a><span>2026년 10월 27일</span><span>K팝 앨범 · 포토카드</span></div>
   <h1>최애는 한 명인데, 앨범은 왜 여러 장을 살까</h1>
   <div class="dek">
-    <p>앨범 한 장은 2만 4,400원인데, 원하는 멤버의 포토카드 한 장을 만나기까지는 평균 다섯 장이 든다. 다섯 장을 사고도 셋 중 하나는 빈손이다.</p>
-    <p>같은 종이라도 얻는 관문이 어려울수록 값이 오른다. 그러나 그 호가가 현금이 되는 경우는 드물다.</p>
+    <p>앨범 한 장은 2만 4,400원인데, 원하는 멤버의 포토카드 한 장을 만나기까지는 평균 다섯 장이 듭니다. 다섯 장을 사고도 셋 중 하나는 빈손입니다.</p>
+    <p>같은 종이라도 얻는 관문이 어려울수록 값이 오릅니다. 그러나 그 호가가 현금이 되는 경우는 드뭅니다.</p>
   </div>
   <div class="meta">
     <span>데이터 <b>번개장터 포토카드 매물</b> · <b>써클차트</b> · <b>알라딘 앨범 구성</b></span>
@@ -136,7 +148,7 @@ footer{margin-top:36px;font-family:var(--f-mono);font-size:11.5px;color:var(--mu
 
 <section class="card">
   <h2>같은 종이인데, 얻는 관문이 어려울수록 비싸다</h2>
-  <p class="lede">포토카드를 어떤 경로로 얻었는지에 따라 낱장 호가 중앙값이 세 층으로 갈린다. 앨범을 뜯어야 나오는 랜덤 카드가 가장 싸고, 사고 나서 추첨까지 통과해야 하는 카드가 가장 비싸다. 표본 500건 이상인 10팀 모두에서 ①보다 ③이 비쌌다.</p>
+  <p class="lede">포토카드를 어떤 경로로 얻었는지에 따라 낱장 호가 중앙값이 세 층으로 갈립니다. 앨범을 뜯어야 나오는 랜덤 카드가 가장 싸고, 사고 나서 추첨까지 통과해야 하는 카드가 가장 비쌉니다. 표본 500건 이상인 10팀 모두에서 ①보다 ③이 비쌌습니다.</p>
   <div class="chart" id="c-layer"></div>
   <details class="tbl"><summary>표로 보기 (7개 획득 조건 · 팀별 3층)</summary><div class="tscroll" id="t-layer"></div><div class="tscroll" id="t-teams3"></div></details>
   <p class="source">번개장터 하이브 12팀 포토카드 매물 중 멤버 1명·낱장이 확인되고 획득 조건이 분류된 매물. 호가·수수료 전. 중앙값과 95% 부트스트랩 신뢰구간. 팀×멤버를 고정한 회귀에서도 럭키드로우 ×3.06, 콘서트·팝업 ×3.11.</p>
@@ -144,7 +156,7 @@ footer{margin-top:36px;font-family:var(--f-mono);font-size:11.5px;color:var(--mu
 
 <section class="card">
   <h2>원하는 카드 한 장의 기대 비용 vs 되팔 때 값</h2>
-  <p class="lede">멤버별 확률이 같고 앨범마다 따로 뽑힌다고 가정하면, 원하는 멤버 한 장의 기대 비용은 정가 × 멤버 수 ÷ 앨범당 랜덤 장수다. 랜덤 앨범 8종의 중앙값은 7만 9,125원(앨범 3.4장)이고, 그 카드를 되팔면 4,125원이다. 돌려받는 비율은 6% 이하다.</p>
+  <p class="lede">멤버별 확률이 같고 앨범마다 따로 뽑힌다고 가정하면, 원하는 멤버 한 장의 기대 비용은 정가 × 멤버 수 ÷ 앨범당 랜덤 장수입니다. 랜덤 앨범 8종의 중앙값은 7만 9,125원(앨범 3.4장)이고, 그 카드를 되팔면 4,125원입니다. 돌려받는 비율은 6% 이하입니다.</p>
   <div class="row2">
     <div class="panel"><h3>원하는 멤버 포카 1장의 기대 비용 (원)</h3><div class="chart" id="c-lot"></div></div>
     <div class="panel"><h3>되팔 값 ÷ 장당 원가 — 앨범당 랜덤 장수(k)가 많을수록 회복</h3><div class="chart" id="c-k"></div></div>
@@ -156,7 +168,7 @@ footer{margin-top:36px;font-family:var(--f-mono);font-size:11.5px;color:var(--mu
 
 <section class="card">
   <h2>뜯지 않은 앨범의 값 3분의 2는 '확률'이다</h2>
-  <p class="lede">같은 팀의 중고 앨범을 미개봉과 개봉·포카 없음으로 나눠 비교했다. 차이는 미개봉가의 53~79%(엔하이픈 35%)다. CD와 포토북만 남은 본체는 정가의 2할 안팎에 거래된다.</p>
+  <p class="lede">같은 팀의 중고 앨범을 미개봉과 개봉·포카 없음으로 나눠 비교했습니다. 차이는 미개봉가의 53~79%(엔하이픈 35%)입니다. CD와 포토북만 남은 본체는 정가의 2할 안팎에 거래됩니다.</p>
   <div class="chart" id="c-gap"></div>
   <div class="legend" id="lg-gap"></div>
   <details class="tbl"><summary>표로 보기</summary><div class="tscroll" id="t-gap"></div></details>
@@ -165,24 +177,24 @@ footer{margin-top:36px;font-family:var(--f-mono);font-size:11.5px;color:var(--mu
 
 <section class="card">
   <h2>같은 앨범, 같은 조건이라도 멤버에 따라 값은 최대 3배</h2>
-  <p class="lede">팀 안에서 멤버별 낱장 호가 중앙값을 늘어놓았다. 가장 비싼 멤버와 가장 싼 멤버의 차이는 앤팀 3.0배, 방탄소년단 2.8배, 세븐틴 2.7배다. 매물이 많은 멤버가 더 비싸므로(순위상관 +0.51) 매물 수는 공급 과잉이 아니라 수요의 지표다.</p>
+  <p class="lede">팀 안에서 멤버별 낱장 호가 중앙값을 늘어놓았습니다. 가장 비싼 멤버와 가장 싼 멤버의 차이는 앤팀 3.0배, 방탄소년단 2.8배, 세븐틴 2.7배입니다. 매물이 많은 멤버가 더 비싸므로(순위상관 +0.51) 매물 수는 공급 과잉이 아니라 수요의 지표입니다.</p>
   <div class="chart" id="c-mem"></div>
   <details class="tbl"><summary>표로 보기</summary><div class="tscroll" id="t-mem"></div></details>
-  <p class="source">멤버 1명이 식별된 낱장 매물, 멤버당 30건 이상. 가로축은 호가 중앙값(원). 점 위에 올리면 멤버 이름과 매물 수가 보인다.</p>
+  <p class="source">멤버 1명이 식별된 낱장 매물, 멤버당 30건 이상. 가로축은 호가 중앙값(원). 점 위에 올리면 멤버 이름과 매물 수가 보입니다.</p>
 </section>
 
 <div class="two">
 <section class="card" style="margin-top:0">
   <h2>호가는 가격표일 뿐, 현금이 되는 건 드물다</h2>
-  <p class="lede">10월 8일에 판매 중이던 매물 11만 3,883건을 12일 뒤 다시 추적했다. 플랫폼이 판매 완료로 표시한 건은 0.8%, 삭제·숨김까지 합쳐도 7%다.</p>
+  <p class="lede">10월 8일에 판매 중이던 매물 11만 3,883건을 12일 뒤 다시 추적했습니다. 플랫폼이 판매 완료로 표시한 건은 0.8%, 삭제·숨김까지 합쳐도 7%입니다.</p>
   <div class="segbar" id="c-liq" role="img" aria-label="12일 뒤 매물 상태 분포"></div>
   <div class="legend" id="lg-liq"></div>
   <details class="tbl"><summary>표로 보기 (팀별)</summary><div class="tscroll" id="t-liq"></div></details>
-  <p class="source">'사라짐'은 판매자 삭제·숨김·거래 후 삭제가 섞여 있다. 팔린 매물의 호가 중앙값(10,615원)은 남은 매물(8,000원)보다 높았다.</p>
+  <p class="source">'사라짐'은 판매자 삭제·숨김·거래 후 삭제가 섞여 있습니다. 팔린 매물의 호가 중앙값(10,615원)은 남은 매물(8,000원)보다 높았습니다.</p>
 </section>
 <section class="card" style="margin-top:0">
   <h2>앨범은 4.9배 팔렸는데 음원은 반토막</h2>
-  <p class="lede">써클차트 연간 상위 100 기준, 2018년을 100으로 둔 지수. 실물 앨범 출고량은 2023년 487까지 올랐다가 2025년 334로 내려왔고, 국내 음원 이용 지수는 같은 기간 54, 48로 줄었다.</p>
+  <p class="lede">써클차트 연간 상위 100 기준, 2018년을 100으로 둔 지수. 실물 앨범 출고량은 2023년 487까지 올랐다가 2025년 334로 내려왔고, 국내 음원 이용 지수는 같은 기간 54, 48로 줄었습니다.</p>
   <div class="chart" id="c-circle"></div>
   <div class="legend" id="lg-circle"></div>
   <details class="tbl"><summary>표로 보기</summary><div class="tscroll" id="t-circle"></div></details>
@@ -192,7 +204,7 @@ footer{margin-top:36px;font-family:var(--f-mono);font-size:11.5px;color:var(--mu
 
 <section class="card">
   <h2>2025년 앨범 상위 100 아티스트 60팀 중 38팀은 음원 상위 200에 한 곡도 없다</h2>
-  <p class="lede">그 38팀이 앨범 판매의 54%를 차지한다. 가로축은 국내 음원 지수(로그), 세로축은 앨범 출고량(로그). 왼쪽 회색 띠가 음원 0인 아티스트다. 하이브 소속은 파란 점이다.</p>
+  <p class="lede">그 38팀이 앨범 판매의 54%를 차지합니다. 가로축은 국내 음원 지수(로그), 세로축은 앨범 출고량(로그). 왼쪽 회색 띠가 음원 0인 아티스트입니다. 하이브 소속은 파란 점입니다.</p>
   <div class="chart" id="c-sc"></div>
   <div class="legend" id="lg-sc"></div>
   <details class="tbl"><summary>표로 보기 (앨범 상위 20)</summary><div class="tscroll" id="t-sc"></div></details>
@@ -201,14 +213,14 @@ footer{margin-top:36px;font-family:var(--f-mono);font-size:11.5px;color:var(--mu
 
 <div class="method">
   <div><h3>방법</h3><ul>
-    <li>번개장터에서 하이브 12팀 포토카드 매물 128,896건(2026-10-08)과 6팀 앨범 매물 20,535건을 수집하고, 제목에서 멤버·장수·획득 조건을 규칙으로 분류했다.</li>
-    <li>기대 비용은 알라딘 판매 페이지의 앨범 구성(정가·랜덤 포카 장수·멤버 수)으로 계산했다. 균등 확률을 가정했다.</li>
-    <li>거시 지표는 써클차트 연간 상위 100 앨범·상위 100곡을 2010~2025년에 걸쳐 수집했다.</li>
+    <li>번개장터에서 하이브 12팀 포토카드 매물 128,896건(2026-10-08)과 6팀 앨범 매물 20,535건을 수집하고, 제목에서 멤버·장수·획득 조건을 규칙으로 분류했습니다.</li>
+    <li>기대 비용은 알라딘 판매 페이지의 앨범 구성(정가·랜덤 포카 장수·멤버 수)으로 계산했고, 확률은 균등하다고 가정했습니다.</li>
+    <li>거시 지표는 써클차트 연간 상위 100 앨범·상위 100곡을 2010~2025년에 걸쳐 수집했습니다.</li>
   </ul></div>
   <div><h3>한계</h3><ul>
-    <li>값은 호가다. 수수료 전, 단일 플랫폼이며 획득 조건이 분류되지 않은 매물이 절반이다.</li>
-    <li>멤버별 실제 확률은 공개되지 않아 균등 확률 가정은 팬 쪽에 유리한 상한이다.</li>
-    <li>음원 지수는 국내 가중 지수라 유튜브·해외 스트리밍은 집계 밖이다. 특정 기획사가 확률을 조작했다는 뜻이 아니라, 공개하지 않는다는 사실만을 다룬다.</li>
+    <li>값은 호가입니다. 수수료 전, 단일 플랫폼이며 획득 조건이 분류되지 않은 매물이 절반입니다.</li>
+    <li>멤버별 실제 확률은 공개되지 않아 균등 확률 가정은 팬 쪽에 유리한 상한입니다.</li>
+    <li>음원 지수는 국내 가중 지수라 유튜브·해외 스트리밍은 집계 밖입니다. 특정 기획사가 확률을 조작했다는 뜻이 아니라, 공개하지 않는다는 사실만을 다룹니다.</li>
   </ul></div>
 </div>
 

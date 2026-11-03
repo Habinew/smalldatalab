@@ -122,6 +122,18 @@ footer{margin-top:36px;font-family:var(--f-mono);font-size:11.5px;color:var(--mu
 footer a{color:var(--ink-2)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 :focus-visible{outline:2px solid var(--pos);outline-offset:2px}
+/* 모션: 타일·도표·카드 등장(살짝 떠오름), 카드 호버 들림·클릭 눌림. 움직임 줄이기 설정이면 전부 끔 */
+@media (prefers-reduced-motion:no-preference){
+  .tile,.chart,.card{animation:rise .55s cubic-bezier(.2,.7,.2,1) both}
+  .tile:nth-child(2),.card:nth-child(2){animation-delay:.07s}
+  .tile:nth-child(3),.card:nth-child(3){animation-delay:.14s}
+  .tile:nth-child(4),.card:nth-child(4){animation-delay:.21s}
+  .tile:nth-child(5),.card:nth-child(5){animation-delay:.28s}
+  .card{transition:transform .18s ease,box-shadow .18s ease}
+  .card:hover{transform:translateY(-3px);box-shadow:0 8px 22px var(--ring)}
+  .card:active{transform:translateY(-1px) scale(.995)}
+}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 </style>
 
 <div class="wrap">
@@ -129,8 +141,8 @@ footer a{color:var(--ink-2)}
   <div class="eyebrow"><a href="../" style="text-decoration:none">스몰데이터랩</a><a href="./index.html" style="text-decoration:none"><b>김하빈의 스몰데이터</b></a><span>2026년 6월</span><span>Fashion-CLIP · 브랜드 18개</span></div>
   <h1>K패션에는 'K'가 없다</h1>
   <div class="dek">
-    <p>패션 특화 AI에게 한국 브랜드 9곳과 글로벌 브랜드 9곳의 상품컷 1만 장을 보여주고 물었다. 한국 옷은 한쪽에, 글로벌 옷은 다른 쪽에 모이는가.</p>
-    <p>가려내지 못했다. 두 집단의 분리도는 0.02로 사실상 0이다. 옷이 무리를 짓는 단위는 국적이 아니라 개별 브랜드였다.</p>
+    <p>패션 특화 AI에게 한국 브랜드 9곳과 글로벌 브랜드 9곳의 상품컷 1만 장을 보여주고 물었습니다. 한국 옷은 한쪽에, 글로벌 옷은 다른 쪽에 모이는가.</p>
+    <p>가려내지 못했습니다. 두 집단의 분리도는 0.02로 사실상 0입니다. 옷이 무리를 짓는 단위는 국적이 아니라 개별 브랜드였습니다.</p>
   </div>
   <div class="meta">
     <span>데이터 <b>네이버 쇼핑 상품컷</b></span>
@@ -143,7 +155,7 @@ footer a{color:var(--ink-2)}
 
 <section class="card">
   <h2>통제를 더할수록 '한국다움'은 사라졌다</h2>
-  <p class="lede">분리도(실루엣 계수)는 0이면 완전히 섞임, 1이면 완전히 다른 옷이다. 브랜드를 늘리고 출처·가격대·사진 형식을 맞출수록 값이 바닥으로 내려갔다. 남은 0.02도 브랜드를 아무렇게나 두 편으로 나눴을 때 생기는 차이와 구별되지 않는다.</p>
+  <p class="lede">분리도(실루엣 계수)는 0이면 완전히 섞임, 1이면 완전히 다른 옷입니다. 브랜드를 늘리고 출처·가격대·사진 형식을 맞출수록 값이 바닥으로 내려갔습니다. 남은 0.02도 브랜드를 아무렇게나 두 편으로 나눴을 때 생기는 차이와 구별되지 않습니다.</p>
   <div class="row2">
     <div class="panel"><h3>통제 단계별 한국 vs 글로벌 분리도</h3><div class="chart" id="c-stage"></div></div>
     <div class="panel"><h3>관측치(점)와 무작위 브랜드 분할의 평균(세로선)</h3><div class="chart" id="c-sig"></div></div>
@@ -154,26 +166,26 @@ footer a{color:var(--ink-2)}
 
 <section class="card">
   <h2>옷이 뭉치는 단위는 국적이 아니라 브랜드다</h2>
-  <p class="lede">각 상품컷에서 가장 닮은 다른 한 장을 찾았다. 그 옷이 같은 브랜드일 확률은 78%로 우연(6%)의 열네 배다. 반면 가장 닮은 옷이 다른 브랜드일 때, 그 브랜드가 같은 국적일 확률은 60%로 우연(47%)과 큰 차이가 없다.</p>
+  <p class="lede">각 상품컷에서 가장 닮은 다른 한 장을 찾았습니다. 그 옷이 같은 브랜드일 확률은 78%로 우연(6%)의 열네 배입니다. 반면 가장 닮은 옷이 다른 브랜드일 때, 그 브랜드가 같은 국적일 확률은 60%로 우연(47%)과 큰 차이가 없습니다.</p>
   <div class="chart" id="c-nn"></div>
   <div class="legend" id="lg-nn"></div>
   <details class="tbl"><summary>표로 보기</summary><div class="tscroll" id="t-nn"></div></details>
-  <p class="source">Fashion-CLIP 임베딩의 1-최근접이웃(자기 제외), 10,640장 전체. 같은 상품의 색상 변형이 이웃으로 잡히는 경우가 있어 '같은 브랜드' 비율은 상향 편향일 수 있다.</p>
+  <p class="source">Fashion-CLIP 임베딩의 1-최근접이웃(자기 제외), 10,640장 전체. 같은 상품의 색상 변형이 이웃으로 잡히는 경우가 있어 '같은 브랜드' 비율은 상향 편향일 수 있습니다.</p>
 </section>
 
 <section class="card">
   <h2>브랜드 지도: 한국과 글로벌은 같은 자리에 겹쳐 있다</h2>
-  <p class="lede">브랜드마다 상품컷의 평균 위치(중심점)를 구해 가까운 브랜드끼리 가깝게 배치했다. 색이 한쪽으로 갈리지 않는다. 같은 국적 브랜드끼리의 평균 유사도와 다른 국적 간 유사도의 차이는 0.01이 되지 않는다.</p>
+  <p class="lede">브랜드마다 상품컷의 평균 위치(중심점)를 구해 가까운 브랜드끼리 가깝게 배치했습니다. 색이 한쪽으로 갈리지 않습니다. 같은 국적 브랜드끼리의 평균 유사도와 다른 국적 간 유사도의 차이는 0.01이 되지 않습니다.</p>
   <div class="chart" id="c-map"></div>
   <div class="legend" id="lg-map"></div>
   <details class="tbl"><summary>표로 보기 (브랜드별 구성)</summary><div class="tscroll" id="t-map"></div></details>
-  <p class="source">18개 브랜드 중심점 간 코사인 거리를 2차원으로 펼친 것(고전 MDS). 축에 의미는 없고 거리만 읽는다. 칼럼 지면의 UMAP 그림과 방법이 다르지만 결론은 같다.</p>
+  <p class="source">18개 브랜드 중심점 간 코사인 거리를 2차원으로 펼친 것(고전 MDS). 축에 의미는 없고 거리만 읽습니다. 칼럼 지면의 UMAP 그림과 방법이 다르지만 결론은 같습니다.</p>
 </section>
 
 <div class="two">
 <section class="card" style="margin-top:0">
   <h2>'한국은 모델을 안 쓴다'는 착시였다</h2>
-  <p class="lede">처음 4개 브랜드만 봤을 때는 한국이 모델 없는 평면컷을 훨씬 많이 쓰는 것처럼 보였다. 18개로 늘리자 73% 대 73%로 같아졌다. 사진 형식은 국적이 아니라 브랜드의 습관이었다.</p>
+  <p class="lede">처음 4개 브랜드만 봤을 때는 한국이 모델 없는 평면컷을 훨씬 많이 쓰는 것처럼 보였습니다. 18개로 늘리자 73% 대 73%로 같아졌습니다. 사진 형식은 국적이 아니라 브랜드의 습관이었습니다.</p>
   <div class="row2">
     <div class="panel"><h3>초기 4개 브랜드</h3><div class="chart" id="c-fmt4"></div></div>
     <div class="panel"><h3>18개 브랜드</h3><div class="chart" id="c-fmt18"></div></div>
@@ -182,7 +194,7 @@ footer a{color:var(--ink-2)}
 </section>
 <section class="card" style="margin-top:0">
   <h2>성급하게 보면 갈리고, 제대로 보면 섞인다</h2>
-  <p class="lede">한국 브랜드는 평면컷만, 글로벌 브랜드는 모델컷만 골라 비교하면 분리도가 0.15까지 올라간다. 옷이 아니라 사진 종류가 갈린 것이다. 18개 브랜드 평면컷을 브랜드당 같은 수로 맞추면 0.02로 돌아온다.</p>
+  <p class="lede">한국 브랜드는 평면컷만, 글로벌 브랜드는 모델컷만 골라 비교하면 분리도가 0.15까지 올라갑니다. 옷이 아니라 사진 종류가 갈린 것입니다. 18개 브랜드 평면컷을 브랜드당 같은 수로 맞추면 0.02로 돌아옵니다.</p>
   <div class="cmp" id="cmp"></div>
   <p class="source">실루엣 계수. 왼쪽은 우영미·아더에러·마뗑킴 평면컷 500장 vs 자라·코스 모델컷 500장. 오른쪽은 18개 브랜드 평면컷 2,970장.</p>
 </section>
@@ -190,7 +202,7 @@ footer a{color:var(--ink-2)}
 
 <section class="card">
   <h2>스타일 23종도 섬이 아니라 그라데이션이다</h2>
-  <p class="lede">같은 AI로 AI허브 K-패션 데이터셋의 스타일 23종(스타일당 382장)을 봤다. 펑크·힙합·프레피·밀리터리처럼 제복에 가까운 스타일만 또렷하고, 데이터셋에서 가장 흔한 라벨인 '스트리트'는 가장 비특이적이다. 23종 전체의 분리도는 −0.03으로 역시 0이다.</p>
+  <p class="lede">같은 AI로 AI허브 K-패션 데이터셋의 스타일 23종(스타일당 382장)을 봤습니다. 펑크·힙합·프레피·밀리터리처럼 제복에 가까운 스타일만 또렷하고, 데이터셋에서 가장 흔한 라벨인 '스트리트'는 가장 비특이적입니다. 23종 전체의 분리도는 −0.03으로 역시 0입니다.</p>
   <div class="chart" id="c-style"></div>
   <details class="tbl"><summary>표로 보기</summary><div class="tscroll" id="t-style"></div></details>
   <p class="source">값 = 가장 닮은 옷이 같은 스타일일 비율(NN-1 순도), 95% 부트스트랩 구간. 무작위 기준 1/23 = 4.3%. 의복 영역만 크롭해 배경을 통제한 Training 균형표본 8,786장.</p>
@@ -198,14 +210,14 @@ footer a{color:var(--ink-2)}
 
 <div class="method">
   <div><h3>방법</h3><ul>
-    <li>브랜드 선정은 기준(한국/글로벌 × SPA·컨템포러리·디자이너)을 먼저 고정한 뒤 LLM 세 관점의 독립 제안을 합의·검증해 18개를 확정했다.</li>
-    <li>네이버 쇼핑 API로 브랜드당 약 600장의 상품컷을 모아 Fashion-CLIP(Chia 외, 2022)으로 512차원 임베딩을 만들고, L2 정규화 후 코사인 거리로 분석했다.</li>
-    <li>유의성은 이미지 단위가 아니라 브랜드 단위 순열검정으로 판단했다. 같은 브랜드의 사진은 독립이 아니기 때문이다.</li>
+    <li>브랜드 선정은 기준(한국/글로벌 × SPA·컨템포러리·디자이너)을 먼저 고정한 뒤 LLM 세 관점의 독립 제안을 합의·검증해 18개를 확정했습니다.</li>
+    <li>네이버 쇼핑 API로 브랜드당 약 600장의 상품컷을 모아 Fashion-CLIP(Chia 외, 2022)으로 512차원 임베딩을 만들고, L2 정규화 후 코사인 거리로 분석했습니다.</li>
+    <li>유의성은 이미지 단위가 아니라 브랜드 단위 순열검정으로 판단했습니다. 같은 브랜드의 사진은 독립이 아니기 때문입니다.</li>
   </ul></div>
   <div><h3>한계</h3><ul>
-    <li>단일 모델(Fashion-CLIP)의 눈이다. 다른 시각 모델과 사람 평가로 재확인이 필요하다.</li>
-    <li>네이버 마켓플레이스 이미지라 공식몰과 형식이 다를 수 있다.</li>
-    <li>"차이가 없다"는 p&gt;0.05로 말했다. 동등성 검정(TOST)으로 마진 안의 동등을 적극 입증하는 것은 후속 과제다.</li>
+    <li>단일 모델(Fashion-CLIP)의 눈입니다. 다른 시각 모델과 사람 평가로 재확인이 필요합니다.</li>
+    <li>네이버 마켓플레이스 이미지라 공식몰과 형식이 다를 수 있습니다.</li>
+    <li>"차이가 없다"는 p&gt;0.05로 말했습니다. 동등성 검정(TOST)으로 마진 안의 동등을 적극 입증하는 것은 후속 과제입니다.</li>
   </ul></div>
 </div>
 

@@ -116,6 +116,18 @@ ol.win .mt small{color:var(--muted);font-weight:400;font-size:11.5px;margin-left
 footer{margin-top:36px;font-family:var(--f-mono);font-size:11.5px;color:var(--muted);display:flex;gap:16px;flex-wrap:wrap;justify-content:space-between}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 :focus-visible{outline:2px solid var(--pos);outline-offset:2px}
+/* 모션: 타일·도표·카드 등장(살짝 떠오름), 카드 호버 들림·클릭 눌림. 움직임 줄이기 설정이면 전부 끔 */
+@media (prefers-reduced-motion:no-preference){
+  .tile,.chart,.card{animation:rise .55s cubic-bezier(.2,.7,.2,1) both}
+  .tile:nth-child(2),.card:nth-child(2){animation-delay:.07s}
+  .tile:nth-child(3),.card:nth-child(3){animation-delay:.14s}
+  .tile:nth-child(4),.card:nth-child(4){animation-delay:.21s}
+  .tile:nth-child(5),.card:nth-child(5){animation-delay:.28s}
+  .card{transition:transform .18s ease,box-shadow .18s ease}
+  .card:hover{transform:translateY(-3px);box-shadow:0 8px 22px var(--ring)}
+  .card:active{transform:translateY(-1px) scale(.995)}
+}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 </style>
 
 <div class="wrap">
@@ -123,8 +135,8 @@ footer{margin-top:36px;font-family:var(--f-mono);font-size:11.5px;color:var(--mu
   <div class="eyebrow"><a href="../" style="text-decoration:none">스몰데이터랩</a><a href="./index.html" style="text-decoration:none"><b>김하빈의 스몰데이터</b></a><span>2026년 9월</span><span>크림 리셀 시세</span></div>
   <h1>한정판을 사두면 정말 오를까</h1>
   <div class="dek">
-    <p>크림 인기 상품 1,342개의 발매가 대비 시세를 추적했다. 64%는 정가 아래에서 거래되고, 중앙값은 −13%다.</p>
-    <p>한때 프리미엄 50%를 넘긴 상품의 셋 중 하나는 고점의 반값이 됐다. 프리미엄은 상장 직후가 정점이다.</p>
+    <p>크림 인기 상품 1,342개의 발매가 대비 시세를 추적했습니다. 64%는 정가 아래에서 거래되고, 중앙값은 −13%입니다.</p>
+    <p>한때 프리미엄 50%를 넘긴 상품의 셋 중 하나는 고점의 반값이 됐습니다. 프리미엄은 상장 직후가 정점입니다.</p>
   </div>
   <div class="meta">
     <span>데이터 <b>크림(KREAM) 공개 시세</b></span>
@@ -137,7 +149,7 @@ footer{margin-top:36px;font-family:var(--f-mono);font-size:11.5px;color:var(--mu
 
 <section class="card">
   <h2>승자는 얇고, 패자는 넓다</h2>
-  <p class="lede">1,342개 상품을 프리미엄이 높은 순서로 세웠다. 발매가(0%) 위로 올라간 파란 면적이 수익, 아래 빨간 면적이 손실이다. 마우스를 올리면 상품 이름이 보인다.</p>
+  <p class="lede">1,342개 상품을 프리미엄이 높은 순서로 세웠습니다. 발매가(0%) 위로 올라간 파란 면적이 수익, 아래 빨간 면적이 손실입니다. 마우스를 올리면 상품 이름이 보입니다.</p>
   <div class="chart" id="c-f1"></div>
   <details class="tbl"><summary>표로 보기 (분포 요약)</summary><div class="tscroll" id="t-f1"></div></details>
   <p class="source">발매가(KRW) 대비 최근 체결가. 크림 카테고리별 인기 상위 층화 표본, 핵심 12개 카테고리. +300% 초과는 300에서 절단. 수수료·배송비 반영 전.</p>
@@ -145,7 +157,7 @@ footer{margin-top:36px;font-family:var(--f-mono);font-size:11.5px;color:var(--mu
 
 <section class="card">
   <h2>카테고리를 바꿔도 결론은 같다</h2>
-  <p class="lede">정가 이하로 거래되는 상품 비율과 중앙값 프리미엄. 컬렉터블만 중앙값이 플러스이지만, 거래량으로 가중하면 그마저 71%가 정가 아래다.</p>
+  <p class="lede">정가 이하로 거래되는 상품 비율과 중앙값 프리미엄. 컬렉터블만 중앙값이 플러스이지만, 거래량으로 가중하면 그마저 71%가 정가 아래입니다.</p>
   <div class="row2">
     <div class="panel"><h3>정가 이하로 거래되는 상품 비율</h3><div class="chart" id="c-f2a"></div></div>
     <div class="panel"><h3>중앙값 프리미엄 (발매가 대비)</h3><div class="chart" id="c-f2b"></div></div>
@@ -156,7 +168,7 @@ footer{margin-top:36px;font-family:var(--f-mono);font-size:11.5px;color:var(--mu
 
 <section class="card">
   <h2>상장 뒤 시간이 갈수록 내려간다</h2>
-  <p class="lede">크림에 처음 시세가 잡힌 날을 0으로 두고 같은 상품을 따라갔다. 2년 넘게 거래된 658개의 중앙값은 −13%에서 −17%로 내려갔고, 상장 한 달 만에 +50%를 넘긴 45개도 2년 뒤에는 +29%로 깎였다.</p>
+  <p class="lede">크림에 처음 시세가 잡힌 날을 0으로 두고 같은 상품을 따라갔습니다. 2년 넘게 거래된 658개의 중앙값은 −13%에서 −17%로 내려갔고, 상장 한 달 만에 +50%를 넘긴 45개도 2년 뒤에는 +29%로 깎였습니다.</p>
   <div class="row2">
     <div class="panel"><h3>전체 표본의 중앙값 프리미엄</h3><div class="chart" id="c-f6a"></div></div>
     <div class="panel"><h3>초기 승자(상장 1개월 +50% 이상, 45개)</h3><div class="chart" id="c-f6b"></div></div>
@@ -169,14 +181,14 @@ footer{margin-top:36px;font-family:var(--f-mono);font-size:11.5px;color:var(--mu
 <div class="two">
 <section class="card" style="margin-top:0">
   <h2>'한때의 승자'도 셋 중 하나는 반토막</h2>
-  <p class="lede">월별 중앙값 기준으로 한 번이라도 +50%를 넘긴 295개(표본의 22%)의 현재 시세를 역대 고점으로 나눴다.</p>
+  <p class="lede">월별 중앙값 기준으로 한 번이라도 +50%를 넘긴 295개(표본의 22%)의 현재 시세를 역대 고점으로 나눴습니다.</p>
   <div class="chart" id="c-f3"></div>
   <details class="tbl"><summary>표로 보기</summary><div class="tscroll" id="t-f3"></div></details>
   <p class="source">일별 스파이크 제외. 고점 대비 현재가 중앙값 0.65.</p>
 </section>
 <section class="card" style="margin-top:0">
   <h2>반례는 먼저 인정한다</h2>
-  <p class="lede">거래 100건 이상 상품 중 발매가 대비 배수가 가장 큰 열 개. 공통점은 브랜드가 공급을 극도로 통제한 협업·한정반이거나 굿즈라는 점이다. +50% 이상 상품 전체가 거래량에서 차지하는 비중은 3%다.</p>
+  <p class="lede">거래 100건 이상 상품 중 발매가 대비 배수가 가장 큰 열 개. 공통점은 브랜드가 공급을 극도로 통제한 협업·한정반이거나 굿즈라는 점입니다. +50% 이상 상품 전체가 거래량에서 차지하는 비중은 3%입니다.</p>
   <ol class="win" id="winners"></ol>
   <p class="source">전체 상세 표본(승자 과표집 층 포함)에서 예시로 뽑음. 헤드라인 수치에는 합산하지 않음.</p>
 </section>
@@ -184,7 +196,7 @@ footer{margin-top:36px;font-family:var(--f-mono);font-size:11.5px;color:var(--mu
 
 <section class="card">
   <h2>'리셀'에 대한 관심은 2022년 정점 이후 4분의 1로</h2>
-  <p class="lede">네이버 데이터랩 월별 검색 관심도. 시리즈마다 자기 최고점을 100으로 두었다. '나이키 드로우' 검색은 정점의 1%까지 내려왔다.</p>
+  <p class="lede">네이버 데이터랩 월별 검색 관심도. 시리즈마다 자기 최고점을 100으로 두었습니다. '나이키 드로우' 검색은 정점의 1%까지 내려왔습니다.</p>
   <div class="chart" id="c-f4"></div>
   <div class="legend" id="lg-f4"></div>
   <details class="tbl"><summary>표로 보기 (연말 값)</summary><div class="tscroll" id="t-f4"></div></details>
@@ -193,7 +205,7 @@ footer{margin-top:36px;font-family:var(--f-mono);font-size:11.5px;color:var(--mu
 
 <section class="card">
   <h2>브랜드별: 샤테크의 플러스는 정가 인상의 그림자</h2>
-  <p class="lede">샤넬 +5%, 루이비통 +6%는 브랜드의 반복적 정가 인상이 반영된 결과에 가깝다. 이득은 인상 전 가격에 산 사람에게만 생긴다. 에르메스는 −8%, 나이키는 −32%다.</p>
+  <p class="lede">샤넬 +5%, 루이비통 +6%는 브랜드의 반복적 정가 인상이 반영된 결과에 가깝습니다. 이득은 인상 전 가격에 산 사람에게만 생깁니다. 에르메스는 −8%, 나이키는 −32%입니다.</p>
   <div class="chart" id="c-br"></div>
   <details class="tbl"><summary>표로 보기</summary><div class="tscroll" id="t-br"></div></details>
   <p class="source">표본 15개 이상 브랜드. 중앙값 프리미엄 순 정렬.</p>
@@ -201,14 +213,14 @@ footer{margin-top:36px;font-family:var(--f-mono);font-size:11.5px;color:var(--mu
 
 <div class="method">
   <div><h3>방법</h3><ul>
-    <li>크림 19개 카테고리 리스팅 25,460개를 수집하고, 5,616개의 발매가·체결 이력·상장 이후 전 기간 일별 시세를 대조했다.</li>
-    <li>헤드라인은 국내 정가가 원화로 확인되고 체결 기록이 있는 인기 상위 1,342개(12개 카테고리)로 계산했다.</li>
-    <li>피크는 하루짜리 급등을 걸러내기 위해 월별 중앙값 시세로 잡았다.</li>
+    <li>크림 19개 카테고리 리스팅 25,460개를 수집하고, 5,616개의 발매가·체결 이력·상장 이후 전 기간 일별 시세를 대조했습니다.</li>
+    <li>헤드라인은 국내 정가가 원화로 확인되고 체결 기록이 있는 인기 상위 1,342개(12개 카테고리)로 계산했습니다.</li>
+    <li>피크는 하루짜리 급등을 걸러내기 위해 월별 중앙값 시세로 잡았습니다.</li>
   </ul></div>
   <div><h3>한계</h3><ul>
-    <li>단일 플랫폼(크림) 기록이다.</li>
-    <li>수수료·배송비를 빼기 전 액면가다. 반영하면 손익은 더 나빠진다.</li>
-    <li>수요가 끊겨 사라진 상품은 표본에 없다(생존 편향). 실제 시장 평균은 이보다 더 부정적일 것이다.</li>
+    <li>단일 플랫폼(크림) 기록입니다.</li>
+    <li>수수료·배송비를 빼기 전 액면가입니다. 반영하면 손익은 더 나빠집니다.</li>
+    <li>수요가 끊겨 사라진 상품은 표본에 없습니다(생존 편향). 실제 시장 평균은 이보다 더 부정적일 것입니다.</li>
   </ul></div>
 </div>
 
