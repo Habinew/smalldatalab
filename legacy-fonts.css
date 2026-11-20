@@ -1,0 +1,116 @@
+/* Shared typography and dark palette for the archive and data dashboards. */
+@font-face {
+  font-family: Pretendard;
+  src: url('assets/fonts/PretendardVariable.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+html:root {
+  --f-body: Pretendard, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --f-mono: var(--f-body);
+}
+
+/* Keep the shared palette above the older pages' inline theme selectors.
+   Explicit and automatic OS themes therefore use the same site colors. */
+html:root,
+html:root[data-key],
+html:root[data-key][data-theme],
+html:root[data-key]:not([data-theme]) {
+  color-scheme: dark;
+  --bg: #131714;
+  --surface: #1D231E;
+  --ink: #F2F4E9;
+  --ink-2: #CED5C8;
+  --muted: #B3BCAE;
+  --grid: #354035;
+  --axis: #61705D;
+  --ring: #354035;
+  --chip: #26302B;
+  --key: #CDF56B;
+  --pos: #CDF56B;
+  --neg: #ECAF89;
+  --s1: #CDF56B;
+  --s2: #9DCAC0;
+  --s3: #9FBBF0;
+  --s4: #D8BAF0;
+  --gray: #A1ACA0;
+  --wash: rgba(205, 245, 107, .10);
+  --wash2: rgba(205, 245, 107, .05);
+  --key-wash: rgba(205, 245, 107, .10);
+  --key-hl: rgba(205, 245, 107, .24);
+  --key-sel: #CDF56B;
+}
+
+html body::selection,
+html body ::selection {
+  background: var(--key);
+  color: var(--bg);
+}
+
+/* Chart labels inside the lighter data marks need dark ink. */
+html svg .lbl.in,
+html .segbar div {
+  fill: var(--bg);
+  color: var(--bg);
+}
+
+html .tag.hi,
+html .chip.on {
+  color: var(--bg);
+  background: var(--key);
+  border-color: var(--key);
+}
+
+html .chip.on i {
+  color: inherit;
+  opacity: 1;
+}
+
+html .tip {
+  background: var(--chip);
+  color: var(--ink);
+  border: 1px solid var(--axis);
+  box-shadow: 0 6px 22px #0005;
+}
+
+html .tip .dim {
+  color: var(--muted);
+  opacity: 1;
+}
+
+/* Long method names remain readable inside the mobile paper cards. */
+html .steps li {
+  min-width: 0;
+  max-width: 100%;
+}
+
+html .steps li span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+html .tile .val {
+  overflow-wrap: anywhere;
+}
+
+body,
+button,
+input,
+select,
+textarea,
+svg text {
+  font-family: var(--f-body);
+}
+
+code,
+pre,
+kbd,
+samp {
+  font-family: var(--f-body);
+  font-variant-numeric: tabular-nums;
+}
+
+.sdl-page-links{display:flex;flex-wrap:wrap;gap:20px;padding:24px max(20px,calc((100% - 1200px)/2)) 100px;font-size:12px;color:var(--muted)}
+.sdl-page-links a{color:var(--muted);text-decoration:underline;text-underline-offset:4px}

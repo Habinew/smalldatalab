@@ -1,37 +1,25 @@
 <!doctype html>
-<html lang="ko" data-key="emerald">
+<html lang="ko">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>연구 · 스몰데이터랩</title>
+<meta name="theme-color" content="#131714">
+<title>Research · 스몰데이터랩</title>
 <meta name="description" content="스몰데이터랩의 세 연구 축, 게재 논문, 진행 중 연구, 산학·연구 과제, 세종과학펠로우십 5개년 로드맵.">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
-<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="styles.css">
+<link rel="icon" type="image/png" href="favicon.png?v=20261120-teal2">
+<script src="analytics.js" defer></script>
+<meta name="color-scheme" content="dark">
 </head>
 <body>
-
-<header class="site-head">
-  <div class="wrap bar">
-    <a class="brand" href="./index.html"><b>스몰데이터랩</b><span>Small Data Lab</span></a>
-    <nav aria-label="주 메뉴">
-      <a href="./index.html">Home</a>
-      <a href="./lab.html">Lab</a>
-      <a href="./research.html" aria-current="page">Research</a>
-      <a href="./smalldata/">Small Data</a>
-      <a href="./data.html">Data</a>
-      <a href="./lecture.html">Lecture</a>
-    </nav>
-  </div>
-</header>
-
-<main class="wrap">
-<header>
+<a class="skip" href="#main">본문으로 건너뛰기</a><header class="site-head"><div class="wrap bar"><a class="brand" href="index.html" aria-label="스몰데이터랩 홈"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span><b>스몰데이터랩</b><small>Small Data Lab</small></span></a><button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav">메뉴</button><nav id="site-nav" class="site-nav" aria-label="주 메뉴"><a href="index.html">Home</a><a href="lab.html">Lab</a><a href="research.html" aria-current="page">Research</a><a href="smalldata/">Small Data</a><a href="data.html">Data</a><a href="lecture.html">Lecture</a><a href="play.html">Play</a></nav><a class="nav-contact" href="mailto:smalldata@scnu.ac.kr">Say hello</a></div></header>
+<main id="main" class="wrap content-page">
+<header class="page-hero">
   <div class="eyebrow"><b>Research</b><span>연구 축 · 논문 · 과제</span></div>
-  <h1>거시환경에서 AI까지, 패션마케팅의 시간 흐름<small>Research axes, publications, projects</small></h1>
+  <h1>Research.<small>패션과 소비의 가치를 묻는 연구</small></h1>
   <p class="dek">세 연구 축은 시간 순서로 이어집니다. 거시환경이 소비를 흔들고, 리테일 생태계가 그에 적응하며, AI 테크놀로지가 다음 상품 가치를 추론합니다. 공통 방법은 비정형 소비자 데이터(리뷰·소셜·시세·이미지)의 정량 분석입니다.</p>
   <div class="stats">
-    <div><b>10</b>게재 논문</div>
+    <div><b>11</b>게재 논문</div>
     <div><b>2</b>진행 중 (R&amp;R·수상)</div>
     <div><b>4</b>우수논문상 (2023~2026)</div>
     <div><b>1</b>오픈소스 (PyPI)</div>
@@ -42,19 +30,19 @@
   <h2>연구 축</h2>
   <div class="cards">
     <article class="card axis">
-      <div class="no">01 · MACRO</div>
+      <div class="no">Macro · 거시환경</div>
       <h3>글로벌 거시환경과 소비자 행동의 역학</h3>
       <p>팬데믹·경제위기 등 거시 변수 속 소비 변동, K-패션의 글로벌 확산 메커니즘.</p>
       <div class="chips"><span>박사학위 논문 2024</span><span>JRCS 2026</span><span>Fashion and Textiles 2023</span></div>
     </article>
     <article class="card axis">
-      <div class="no">02 · RETAIL</div>
+      <div class="no">Retail · 리테일</div>
       <h3>지속가능한 리테일 환경</h3>
       <p>스몰 브랜드와 플랫폼의 공진화, 중고·리세일 시장, ESG·윤리적 소비 메커니즘.</p>
       <div class="chips"><span>APJML 2026</span><span>JRCS 2026 · Best Paper</span><span>JCM R&amp;R</span></div>
     </article>
     <article class="card axis">
-      <div class="no">03 · AI</div>
+      <div class="no">AI · 테크놀로지</div>
       <h3>AI 테크놀로지와 패션 상품의 미래</h3>
       <p>LLM·뉴로-심볼릭 멀티모달 가치 추론, 공정 추천 시스템 설계.</p>
       <div class="chips"><span>세종과학펠로우십</span><span>fair-rec-sys</span><span>ICCT 2026 Best Paper</span></div>
@@ -62,7 +50,7 @@
   </div>
 </section>
 
-<section>
+<section><h2>먼저 읽어볼 연구</h2><div class="cards two"><article class="card"><div class="mo">소비자 행동 · 2026</div><h3>위기 속에서 럭셔리는 어떻게 달라질까?</h3><p>When Death Looms, Quiet Shines. 위기 환경 속 럭셔리 소비의 조용한 전환을 살펴봅니다.</p><div class="links"><a href="papers.html#p-quiet_luxury">연구 결과 읽기</a><a href="https://doi.org/10.1016/j.jretconser.2026.104912" target="_blank" rel="noopener noreferrer">논문 원문 ↗</a></div></article><article class="card"><div class="mo">리테일 생태계 · 2026</div><h3>브랜드는 왜 패션 플랫폼에 모일까?</h3><p>Why do sellers flock to vertical fashion platforms? 플랫폼과 입점 브랜드의 공진화를 분석합니다.</p><div class="links"><a href="papers.html#p-sellers">연구 결과 읽기</a></div></article></div></section><section>
   <h2>진행 중 <small>Under review · Award 2026</small></h2>
   <ul class="list">
     <li><span class="k">1st R&amp;R<br>SSCI · 교신</span><div><div class="t">When Cuteness Heals</div><div class="d"><em>Journal of Consumer Marketing</em> · 리테일 환경에서 귀여움의 회복적 메커니즘</div></div></li>
@@ -141,10 +129,8 @@
   </div>
 </section>
 </main>
-
-<footer class="site-foot">
-  <div class="wrap"><span>© 2026 Small Data Lab · 국립순천대학교 패션디자인학전공</span><span>smalldata@scnu.ac.kr</span></div>
-</footer>
-<script src="assets/glossary.js" defer></script>
+<footer class="site-foot"><div class="wrap footer-grid"><div><a class="footer-name" href="index.html">Small Data Lab.</a><p>국립순천대학교 패션디자인학전공 · 패션마케팅 연구실<br>© 2026 Small Data Lab</p></div><div class="footer-links"><a href="privacy.html">이용 통계 안내</a><a href="mailto:smalldata@scnu.ac.kr">smalldata@scnu.ac.kr</a><a href="https://scholar.google.com/citations?user=xRjwgz4AAAAJ&amp;hl=ko&amp;oi=ao" target="_blank" rel="noopener noreferrer">Google Scholar ↗</a></div></div></footer>
+<script src="site.js" defer></script>
+<script src="chatbot.js"></script>
 </body>
 </html>
