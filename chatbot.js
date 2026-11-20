@@ -15,7 +15,7 @@
   const avatar = `<svg class="sdl-dot-avatar" viewBox="0 220 1254 900" aria-hidden="true" focusable="false"><image class="sdl-dot-body" href="${resource('assets/momo-knot-teal.png')}" width="1254" height="1254"/><g class="sdl-dot-face"><path fill="#F5EEDB" d="M155 510Q162 485 188 474Q211 462 229 472Q245 480 247 499Q247 516 228 532Q208 546 187 549Q169 549 158 536Q149 524 155 510Z"/><path fill="#F5EEDB" d="M263 479Q269 461 291 452Q311 443 324 455Q336 466 333 483Q331 499 315 508Q295 518 278 511Q262 507 261 491Z"/><g class="sdl-dot-pupil" data-eye-x="202" data-eye-y="510" data-eye-rx="18" data-eye-ry="11" transform="translate(202 510)"><path fill="#252A27" d="M-11-2Q-12-11-4-13Q5-15 10-7Q15 3 9 10Q2 16-7 10Q-13 5-11-2Z"/></g><g class="sdl-dot-pupil" data-eye-x="298" data-eye-y="482" data-eye-rx="13" data-eye-ry="9" transform="translate(298 482)"><path fill="#252A27" d="M-10-1Q-12-10-3-12Q6-14 10-5Q13 4 6 10Q-3 15-10 7Q-13 3-10-1Z"/></g></g></svg>`;
   const style = document.createElement('link');
   style.rel = 'stylesheet';
-  style.href = resource('chatbot.css?v=20261120-mori-voice');
+  style.href = resource('chatbot.css?v=20261120-mori-size');
   document.head.append(style);
 
   const boot = () => {

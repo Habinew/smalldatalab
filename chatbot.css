@@ -7,9 +7,9 @@
 #sdl-dot button:disabled { cursor:wait; opacity:.5; }
 #sdl-dot button:focus-visible,#sdl-dot a:focus-visible,#sdl-dot textarea:focus-visible,#sdl-dot [tabindex]:focus-visible { outline:3px solid var(--dot-blue); outline-offset:4px; }
 #sdl-dot [hidden] { display:none!important; }
-#sdl-dot .sdl-dot-launcher { position:fixed; bottom:max(20px,env(safe-area-inset-bottom)); right:max(22px,env(safe-area-inset-right)); z-index:900; width:178px; padding:0; border:0; background:transparent; color:var(--dot-ink); display:flex; flex-direction:column; align-items:center; gap:0; box-shadow:none; border-radius:22px; transition:transform .22s ease; }
+#sdl-dot .sdl-dot-launcher { position:fixed; bottom:max(20px,env(safe-area-inset-bottom)); right:max(22px,env(safe-area-inset-right)); z-index:900; width:224px; padding:0; border:0; background:transparent; color:var(--dot-ink); display:flex; flex-direction:column; align-items:center; gap:0; box-shadow:none; border-radius:22px; transition:transform .22s ease; }
 #sdl-dot .sdl-dot-launcher:hover { transform:translateY(-4px); }
-#sdl-dot .sdl-dot-avatar { display:block; width:178px; height:auto; aspect-ratio:1254/900; flex:none; user-select:none; overflow:visible; pointer-events:none; }
+#sdl-dot .sdl-dot-avatar { display:block; width:224px; height:auto; aspect-ratio:1254/900; flex:none; user-select:none; overflow:visible; pointer-events:none; }
 #sdl-dot .sdl-dot-avatar:not(.sdl-dot-ready) .sdl-dot-face { visibility:hidden; }
 #sdl-dot .sdl-dot-launcher-label { padding:6px 13px; border-radius:999px; background:var(--dot-blue); color:var(--dot-on-accent); font-size:11px; font-weight:700; line-height:1.5; white-space:nowrap; box-shadow:0 3px 0 #617A32; }
 #sdl-dot .sdl-dot-bubble { position:absolute; right:8px; bottom:calc(100% + 10px); width:215px; padding:13px 16px; background:#253121; color:#E1F6BC; border:1px solid #52633D; border-radius:20px 20px 4px 20px; font-size:13px; font-weight:600; line-height:1.5; box-shadow:0 6px 18px #00000030; visibility:hidden; opacity:0; transform:translateY(6px); transition:opacity .2s,transform .2s,visibility .2s; pointer-events:none; }
@@ -66,8 +66,8 @@
 #sdl-dot.sdl-dot-thinking .sdl-dot-heading .sdl-dot-avatar { animation:sdl-dot-reading 1.4s ease-in-out infinite; transform-origin:50% 70%; }
 @keyframes sdl-dot-reading { 0%,100%{transform:rotate(-3deg)} 50%{transform:rotate(4deg) translateY(-2px)} }
 @media(max-width:600px) {
-  #sdl-dot .sdl-dot-launcher { right:12px; bottom:max(13px,env(safe-area-inset-bottom)); width:124px; }
-  #sdl-dot .sdl-dot-launcher .sdl-dot-avatar { width:124px; height:auto; }
+  #sdl-dot .sdl-dot-launcher { right:12px; bottom:max(13px,env(safe-area-inset-bottom)); width:156px; }
+  #sdl-dot .sdl-dot-launcher .sdl-dot-avatar { width:156px; height:auto; }
   #sdl-dot .sdl-dot-launcher-label { font-size:9px; padding:3px 8px; }
   #sdl-dot .sdl-dot-dialog { inset:auto 8px max(8px,env(safe-area-inset-bottom)) 8px; width:auto; max-width:none; height:min(700px,calc(100dvh - 16px - env(safe-area-inset-bottom))); max-height:calc(100dvh - 16px - env(safe-area-inset-bottom)); border-radius:16px; }
   #sdl-dot .sdl-dot-compose textarea { font-size:16px; }
