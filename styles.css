@@ -86,24 +86,18 @@
 @media(max-width:760px){.brand-mori{width:44px;height:32px}}
 
 /* The daily quiz is hosted by Mori and the sewing-room friends. */
-.quiz-section{--ink:#17200D;--muted:#3B4D25;--line:#88A947;--paper:#E5FAB3;--surface:#E5FAB3;--raised:#F0FCD7;--blue:#17200D;--cool:#3B4D25;background:var(--lime);color:var(--ink);border-color:var(--lime);grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:48px;padding:38px;align-items:center}
-.quiz-intro h2{margin:0 0 12px;font-size:44px;color:var(--ink)}
+.quiz-section{grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:48px;padding:38px;align-items:center}
+.quiz-intro h2{margin:0 0 12px;font-size:44px;color:var(--lime)}
 .quiz-intro>p{max-width:none;margin:0;font-size:14px}
-.quiz-friends{width:min(100%,360px);margin:22px 0 0}
-.quiz-friends img{display:block;width:100%;height:auto}
-.quiz-friends figcaption{display:grid;grid-template-columns:23% 54% 23%;align-items:baseline;gap:0;margin-top:8px;text-align:center;font-size:14px;font-weight:700;line-height:1.4}
+.quiz-friends{display:grid;grid-template-columns:18% 64% 18%;align-items:end;width:min(100%,400px);margin:26px 0 0}
+.quiz-friend{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;min-width:0;margin:0}
+.quiz-friends img{display:block;width:100%;height:auto;object-fit:contain;object-position:center bottom}
+.quiz-friend--neuri img{height:210px}
+.quiz-friend--chu img{max-width:68px;height:80px}
+.quiz-mori{width:100%;height:auto;aspect-ratio:1254/900;overflow:visible}
+.quiz-friends figcaption{margin-top:10px;text-align:center;font-size:14px;font-weight:700;line-height:1.4}
 .quiz-friends figcaption small{display:block;margin-top:4px;font-size:10px;font-weight:500;color:var(--muted)}
 .quiz-card{min-width:0;padding-top:0}
-.quiz-option{background:var(--paper);border-color:#799640;color:var(--ink)}
-.quiz-option:hover:not(:disabled){background:var(--raised);border-color:var(--ink)}
-.quiz-option.correct{background:#173F36;border-color:#173F36;color:#F2F4E9}
-.quiz-option.correct span{color:#F2F4E9}
-.quiz-option.wrong{background:#FFD2C0;border-color:#8C4328;color:#542511}
-.quiz-option.wrong span{color:#542511}
-.quiz-result{border-top:1px solid var(--line);padding-top:18px}
-.quiz-result p,.quiz-source{color:var(--muted)}
-.quiz-result a,.quiz-reset{color:var(--ink)}
-.quiz-section :focus-visible{outline-color:var(--ink)}
 @media(max-width:1100px){.quiz-section{padding:30px;gap:30px}.quiz-intro h2{font-size:38px}}
-@media(max-width:760px){.quiz-section{grid-template-columns:1fr;padding:26px 22px;gap:28px}.quiz-intro h2{font-size:36px}.quiz-friends{width:min(100%,290px);margin:14px auto 0}.quiz-friends figcaption{margin-top:4px;font-size:13px}.quiz-card h3{font-size:18px}}
-@media(max-width:390px){.quiz-section{padding:24px 18px}.quiz-intro h2{font-size:34px}.quiz-friends{width:min(100%,250px)}}
+@media(max-width:760px){.quiz-section{grid-template-columns:1fr;padding:26px 22px;gap:28px}.quiz-intro h2{font-size:36px}.quiz-friends{width:min(100%,320px);margin:20px auto 0}.quiz-friend--neuri img{height:165px}.quiz-friend--chu img{height:64px}.quiz-friends figcaption{margin-top:8px;font-size:13px}.quiz-card h3{font-size:18px}}
+@media(max-width:390px){.quiz-section{padding:24px 18px}.quiz-intro h2{font-size:34px}}
