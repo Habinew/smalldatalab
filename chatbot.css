@@ -37,6 +37,9 @@
 #sdl-dot .sdl-dot-log { flex:1 1 auto; min-height:80px; overflow-y:auto; overscroll-behavior:contain; padding:8px 20px 14px; scrollbar-width:thin; scrollbar-color:#59684E transparent; }
 #sdl-dot .sdl-dot-message { width:fit-content; max-width:93%; margin:0 0 16px; padding:12px 14px; border:1px solid var(--dot-line); border-radius:18px 18px 18px 4px; background:var(--dot-surface); overflow-wrap:anywhere; }
 #sdl-dot .sdl-dot-message-name { display:block; color:var(--dot-muted); font-size:10px; font-weight:600; margin:0 0 5px; }
+#sdl-dot .sdl-dot-message--assistant .sdl-dot-message-name { display:flex; align-items:center; gap:7px; margin:-3px 0 7px; color:#9DCAC0; font-size:11px; }
+#sdl-dot .sdl-dot-reply-avatar { display:block; width:42px; height:30px; flex:none; overflow:visible; }
+#sdl-dot .sdl-dot-message--assistant { border-color:#354238; border-radius:5px 19px 19px 19px; }
 #sdl-dot .sdl-dot-message p { white-space:pre-wrap; margin:0; font-size:13px; font-weight:400; line-height:1.8; letter-spacing:-.01em; color:var(--dot-ink); }
 #sdl-dot .sdl-dot-message--user { margin-left:auto; background:var(--dot-blue); border-color:var(--dot-blue); border-radius:18px 18px 4px 18px; }
 #sdl-dot .sdl-dot-message--user p { color:var(--dot-on-accent); }
@@ -60,6 +63,8 @@
 #sdl-dot .sdl-dot-footer a { color:var(--dot-muted); text-decoration:underline; text-underline-offset:3px; }
 #sdl-dot .sdl-dot-sr { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
 @keyframes sdl-dot-knot-pulse { 0%,100%{transform:scale(1)} 24%{transform:scale(1.055,.94)} 57%{transform:scale(.975,1.035)} 78%{transform:scale(1.015,.985)} }
+#sdl-dot.sdl-dot-thinking .sdl-dot-heading .sdl-dot-avatar { animation:sdl-dot-reading 1.4s ease-in-out infinite; transform-origin:50% 70%; }
+@keyframes sdl-dot-reading { 0%,100%{transform:rotate(-3deg)} 50%{transform:rotate(4deg) translateY(-2px)} }
 @media(max-width:600px) {
   #sdl-dot .sdl-dot-launcher { right:12px; bottom:max(13px,env(safe-area-inset-bottom)); width:124px; }
   #sdl-dot .sdl-dot-launcher .sdl-dot-avatar { width:124px; height:auto; }
