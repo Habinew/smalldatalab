@@ -20,6 +20,7 @@
     vintage: '빈티지 믹스',
   };
   const state = { step: 1, started: false, completed: false };
+  const visuals = window.SDLMDVisual;
   const $ = (selector) => document.querySelector(selector);
   const money = (amount) => amount.toLocaleString('ko-KR') + '원';
   const selectedConcept = () => form.elements.concept.value;
@@ -35,6 +36,8 @@
     const concept = concepts[selectedConcept()];
     $('[data-concept-summary]').textContent = concept.name + ' · ' + concept.hint;
     $('[data-order-summary]').textContent = concept.name + ' / ' + styles[selectedStyle()] + '. ' + concept.hint;
+    visuals?.update({concept:selectedConcept(),style:selectedStyle(),step:state.step,quantities:readOrder()||[0,0,0],result:null});
+    form.querySelectorAll('[data-product-art]').forEach((element,index)=>{element.innerHTML=visuals?.product(index,selectedStyle())||'';});
   }
   function showStep(number) {
     state.step = number;
@@ -57,7 +60,7 @@
     products.forEach((product, index) => {
       const row = document.createElement('div');
       row.className = 'md-product';
-      row.innerHTML = '<div><h3>' + product.name + '</h3><p>' + product.description + '</p></div>' +
+      row.innerHTML = '<div class="md-product-art" data-product-art="'+index+'" aria-hidden="true">'+(visuals?.product(index,selectedStyle())||'')+'</div><div><h3>' + product.name + '</h3><p>' + product.description + '</p></div>' +
         '<div class="md-product-price">원가 <strong>' + money(product.cost) + '</strong> / 개<br>판매가 <strong>' + money(product.price) + '</strong> / 개</div>' +
         '<div class="md-quantity"><button type="button" data-change="-5" aria-label="' + product.name + ' 5개 줄이기">−5</button>' +
         '<label class="sr-only" for="md-qty-' + product.id + '">' + product.name + ' 발주 수량</label>' +
@@ -104,6 +107,7 @@
       row.querySelector('[data-change="-5"]').disabled = quantity <= 0 || state.completed;
       row.querySelector('[data-change="5"]').disabled = quantity >= Math.floor(BUDGET / product.cost) || state.completed;
     });
+    if(!state.completed)visuals?.update({concept:selectedConcept(),style:selectedStyle(),step:state.step,quantities:quantities||[0,0,0],result:null});
     return { quantities, cost, valid: !error };
   }
   // Bounded exact search: 3 products, finite fictional demand, a fixed 1m budget.
@@ -177,7 +181,9 @@
     feedback.forEach((text) => { const li = document.createElement('li'); li.textContent = text; feedbackList.append(li); });
     $('#md-score-formula').textContent = '점수 = 모의 손익 ÷ 이 콘셉트에서 가능한 최대 모의 이익(' + money(result.maximum) + ') × 100, 반올림. 최적 스타일·발주 수량을 기준으로 비교하며, 손실이면 0점입니다.';
     form.hidden = true;
+    $('#md-selling').hidden = true;
     $('#md-result').hidden = false;
+    visuals?.update({concept:selectedConcept(),style:selectedStyle(),step:3,quantities,result});
     focusHeading($('#md-result-title'));
   }
   form.querySelectorAll('[data-next]').forEach((button) => button.addEventListener('click', () => {
@@ -185,7 +191,16 @@
     startRound();
     showStep(Math.min(3, state.step + 1));
   }));
-  form.querySelectorAll('[data-back]').forEach((button) => button.addEventListener('click', () => showStep(Math.max(1, state.step - 1))));
+  form.querySelectorAll('[data-back]').forEach((button) => button.addEventListener('click', () => {if(!state.completed)showStep(Math.max(1, state.step - 1));}));
+  form.addEventListener('change',event=>{
+    if(!state.completed && ['concept','style'].includes(event.target.name)){startRound();updateSummary();}
+  });
+  form.querySelectorAll('[data-preview-scene]').forEach(button=>button.addEventListener('click',()=>{
+    const board=$('#md-board');board.scrollIntoView({block:'start',behavior:'auto'});board.focus({preventScroll:true});
+  }));
+  $('[data-preview-return]').addEventListener('click',()=>{
+    focusHeading(state.completed?$('#md-result-title'):$('#md-step-'+state.step));
+  });
   form.addEventListener('submit', (event) => {
     event.preventDefault();
     if (state.step !== 3 || state.completed) return;
@@ -195,11 +210,18 @@
     const result = simulate(order.quantities, concepts[selectedConcept()], selectedStyle());
     state.completed = true;
     const scoreBand = result.score < 40 ? '0-39' : result.score < 70 ? '40-69' : '70-100';
-    track('game_complete', { game: 'md', score_band: scoreBand });
-    showResult(order.quantities, result);
+    form.hidden=true;
+    const finish=()=>{
+      track('game_complete', { game: 'md', score_band: scoreBand });
+      showResult(order.quantities, result);
+    };
+    if(visuals)visuals.runSale(order.quantities,result,finish);
+    else finish();
   });
   $('#md-restart').addEventListener('click', () => {
     state.started = false; state.completed = false;
+    visuals?.cancel();
+    $('#md-selling').hidden=true;
     products.forEach((product) => { form.elements['qty-' + product.id].value = '0'; });
     $('#md-result').hidden = true; form.hidden = false;
     showStep(1);

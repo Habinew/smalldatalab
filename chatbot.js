@@ -1,4 +1,4 @@
-/* Small Data Lab · Momo. Add <script src="chatbot.js"></script> before </body>. */
+/* Small Data Lab · Mori. Add <script src="chatbot.js"></script> before </body>. */
 (() => {
   'use strict';
   if (window.__smallDataLabDot) return;
@@ -10,30 +10,33 @@
   const track = (name, props = {}) => { try { window.SDLAnalytics?.track(name, props); } catch (_) { /* Analytics cannot interrupt a conversation. */ } };
   const MAX_MESSAGE = 1200;
   const chips = ['주요 연구 분야가 궁금해요', '최근 칼럼 핵심 요약해 줘', '연구실 상담/수업 문의 방법'];
-  const avatar = `<img class="sdl-dot-avatar" src="${resource('assets/momo-knot-teal.png')}" alt="" width="160" height="160" decoding="async" draggable="false">`;
+  // Keep the original thread drawing intact. The aligned vector eye layer covers
+  // both baked pupils, so there are always exactly two visible, movable pupils.
+  const avatar = `<svg class="sdl-dot-avatar" viewBox="0 220 1254 900" aria-hidden="true" focusable="false"><image class="sdl-dot-body" href="${resource('assets/momo-knot-teal.png')}" width="1254" height="1254"/><g class="sdl-dot-face"><path fill="#F5EEDB" d="M155 510Q162 485 188 474Q211 462 229 472Q245 480 247 499Q247 516 228 532Q208 546 187 549Q169 549 158 536Q149 524 155 510Z"/><path fill="#F5EEDB" d="M263 479Q269 461 291 452Q311 443 324 455Q336 466 333 483Q331 499 315 508Q295 518 278 511Q262 507 261 491Z"/><g class="sdl-dot-pupil" data-eye-x="202" data-eye-y="510" data-eye-rx="18" data-eye-ry="11" transform="translate(202 510)"><path fill="#252A27" d="M-11-2Q-12-11-4-13Q5-15 10-7Q15 3 9 10Q2 16-7 10Q-13 5-11-2Z"/></g><g class="sdl-dot-pupil" data-eye-x="298" data-eye-y="482" data-eye-rx="13" data-eye-ry="9" transform="translate(298 482)"><path fill="#252A27" d="M-10-1Q-12-10-3-12Q6-14 10-5Q13 4 6 10Q-3 15-10 7Q-13 3-10-1Z"/></g></g></svg>`;
   const style = document.createElement('link');
   style.rel = 'stylesheet';
-  style.href = resource('chatbot.css');
+  style.href = resource('chatbot.css?v=20261120-mori-play');
   document.head.append(style);
 
   const boot = () => {
     const root = document.createElement('div');
     root.id = 'sdl-dot';
-    root.innerHTML = `<button type="button" class="sdl-dot-launcher" aria-label="모모에게 연구실 질문하기" aria-haspopup="dialog" aria-controls="sdl-dot-dialog"><span class="sdl-dot-bubble">교수님 연구나 수업이 궁금한가요?</span>${avatar}<span class="sdl-dot-launcher-label">모모에게 질문</span></button>
+    root.innerHTML = `<button type="button" class="sdl-dot-launcher" aria-label="모리에게 연구실 질문하기" aria-haspopup="dialog" aria-controls="sdl-dot-dialog"><span class="sdl-dot-bubble">교수님 연구나 수업이 궁금한가요?</span>${avatar}<span class="sdl-dot-launcher-label">모리에게 질문</span></button>
       <dialog id="sdl-dot-dialog" class="sdl-dot-dialog" aria-labelledby="sdl-dot-title" aria-describedby="sdl-dot-description">
-        <header class="sdl-dot-header"><div class="sdl-dot-heading">${avatar}<div><h2 id="sdl-dot-title">모모의 작은 상담실</h2><p class="sdl-dot-mode">연구실 안내를 불러오는 중</p></div></div><button type="button" class="sdl-dot-close" aria-label="채팅창 닫기">×</button></header>
+        <header class="sdl-dot-header"><div class="sdl-dot-heading">${avatar}<div><h2 id="sdl-dot-title">모리의 작은 상담실</h2><p class="sdl-dot-mode">연구실 안내를 불러오는 중</p></div></div><button type="button" class="sdl-dot-close" aria-label="채팅창 닫기">×</button></header>
         <p id="sdl-dot-description" class="sdl-dot-description">연구, 칼럼, 수업. 궁금한 것부터 물어보세요.</p>
         <div class="sdl-dot-chips" aria-label="추천 질문"></div>
         <div class="sdl-dot-notice" hidden></div>
-        <div class="sdl-dot-log" role="log" aria-label="모모와의 대화" aria-live="polite" aria-relevant="additions" tabindex="0"></div>
+        <div class="sdl-dot-log" role="log" aria-label="모리와의 대화" aria-live="polite" aria-relevant="additions" tabindex="0"></div>
         <p class="sdl-dot-status" role="status" aria-live="polite"></p>
-        <form class="sdl-dot-form"><label for="sdl-dot-input" class="sdl-dot-sr">모모에게 질문</label><div class="sdl-dot-compose"><textarea id="sdl-dot-input" rows="2" maxlength="1200" placeholder="궁금한 점을 남겨 주세요" required></textarea><button type="submit" class="sdl-dot-send" aria-label="질문 보내기"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 19V5M6 11L12 5L18 11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div><div class="sdl-dot-input-meta"><span class="sdl-dot-privacy">이름·학번·연락처 등 개인정보는 적지 마세요.</span><span class="sdl-dot-count">0 / 1200</span></div></form>
+        <form class="sdl-dot-form"><label for="sdl-dot-input" class="sdl-dot-sr">모리에게 질문</label><div class="sdl-dot-compose"><textarea id="sdl-dot-input" rows="2" maxlength="1200" placeholder="궁금한 점을 남겨 주세요" required></textarea><button type="submit" class="sdl-dot-send" aria-label="질문 보내기"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 19V5M6 11L12 5L18 11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div><div class="sdl-dot-input-meta"><span class="sdl-dot-privacy">이름·학번·연락처 등 개인정보는 적지 마세요.</span><span class="sdl-dot-count">0 / 1200</span></div></form>
         <footer class="sdl-dot-footer">Small Data Lab <span>·</span> <a href="${resource('privacy.html')}">이용 통계 안내</a></footer>
       </dialog>`;
     document.body.append(root);
     // The labelled launcher remains usable if the optional illustration cannot load.
-    root.querySelectorAll('img.sdl-dot-avatar').forEach(avatarImage => {
-      avatarImage.addEventListener('error', () => { avatarImage.hidden = true; });
+    root.querySelectorAll('.sdl-dot-body').forEach(avatarImage => {
+      avatarImage.addEventListener('load', () => { avatarImage.closest('.sdl-dot-avatar').classList.add('sdl-dot-ready'); });
+      avatarImage.addEventListener('error', () => { avatarImage.closest('.sdl-dot-avatar').setAttribute('hidden', ''); });
     });
     const $ = (selector) => root.querySelector(selector);
     const launcher = $('.sdl-dot-launcher');
@@ -54,6 +57,49 @@
     let previousFocus = null;
     let previousOverflow = '';
 
+    const avatars = [...root.querySelectorAll('.sdl-dot-avatar')];
+    const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
+    const finePointer = matchMedia('(hover: hover) and (pointer: fine)');
+    let eyeFrame = 0;
+    let pointer = null;
+    const centerEye = eye => eye.setAttribute('transform', `translate(${eye.dataset.eyeX} ${eye.dataset.eyeY})`);
+    function resetEyes() {
+      if (eyeFrame) cancelAnimationFrame(eyeFrame);
+      eyeFrame = 0; pointer = null;
+      avatars.forEach(avatarElement => avatarElement.querySelectorAll('.sdl-dot-pupil').forEach(centerEye));
+    }
+    function paintEyes() {
+      eyeFrame = 0;
+      if (!pointer || reduceMotion.matches || !finePointer.matches || document.hidden) { resetEyes(); return; }
+      avatars.forEach(avatarElement => {
+        const inDialog = Boolean(avatarElement.closest('dialog'));
+        if (inDialog !== dialog.open || avatarElement.hasAttribute('hidden')) return;
+        const pupils = avatarElement.querySelectorAll('.sdl-dot-pupil');
+        const rect = avatarElement.getBoundingClientRect();
+        if (!rect.width || rect.bottom <= 0 || rect.top >= innerHeight || rect.right <= 0 || rect.left >= innerWidth) { pupils.forEach(centerEye); return; }
+        pupils.forEach(eye => {
+          const x = Number(eye.dataset.eyeX), y = Number(eye.dataset.eyeY);
+          const dx = pointer.x - (rect.left + x / 1254 * rect.width);
+          const dy = pointer.y - (rect.top + (y - 220) / 900 * rect.height);
+          const distance = Math.hypot(dx, dy);
+          const reach = Math.min(1, distance / 180) / (distance || 1);
+          eye.setAttribute('transform', `translate(${(x + dx * reach * Number(eye.dataset.eyeRx)).toFixed(2)} ${(y + dy * reach * Number(eye.dataset.eyeRy)).toFixed(2)})`);
+        });
+      });
+    }
+    function queueEyes() { if (pointer && !eyeFrame) eyeFrame = requestAnimationFrame(paintEyes); }
+    window.addEventListener('pointermove', event => {
+      if (event.pointerType !== 'mouse' || reduceMotion.matches || !finePointer.matches || event.clientX < 0 || event.clientY < 0 || event.clientX > innerWidth || event.clientY > innerHeight) { resetEyes(); return; }
+      pointer = { x:event.clientX, y:event.clientY }; queueEyes();
+    }, { passive:true });
+    document.addEventListener('pointerout', event => { if (!event.relatedTarget) resetEyes(); });
+    document.addEventListener('visibilitychange', () => { if (document.hidden) resetEyes(); });
+    window.addEventListener('blur', resetEyes);
+    window.addEventListener('resize', resetEyes, { passive:true });
+    window.addEventListener('scroll', queueEyes, { passive:true });
+    reduceMotion.addEventListener('change', resetEyes);
+    finePointer.addEventListener('change', resetEyes);
+
     function safeURL(value) {
       if (typeof value !== 'string' || !value.trim()) return null;
       try {
@@ -68,7 +114,7 @@
       article.className = `sdl-dot-message sdl-dot-message--${role}`;
       const label = document.createElement('span');
       label.className = 'sdl-dot-message-name';
-      label.textContent = role === 'user' ? '나' : '모모';
+      label.textContent = role === 'user' ? '나' : '모리';
       const text = document.createElement('p');
       text.textContent = String(content);
       article.append(label, text);
@@ -212,7 +258,7 @@
       track('chat_question', { mode: answerMode, source: isRetry ? 'retry' : source });
       if (!isRetry) appendMessage('user', message);
       input.value = ''; countInput();
-      status.textContent = endpoint ? '모모가 연구실 자료를 확인하고 있어요…' : '관련 안내를 찾고 있어요…';
+      status.textContent = endpoint ? '모리가 연구실 자료를 확인하고 있어요…' : '관련 안내를 찾고 있어요…';
       try {
         const result = endpoint ? await remoteAnswer(message) : localAnswer(message);
         appendMessage('assistant', result.answer, result.sources);
@@ -241,6 +287,7 @@
       $('.sdl-dot-chips').append(button);
     });
     launcher.addEventListener('click', () => {
+      resetEyes();
       previousFocus = document.activeElement;
       previousOverflow = document.documentElement.style.overflow;
       document.documentElement.style.overflow = 'hidden';
@@ -250,6 +297,7 @@
     });
     $('.sdl-dot-close').addEventListener('click', () => dialog.close());
     dialog.addEventListener('close', () => {
+      resetEyes();
       root.classList.remove('sdl-dot-open');
       document.documentElement.style.overflow = previousOverflow;
       if (previousFocus?.isConnected) previousFocus.focus({ preventScroll: true });
@@ -273,7 +321,7 @@
       if (event.key === 'Enter' && !event.shiftKey && !event.isComposing) { event.preventDefault(); submit(input.value); }
     });
     form.addEventListener('submit', (event) => { event.preventDefault(); submit(input.value); });
-    appendMessage('assistant', '안녕하세요, 스몰데이터랩의 모모예요.\n연구와 칼럼, 수업에 관한 작은 질문을 기다리고 있어요.');
+    appendMessage('assistant', '안녕하세요, 스몰데이터랩의 모리예요.\n연구와 칼럼, 수업에 관한 작은 질문을 기다리고 있어요.');
     controls();
     loadResources();
   };

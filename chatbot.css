@@ -7,9 +7,10 @@
 #sdl-dot button:disabled { cursor:wait; opacity:.5; }
 #sdl-dot button:focus-visible,#sdl-dot a:focus-visible,#sdl-dot textarea:focus-visible,#sdl-dot [tabindex]:focus-visible { outline:3px solid var(--dot-blue); outline-offset:4px; }
 #sdl-dot [hidden] { display:none!important; }
-#sdl-dot .sdl-dot-launcher { position:fixed; bottom:max(20px,env(safe-area-inset-bottom)); right:max(22px,env(safe-area-inset-right)); z-index:900; width:112px; padding:0; border:0; background:transparent; color:var(--dot-ink); display:flex; flex-direction:column; align-items:center; gap:0; box-shadow:none; border-radius:22px; transition:transform .22s ease; }
+#sdl-dot .sdl-dot-launcher { position:fixed; bottom:max(20px,env(safe-area-inset-bottom)); right:max(22px,env(safe-area-inset-right)); z-index:900; width:178px; padding:0; border:0; background:transparent; color:var(--dot-ink); display:flex; flex-direction:column; align-items:center; gap:0; box-shadow:none; border-radius:22px; transition:transform .22s ease; }
 #sdl-dot .sdl-dot-launcher:hover { transform:translateY(-4px); }
-#sdl-dot .sdl-dot-avatar { display:block; width:102px; height:102px; aspect-ratio:1; object-fit:contain; flex:none; user-select:none; }
+#sdl-dot .sdl-dot-avatar { display:block; width:178px; height:auto; aspect-ratio:1254/900; flex:none; user-select:none; overflow:visible; pointer-events:none; }
+#sdl-dot .sdl-dot-avatar:not(.sdl-dot-ready) .sdl-dot-face { visibility:hidden; }
 #sdl-dot .sdl-dot-launcher-label { padding:6px 13px; border-radius:999px; background:var(--dot-blue); color:var(--dot-on-accent); font-size:11px; font-weight:700; line-height:1.5; white-space:nowrap; box-shadow:0 3px 0 #617A32; }
 #sdl-dot .sdl-dot-bubble { position:absolute; right:8px; bottom:calc(100% + 10px); width:215px; padding:13px 16px; background:#253121; color:#E1F6BC; border:1px solid #52633D; border-radius:20px 20px 4px 20px; font-size:13px; font-weight:600; line-height:1.5; box-shadow:0 6px 18px #00000030; visibility:hidden; opacity:0; transform:translateY(6px); transition:opacity .2s,transform .2s,visibility .2s; pointer-events:none; }
 #sdl-dot .sdl-dot-launcher:hover .sdl-dot-bubble,#sdl-dot .sdl-dot-launcher:focus-visible .sdl-dot-bubble { visibility:visible; opacity:1; transform:translateY(0); }
@@ -20,7 +21,7 @@
 #sdl-dot .sdl-dot-dialog::backdrop { background:#080C0966; }
 #sdl-dot .sdl-dot-header { display:flex; align-items:center; justify-content:space-between; gap:8px; padding:14px 19px 12px 15px; border-bottom:1px solid var(--dot-line); background:var(--dot-sky); flex:none; }
 #sdl-dot .sdl-dot-heading { display:flex; align-items:center; gap:10px; min-width:0; }
-#sdl-dot .sdl-dot-heading .sdl-dot-avatar { width:52px; height:52px; }
+#sdl-dot .sdl-dot-heading .sdl-dot-avatar { width:66px; height:auto; }
 #sdl-dot .sdl-dot-heading h2 { font:700 17px/1.45 Pretendard,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; color:var(--dot-ink); margin:0; letter-spacing:-.03em; }
 #sdl-dot .sdl-dot-mode { font-size:10px; line-height:1.5; color:var(--dot-muted); margin:3px 0 0; }
 #sdl-dot .sdl-dot-close { display:grid; place-items:center; width:36px; height:36px; padding:0; border:1px solid transparent; border-radius:50%; background:transparent; font-size:27px; font-weight:300; line-height:1; color:var(--dot-ink); flex:none; }
@@ -60,8 +61,8 @@
 #sdl-dot .sdl-dot-sr { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
 @keyframes sdl-dot-knot-pulse { 0%,100%{transform:scale(1)} 24%{transform:scale(1.055,.94)} 57%{transform:scale(.975,1.035)} 78%{transform:scale(1.015,.985)} }
 @media(max-width:600px) {
-  #sdl-dot .sdl-dot-launcher { right:12px; bottom:max(13px,env(safe-area-inset-bottom)); width:88px; }
-  #sdl-dot .sdl-dot-launcher .sdl-dot-avatar { width:80px; height:80px; }
+  #sdl-dot .sdl-dot-launcher { right:12px; bottom:max(13px,env(safe-area-inset-bottom)); width:124px; }
+  #sdl-dot .sdl-dot-launcher .sdl-dot-avatar { width:124px; height:auto; }
   #sdl-dot .sdl-dot-launcher-label { font-size:9px; padding:3px 8px; }
   #sdl-dot .sdl-dot-dialog { inset:auto 8px max(8px,env(safe-area-inset-bottom)) 8px; width:auto; max-width:none; height:min(700px,calc(100dvh - 16px - env(safe-area-inset-bottom))); max-height:calc(100dvh - 16px - env(safe-area-inset-bottom)); border-radius:16px; }
   #sdl-dot .sdl-dot-compose textarea { font-size:16px; }
@@ -76,8 +77,9 @@
   #sdl-dot .sdl-dot-description,#sdl-dot .sdl-dot-footer { display:none; }
   #sdl-dot .sdl-dot-header { padding-block:7px; }
   #sdl-dot .sdl-dot-chips { padding-block:7px; }
-  #sdl-dot .sdl-dot-heading .sdl-dot-avatar { width:36px; height:36px; }
+  #sdl-dot .sdl-dot-heading .sdl-dot-avatar { width:44px; height:auto; }
 }
 @media(prefers-reduced-motion:reduce) {
   #sdl-dot *,#sdl-dot *::before,#sdl-dot *::after { animation:none!important; transition:none!important; scroll-behavior:auto!important; }
+  #sdl-dot .sdl-dot-launcher:hover { transform:none; }
 }
