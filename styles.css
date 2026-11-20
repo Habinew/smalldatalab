@@ -17,6 +17,7 @@
 .hero-editorial{display:block;min-height:0;padding:64px 0 44px}
 .hero-kicker{margin:0;font-size:12px;font-weight:500;line-height:1.7;color:var(--muted)}
 .hero-editorial h1{display:table;width:fit-content;max-width:100%;margin:27px 0 40px;padding:.04em .1em .1em;background:var(--lime);font:750 clamp(72px,9.1vw,136px)/1.04 var(--sans);letter-spacing:-.065em;color:var(--on-accent);white-space:nowrap}
+.hero-editorial .hero-lab{font-style:italic}
 .hero-summary{display:grid;grid-template-columns:1.15fr 1fr;gap:80px;align-items:start}
 .hero-subtitle{margin:0 0 10px;font-size:23px;font-weight:600;letter-spacing:-.04em;line-height:1.5}
 .hero-editorial .intro{max-width:520px;margin:0;color:var(--muted);font-size:15px;line-height:1.9}
@@ -96,7 +97,6 @@
 .quiz-friend--chu img{max-width:68px;height:80px}
 .quiz-mori{width:100%;height:auto;aspect-ratio:1254/900;overflow:visible}
 .quiz-friends figcaption{margin-top:10px;text-align:center;font-size:14px;font-weight:700;line-height:1.4}
-.quiz-friends figcaption small{display:block;margin-top:4px;font-size:10px;font-weight:500;color:var(--muted)}
 .quiz-card{min-width:0;padding-top:0}
 @media(max-width:1100px){.quiz-section{padding:30px;gap:30px}.quiz-intro h2{font-size:38px}}
 @media(max-width:760px){.quiz-section{grid-template-columns:1fr;padding:26px 22px;gap:28px}.quiz-intro h2{font-size:36px}.quiz-friends{width:min(100%,320px);margin:20px auto 0}.quiz-friend--neuri img{height:165px}.quiz-friend--chu img{height:64px}.quiz-friends figcaption{margin-top:8px;font-size:13px}.quiz-card h3{font-size:18px}}
