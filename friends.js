@@ -11,7 +11,11 @@
     if (!footer || document.getElementById('sdl-friends-dialog')) return;
     const stylesheet = document.createElement('link');
     stylesheet.rel = 'stylesheet';
-    stylesheet.href = asset('friends.css?v=20261121-friends');
+    stylesheet.href = asset('friends.css?v=20261121-friends2');
+    const stylesheetReady = new Promise(resolve => {
+      stylesheet.addEventListener('load', () => resolve(true), { once: true });
+      stylesheet.addEventListener('error', () => resolve(false), { once: true });
+    });
     document.head.append(stylesheet);
 
     const profiles = {
@@ -19,13 +23,17 @@
       neuri: { name: '느리', copy: '말수는 적지만, 남들이 지나친 걸 오래 봐요. 급한 모리 옆에서 한 번 더 살펴보는 친구예요.' },
       chu: { name: '츄', copy: '몸은 작아도 눈썰미는 좋아요. 동그란 안경 너머로 작은 차이를 콕 집어내요.' },
     };
-    const moriArt = `<svg viewBox="0 220 1254 900" width="1254" height="900" aria-hidden="true" focusable="false"><image href="${asset('assets/momo-knot-teal.png')}" width="1254" height="1254"/></svg>`;
+    // A regular image paints reliably when a dialog opens from an initial URL
+    // fragment. Its frame preserves the original SVG's 0 220 1254 900 view.
+    const moriArt = `<span class="sdl-friends-mori-frame" aria-hidden="true"><img src="${asset('assets/momo-knot-teal.png')}" width="1254" height="1254" alt="" decoding="async"></span>`;
     const corner = document.createElement('div');
     corner.className = 'sdl-friends-hideout';
     corner.id = 'friends';
-    corner.innerHTML = `<button class="sdl-friends-peek" type="button" aria-label="모리와 친구들 만나기" aria-haspopup="dialog" aria-controls="sdl-friends-dialog">${moriArt.replace('width="1254" height="900"', 'width="38" height="28"')}<span class="sdl-friends-whisper" aria-hidden="true">쉿, 우리 여기 있어요.</span></button>`;
+    corner.hidden = true;
+    corner.innerHTML = `<button class="sdl-friends-peek" type="button" aria-label="모리와 친구들 만나기" aria-haspopup="dialog" aria-controls="sdl-friends-dialog">${moriArt.replace('width="1254" height="1254"', 'width="38" height="38"')}<span class="sdl-friends-whisper" aria-hidden="true">쉿, 우리 여기 있어요.</span></button>`;
     const footerStart = footer.querySelector('.footer-grid > div') || footer;
     footerStart.append(corner);
+    stylesheetReady.then(styled => { corner.hidden = !styled; });
 
     const dialog = document.createElement('dialog');
     dialog.id = 'sdl-friends-dialog';
@@ -49,6 +57,7 @@
     const tabs = [...dialog.querySelectorAll('[role="tab"]')];
     const panel = dialog.querySelector('.sdl-friends-profile');
     const copy = dialog.querySelector('.sdl-friends-copy');
+    const artworkReady = Promise.all([...dialog.querySelectorAll('img')].map(image => image.decode().catch(() => {})));
     let returnFocus = trigger;
     let previousOverflow = '';
 
@@ -65,8 +74,9 @@
       copy.textContent = profile.copy;
       if (focus) tab.focus({ preventScroll: true });
     }
-    function open() {
-      if (dialog.open) return;
+    async function open() {
+      const [styled] = await Promise.all([stylesheetReady, artworkReady]);
+      if (!styled || dialog.open) return;
       returnFocus = document.activeElement instanceof HTMLElement && document.activeElement !== document.body ? document.activeElement : trigger;
       previousOverflow = document.body.style.overflow;
       select(tabs.find(tab => tab.dataset.friend === 'mori'));
