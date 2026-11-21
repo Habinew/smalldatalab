@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-20",
+  "updated_at": "2026-11-21",
   "canonical_url": "https://habinew.github.io/smalldatalab/",
   "lab": {
     "name": "스몰데이터랩 (Small Data Lab)",
     "institution": "국립순천대학교",
     "department": "패션디자인학전공",
     "director": "김하빈",
-    "description": "패션과 소비 현장의 질문을 연구자가 직접 수집한 데이터로 검증하는 패션마케팅 연구실입니다. 연구 결과를 논문, 시사저널 칼럼, 인터랙티브 대시보드, 공개 집계 데이터로 나눕니다.",
+    "description": "트렌드와 사회 현상 뒤에 놓인 사람들의 욕망과 시장의 움직임을 살핍니다. 서로 무관해 보이는 작은 현상들을 데이터로 연결해 취향이 유행이 되고 상품의 가치가 달라지는 과정을 탐구합니다. 연구 결과를 논문, 시사저널 칼럼, 인터랙티브 대시보드, 공개 집계 데이터로 나눕니다.",
     "research_keywords": [
       "패션 마케팅",
       "멀티모달 가치 추론",
