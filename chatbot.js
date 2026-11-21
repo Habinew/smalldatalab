@@ -141,6 +141,11 @@
           a.textContent = source.title.slice(0, 160);
           a.href = url.href;
           if (url.origin !== location.origin && url.protocol !== 'mailto:') { a.target = '_blank'; a.rel = 'noopener noreferrer'; }
+          if (url.href === resource('index.html#friends')) {
+            a.addEventListener('click', event => {
+              if (event.button === 0 && !event.ctrlKey && !event.metaKey && !event.shiftKey && !event.altKey && dialog.open) dialog.close();
+            });
+          }
           links.append(a);
         });
         if (links.childElementCount) article.append(links);
@@ -207,8 +212,35 @@
       else if (!knowledge) showNotice('연구실 자료를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.', true);
       ready = true; controls();
     }
+    function characterIntent(message) {
+      const text = message.toLowerCase();
+      const neuri = /느리(?=$|[\s,.!?]|는|가|의|를|랑|와|도|야|에게|한테|에\s*대해)|\bneuri\b/.test(text);
+      const chu = /츄(?=$|[\s,.!?]|는|가|의|를|랑|와|도|야|에게|한테|에\s*대해)|\bchu\b/.test(text);
+      if (neuri && chu) return 'friends';
+      if (neuri) return 'neuri';
+      if (chu) return 'chu';
+      if (/(?:너|네|니|모리)(?:의|는|와)?\s*친구|친구(?:들)?(?:은|는|가)?\s*(?:누구|소개|있|어떤|궁금|알려)|캐릭터(?:들)?\s*(?:소개|누구)|\byour friends?\b/.test(text)) return 'friends';
+      if (/모리(?:는|가|의|를|도)?\s*(?:누구|소개|정체|이름|어떤|뭐|무엇|성격)|(?:너는?|넌|당신은?)\s*(?:누구|이름|정체|어떤|뭐)|자기소개|^모리(?:야)?[!?\s]*$|\bwho are you\b/.test(text)) return 'mori';
+      return '';
+    }
+    function characterAnswer(intent) {
+      const profiles = Array.isArray(knowledge?.characters) ? knowledge.characters.filter(item =>
+        item && ['mori', 'neuri', 'chu'].includes(item.id) && typeof item.name === 'string' && typeof item.description === 'string' && item.description.trim()) : [];
+      const sources = [{ title: '모리와 친구들', url: knowledge?.characters_url || 'index.html#friends' }];
+      if (intent === 'friends') {
+        const friends = profiles.filter(item => item.id !== 'mori');
+        if (!friends.length) return { answer: '친구들 소개를 아직 불러오지 못했어요. 아래에서 우리를 만나볼 수 있어요.', sources };
+        const names = friends.map(item => item.name).join('랑 ');
+        return { answer: `${names}가 제 친구예요!\n\n${friends.map(item => `${item.name}\n${item.description}`).join('\n\n')}\n\n우리가 숨어 있는 곳도 알려줄게요.`, sources };
+      }
+      const profile = profiles.find(item => item.id === intent);
+      if (!profile) return { answer: intent === 'mori' ? '스몰데이터랩의 모리예요. 연구, 칼럼, 수업 이야기를 안내하고 있어요. 아래에서 저를 만나볼 수 있어요.' : '그 친구의 소개를 아직 불러오지 못했어요. 아래에 친구들을 만날 수 있는 곳을 연결해 둘게요.', sources };
+      return { answer: `${intent === 'mori' ? '저는 모리예요.' : `${profile.name}는 제 친구예요.`}\n\n${profile.description}`, sources };
+    }
     function localAnswer(message) {
       const lower = message.toLowerCase();
+      const character = characterIntent(message);
+      if (character) { lastLocalTopic = ''; return characterAnswer(character); }
       let topic = /칼럼|매거진|시사저널|앨범|포토카드|최애/.test(lower) ? 'columns' : /상담|문의|연락|수업|강의|메일/.test(lower) ? 'contact' : /연구|분야|키워드|논문|멀티모달|인공지능|\bai\b/.test(lower) ? 'research' : '';
       let simpler = /쉽게|간단히|짧게|풀어서|예시|무슨 뜻|뭔 뜻/.test(lower);
       // Only an explicit follow-up uses the previous topic; unrelated questions
@@ -346,7 +378,7 @@
       if (event.key === 'Enter' && !event.shiftKey && !event.isComposing) { event.preventDefault(); submit(input.value); }
     });
     form.addEventListener('submit', (event) => { event.preventDefault(); submit(input.value); });
-    appendMessage('assistant', '안녕! 스몰데이터랩의 실뭉치, 모리예요.\n\n궁금한 게 생기면 톡 던져 주세요. 같이 풀어봐요!');
+    appendMessage('assistant', '안녕! 스몰데이터랩의 모리예요.\n\n궁금한 게 생기면 톡 던져 주세요. 같이 풀어봐요!');
     controls();
     loadResources();
   };

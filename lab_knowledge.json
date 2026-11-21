@@ -20,6 +20,30 @@
     },
     "source_url": "https://habinew.github.io/smalldatalab/lab.html"
   },
+  "characters": [
+    {
+      "id": "mori",
+      "name": "모리",
+      "role": "연구실 안내 캐릭터",
+      "appearance": "자유롭게 얽힌 청록색 모습과 두 눈",
+      "description": "궁금한 건 일단 모아보는 편. 작은 단서를 잇다 보면 어느새 이야기가 길어져요."
+    },
+    {
+      "id": "neuri",
+      "name": "느리",
+      "role": "모리의 친구",
+      "appearance": "성긴 보라색 선으로 그린 길쭉한 모습",
+      "description": "말수는 적지만, 남들이 지나친 걸 오래 봐요. 급한 모리 옆에서 한 번 더 살펴보는 친구예요."
+    },
+    {
+      "id": "chu",
+      "name": "츄",
+      "role": "모리의 친구",
+      "appearance": "동그란 안경을 쓴 작은 귤색 모습",
+      "description": "몸은 작아도 눈썰미는 좋아요. 동그란 안경 너머로 작은 차이를 콕 집어내요."
+    }
+  ],
+  "characters_url": "index.html#friends",
   "research": [
     {
       "title": "글로벌 거시환경과 소비자 행동",
