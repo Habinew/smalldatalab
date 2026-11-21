@@ -15,7 +15,7 @@
   const avatar = `<svg class="sdl-dot-avatar" viewBox="0 220 1254 900" aria-hidden="true" focusable="false"><image class="sdl-dot-body" href="${resource('assets/momo-knot-teal.png')}" width="1254" height="1254"/><g class="sdl-dot-face"><path fill="#F5EEDB" d="M155 510Q162 485 188 474Q211 462 229 472Q245 480 247 499Q247 516 228 532Q208 546 187 549Q169 549 158 536Q149 524 155 510Z"/><path fill="#F5EEDB" d="M263 479Q269 461 291 452Q311 443 324 455Q336 466 333 483Q331 499 315 508Q295 518 278 511Q262 507 261 491Z"/><g class="sdl-dot-pupil" data-eye-x="202" data-eye-y="510" data-eye-rx="18" data-eye-ry="11" transform="translate(202 510)"><path fill="#252A27" d="M-11-2Q-12-11-4-13Q5-15 10-7Q15 3 9 10Q2 16-7 10Q-13 5-11-2Z"/></g><g class="sdl-dot-pupil" data-eye-x="298" data-eye-y="482" data-eye-rx="13" data-eye-ry="9" transform="translate(298 482)"><path fill="#252A27" d="M-10-1Q-12-10-3-12Q6-14 10-5Q13 4 6 10Q-3 15-10 7Q-13 3-10-1Z"/></g></g></svg>`;
   const style = document.createElement('link');
   style.rel = 'stylesheet';
-  style.href = resource('chatbot.css?v=20261120-mori-size');
+  style.href = resource('chatbot.css?v=20261121-openai');
   document.head.append(style);
 
   const boot = () => {
@@ -202,7 +202,7 @@
         endpoint = configureEndpoint(config.value.endpoint);
       } catch (_) { configurationError = true; }
       mode.textContent = endpoint ? 'AI 모리 · 연구실 자료로 답해요' : '저장된 자료로 이야기해요';
-      $('.sdl-dot-privacy').textContent = endpoint ? '질문과 최근 대화가 Google AI로 전송돼요. 개인정보는 적지 마세요.' : '이 안내 모드에서는 질문을 외부 AI로 보내지 않아요.';
+      $('.sdl-dot-privacy').textContent = endpoint ? '질문과 최근 대화가 OpenAI로 전송돼요. 개인정보는 적지 마세요.' : '이 안내 모드에서는 질문을 외부 AI로 보내지 않아요.';
       if (configurationError) showNotice('AI 연결 설정을 확인할 수 없어 연구실 안내 모드로 열었어요.', true);
       else if (!knowledge) showNotice('연구실 자료를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.', true);
       ready = true; controls();
